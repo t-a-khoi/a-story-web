@@ -11,13 +11,11 @@ export const authService = {
      * Content-Type: application/x-www-form-urlencoded
      */
     exchangeToken: async (code: string, codeVerifier: string): Promise<TokenResponse> => {
-        // Với application/x-www-form-urlencoded, ta dùng URLSearchParams
         const params = new URLSearchParams();
         params.append('grant_type', 'authorization_code');
         params.append('client_id', 'spa-client');
         params.append('code', code);
-        // Lưu ý: redirect_uri phải khớp TUYỆT ĐỐI với config trên Spring Authorization Server
-        params.append('redirect_uri', 'astory://callback');
+        params.append('redirect_uri', 'http://localhost:3000/callback');
         params.append('code_verifier', codeVerifier);
 
         const response = await axios.post<TokenResponse>(AUTH_TOKEN_URL, params, {
@@ -33,7 +31,6 @@ export const authService = {
      * API: GET /api/v1/users/me
      */
     getCurrentUser: async (): Promise<User> => {
-        // Sử dụng apiClient (đã tự động đính kèm Bearer Token từ Zustand)
         const response = await apiClient.get<User>('/users/me');
         return response.data;
     },
@@ -47,13 +44,10 @@ export const authService = {
         return response.data;
     },
 
-    /**
-     * Tiện ích: Tạo URL để redirect user sang trang Login của Auth Server
-     */
     getLoginUrl: (codeChallenge: string) => {
         const authServerUrl = 'http://localhost:9084/oauth2/authorize';
         const clientId = 'spa-client';
-        const redirectUri = encodeURIComponent('astory://callback');
+        const redirectUri = encodeURIComponent('http://localhost:3000/callback');
         const scope = encodeURIComponent('openid profile');
 
         return `${authServerUrl}?response_type=code&client_id=${clientId}&redirect_uri=${redirectUri}&scope=${scope}&code_challenge=${codeChallenge}&code_challenge_method=S256`;

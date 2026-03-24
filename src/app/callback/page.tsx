@@ -1,101 +1,111 @@
-'use client';
+"use client";
 
-import { useEffect, useState, useRef } from 'react';
-import { useRouter, useSearchParams } from 'next/navigation';
-import { authService } from '@/services/auth.service';
-import { useAuthStore } from '@/store/useAuthStore';
+import { useEffect, useRef, useState } from "react";
+import { useRouter, useSearchParams } from "next/navigation";
+import { authService } from "@/services/auth.service";
+import { useAuthStore } from "@/store/useAuthStore";
+import { Loader2 } from "lucide-react";
 
 export default function CallbackPage() {
     const router = useRouter();
     const searchParams = useSearchParams();
 
-    // Trạng thái để thông báo cho người lớn tuổi biết hệ thống đang làm gì
-    const [status, setStatus] = useState('Đang kiểm tra thông tin đăng nhập...');
-    const [error, setError] = useState('');
+    const isProcessing = useRef(false);
 
-    // Dùng useRef để chặn React 18 Strict Mode gọi API 2 lần trong môi trường Dev
-    const hasFetched = useRef(false);
+    const [statusMessage, setStatusMessage] = useState("Đang kết nối tài khoản của bạn...");
+    const [hasError, setHasError] = useState(false);
+
+    const setToken = useAuthStore((state) => state.setToken);
+    const setAuth = useAuthStore((state) => state.setAuth);
 
     useEffect(() => {
-        if (hasFetched.current) return;
-        hasFetched.current = true;
+        if (isProcessing.current) return;
 
-        const code = searchParams.get('code');
-        const authError = searchParams.get('error');
+        const processAuthCallback = async () => {
+            isProcessing.current = true;
 
-        if (authError) {
-            setError('Đăng nhập bị từ chối hoặc có lỗi từ hệ thống.');
-            return;
-        }
+            // Bước 1: Lấy code từ URL
+            const code = searchParams.get("code");
 
-        if (!code) {
-            setError('Không tìm thấy mã xác thực. Vui lòng quay lại trang đăng nhập.');
-            return;
-        }
+            if (!code) {
+                setHasError(true);
+                setStatusMessage("Đăng nhập thất bại: Không tìm thấy mã xác thực.");
+                setTimeout(() => router.push("/"), 3000);
+                return;
+            }
 
-        const processLogin = async () => {
+            // Bước 2: Lấy code_verifier từ Session Storage
+            const codeVerifier = sessionStorage.getItem("pkce_code_verifier");
+
+            if (!codeVerifier) {
+                setHasError(true);
+                setStatusMessage("Lỗi bảo mật: Không tìm thấy khóa xác thực. Đang quay lại...");
+                setTimeout(() => router.push("/"), 3000);
+                return;
+            }
+
             try {
-                // Trong luồng PKCE, verifier thường được lưu vào sessionStorage trước khi redirect sang trang Login
-                // Tôi để tạm 'mock-verifier' nếu bạn đang test Postman, nhưng thực tế phải lấy từ sessionStorage
-                const codeVerifier = sessionStorage.getItem('pkce_code_verifier') || 'mock-verifier-123';
+                setStatusMessage("Đang thiết lập không gian của bạn...");
 
-                setStatus('Đang thiết lập kết nối an toàn...');
+                // Bước 3: Đổi mã code lấy Token từ Backend
                 const tokenResponse = await authService.exchangeToken(code, codeVerifier);
 
-                // 1. Lưu Token vào Zustand (sẽ tự động lưu xuống LocalStorage)
-                useAuthStore.getState().setToken(tokenResponse.access_token);
+                // Tạm thời lưu token vào Zustand để axios interceptor có thể dùng ngay
+                setToken(tokenResponse.access_token);
 
-                setStatus('Đang tải thông tin cá nhân của bạn...');
-                // 2. Lấy thông tin User hiện tại
-                const user = await authService.getCurrentUser();
-                useAuthStore.getState().setUser(user);
+                // Bước 4 & 5: Lấy thông tin User Profile hiện tại
+                const userData = await authService.getCurrentUser();
 
-                // Dọn dẹp verifier cũ cho an toàn
-                sessionStorage.removeItem('pkce_code_verifier');
+                // Cập nhật lại Zustand với đầy đủ Token và User
+                setAuth(tokenResponse.access_token, userData);
 
-                setStatus('Thành công! Đang đưa bạn vào trang chính...');
+                // Dọn dẹp session storage cho sạch sẽ
+                sessionStorage.removeItem("pkce_code_verifier");
 
-                // 3. Chuyển hướng người dùng. 
-                // Sau này chúng ta có thể thêm logic: Nếu user chưa có Profile thì đẩy sang '/onboarding'
+                setStatusMessage("Hoàn tất! Đang vào trang chủ...");
+
+                // Bước 6: Đăng nhập thành công, chuyển thẳng vào trang Timeline / Home
                 setTimeout(() => {
-                    router.push('/');
-                }, 1000); // Thêm delay 1s để người dùng kịp đọc dòng "Thành công"
+                    router.push("/home");
+                }, 500);
 
-            } catch (err) {
-                console.error('Lỗi khi xử lý callback:', err);
-                setError('Đã có sự cố xảy ra trong lúc đăng nhập. Vui lòng thử lại sau.');
+            } catch (error) {
+                console.error("Lỗi trong quá trình đăng nhập:", error);
+                setHasError(true);
+                setStatusMessage("Có lỗi xảy ra khi đăng nhập. Vui lòng thử lại sau.");
+
+                // Dọn dẹp và đẩy về trang ngoài
+                sessionStorage.removeItem("pkce_code_verifier");
+                setTimeout(() => router.push("/"), 3000);
             }
         };
 
-        processLogin();
-    }, [searchParams, router]);
+        processAuthCallback();
+    }, [searchParams, router, setToken, setAuth]);
 
-    // Giao diện thiết kế thân thiện cho người lớn tuổi (Chữ to, rõ ràng, độ tương phản cao)
     return (
-        <div className="min-h-screen flex flex-col items-center justify-center bg-slate-50 p-6">
-            <div className="w-full max-w-md bg-white rounded-2xl shadow-sm p-8 text-center border border-slate-100">
-                {error ? (
-                    <div className="space-y-6">
-                        <div className="w-16 h-16 bg-red-100 text-red-600 rounded-full flex items-center justify-center mx-auto text-2xl">
-                            !
-                        </div>
-                        <h1 className="text-xl font-semibold text-slate-900">Đăng nhập không thành công</h1>
-                        <p className="text-lg text-slate-600">{error}</p>
-                        <button
-                            onClick={() => router.push('/login')}
-                            className="mt-4 w-full min-h-[48px] bg-slate-900 text-white text-lg font-medium rounded-xl hover:bg-slate-800 transition-colors px-6 py-3"
-                        >
-                            Quay lại trang Đăng nhập
-                        </button>
-                    </div>
+        // Giao diện chờ: Trắng toàn màn hình, tập trung vào giữa
+        <div className="min-h-screen bg-white flex flex-col items-center justify-center p-6 text-center">
+            <div className="max-w-md flex flex-col items-center gap-6">
+
+                {/* Icon Loading xoay tròn hoặc Icon Lỗi */}
+                {!hasError ? (
+                    <Loader2 className="w-16 h-16 text-blue-700 animate-spin" strokeWidth={2.5} />
                 ) : (
-                    <div className="space-y-6">
-                        {/* Vòng tròn Loading đơn giản, nhẹ nhàng */}
-                        <div className="w-12 h-12 border-4 border-slate-200 border-t-slate-900 rounded-full animate-spin mx-auto"></div>
-                        <h1 className="text-xl font-semibold text-slate-900">Vui lòng đợi một chút</h1>
-                        <p className="text-lg text-slate-600">{status}</p>
+                    <div className="w-16 h-16 rounded-full bg-red-100 flex items-center justify-center text-red-600 font-bold text-2xl">
+                        !
                     </div>
                 )}
+
+                {/* Thông báo trạng thái: Chữ rất to, màu tương phản */}
+                <h1 className={`text-2xl md:text-3xl font-bold ${hasError ? "text-red-700" : "text-gray-900"}`}>
+                    {statusMessage}
+                </h1>
+
+                <p className="text-lg text-gray-600 font-medium">
+                    {!hasError && "Vui lòng đợi một lát, đừng đóng trình duyệt nhé."}
+                </p>
+
             </div>
         </div>
     );

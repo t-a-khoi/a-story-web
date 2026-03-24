@@ -1,65 +1,68 @@
-import Image from "next/image";
+"use client";
 
-export default function Home() {
+import { useState } from "react";
+import { generateCodeVerifier, generateCodeChallenge } from "@/lib/pkce";
+import { authService } from "@/services/auth.service";
+
+export default function WelcomePage() {
+  const [isRedirecting, setIsRedirecting] = useState(false);
+
+  const handleStartJourney = async () => {
+    try {
+      setIsRedirecting(true);
+
+      // 1. Khởi tạo mã bảo mật PKCE
+      const verifier = generateCodeVerifier();
+      const challenge = await generateCodeChallenge(verifier);
+
+      // 2. Lưu verifier vào Session Storage để đối chiếu khi Callback trả về
+      sessionStorage.setItem("pkce_code_verifier", verifier);
+
+      // 3. Lấy URL trang đăng nhập (Auth Server)
+      const loginUrl = authService.getLoginUrl(challenge);
+
+      // 4. Chuyển hướng người dùng đi đăng nhập/đăng ký
+      window.location.href = loginUrl;
+    } catch (error) {
+      console.error("Lỗi khi kết nối đến hệ thống đăng nhập:", error);
+      setIsRedirecting(false);
+      // Bạn có thể thêm 1 hàm show toast thông báo lỗi ở đây nếu cần
+    }
+  };
+
   return (
-    <div className="flex flex-col flex-1 items-center justify-center bg-zinc-50 font-sans dark:bg-black">
-      <main className="flex flex-1 w-full max-w-3xl flex-col items-center justify-between py-32 px-16 bg-white dark:bg-black sm:items-start">
-        <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={100}
-          height={20}
-          priority
-        />
-        <div className="flex flex-col items-center gap-6 text-center sm:items-start sm:text-left">
-          <h1 className="max-w-xs text-3xl font-semibold leading-10 tracking-tight text-black dark:text-zinc-50">
-            To get started, edit the page.tsx file.
-          </h1>
-          <p className="max-w-md text-lg leading-8 text-zinc-600 dark:text-zinc-400">
-            Looking for a starting point or more instructions? Head over to{" "}
-            <a
-              href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Templates
-            </a>{" "}
-            or the{" "}
-            <a
-              href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Learning
-            </a>{" "}
-            center.
+    <main className="min-h-screen flex flex-col items-center justify-center p-6 md:p-12">
+      {/* Thẻ nội dung chính với viền nhẹ, bo góc lớn, đệm rộng rãi */}
+      <div className="max-w-2xl w-full bg-white p-8 md:p-14 rounded-2xl shadow-sm border border-gray-200 text-center space-y-10">
+        
+        {/* Tiêu đề: Rất lớn, rõ ràng */}
+        <h1 className="text-3xl md:text-4xl lg:text-5xl font-bold text-gray-900 leading-tight">
+          Chào mừng đến với <br className="md:hidden" /> 
+          <span className="text-blue-800">A Story</span>
+        </h1>
+
+        {/* Căn dặn / Mô tả: Font lớn, màu tối, khoảng cách dòng (leading) thoáng */}
+        <p className="text-lg md:text-xl text-gray-800 leading-relaxed">
+          Một không gian yên tĩnh và riêng tư để bạn viết lại câu chuyện cuộc đời, 
+          lưu giữ những kỷ niệm quý giá và chia sẻ cho những người thân yêu nhất.
+        </p>
+
+        {/* Khu vực thao tác (Call to action): Khoảng cách (gap) lớn */}
+        <div className="pt-4 flex flex-col items-center gap-6">
+          <button
+            onClick={handleStartJourney}
+            disabled={isRedirecting}
+            className="min-h-[64px] w-full sm:w-auto px-10 py-4 bg-blue-700 text-white rounded-xl text-xl font-bold shadow-md hover:bg-blue-800 active:bg-blue-900 transition-all disabled:opacity-75 focus:outline-none focus:ring-4 focus:ring-blue-300"
+          >
+            {isRedirecting ? "Đang kết nối..." : "Bắt đầu lưu giữ kỷ niệm"}
+          </button>
+
+          {/* Dòng text củng cố niềm tin (Trust indicator) */}
+          <p className="text-base md:text-lg text-gray-700 font-medium">
+            Không có quảng cáo. Không đếm lượt thích. <br className="sm:hidden" /> Chỉ là câu chuyện của bạn.
           </p>
         </div>
-        <div className="flex flex-col gap-4 text-base font-medium sm:flex-row">
-          <a
-            className="flex h-12 w-full items-center justify-center gap-2 rounded-full bg-foreground px-5 text-background transition-colors hover:bg-[#383838] dark:hover:bg-[#ccc] md:w-[158px]"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={16}
-              height={16}
-            />
-            Deploy Now
-          </a>
-          <a
-            className="flex h-12 w-full items-center justify-center rounded-full border border-solid border-black/[.08] px-5 transition-colors hover:border-transparent hover:bg-black/[.04] dark:border-white/[.145] dark:hover:bg-[#1a1a1a] md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Documentation
-          </a>
-        </div>
-      </main>
-    </div>
+      </div>
+    </main>
   );
 }
