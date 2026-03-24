@@ -73,7 +73,7 @@ export default function LandingPage() {
 
           {/* Logo và Menu điều hướng */}
           <div className="flex items-center gap-12">
-            <div className="text-2xl md:text-3xl font-bold font-serif text-emerald-900 tracking-tight cursor-pointer">
+            <div className="text-2xl md:text-3xl font-bold font-sans text-emerald-900 tracking-tight cursor-pointer">
               A Story.
             </div>
 
@@ -86,14 +86,8 @@ export default function LandingPage() {
             </nav>
           </div>
 
-          {/* Các nút hành động (Đăng nhập / Bắt đầu) */}
+          {/* Nút hành động (Chỉ còn Bắt đầu ngay) */}
           <div className="flex items-center gap-4">
-            <button
-              onClick={handleStartJourney}
-              className="hidden md:block font-medium text-stone-600 hover:text-emerald-800 transition-colors px-2"
-            >
-              Đăng nhập
-            </button>
             <button
               onClick={handleStartJourney}
               className="min-h-[44px] px-6 bg-emerald-800 text-white rounded-full text-md font-medium hover:bg-emerald-900 shadow-sm transition-all hover:shadow-md"
@@ -120,7 +114,7 @@ export default function LandingPage() {
               animate="visible"
               className="space-y-8 z-10"
             >
-              <motion.h1 variants={fadeInUp} className="text-4xl md:text-5xl lg:text-6xl font-bold font-serif text-stone-900 leading-[1.15]">
+              <motion.h1 variants={fadeInUp} className="text-4xl md:text-5xl lg:text-6xl font-bold font-sans text-stone-900 leading-[1.15]">
                 Lưu giữ di sản <br />
                 <span className="text-emerald-800 italic">bằng ngôn từ của bạn.</span>
               </motion.h1>
@@ -171,7 +165,7 @@ export default function LandingPage() {
             className="max-w-6xl mx-auto text-center space-y-16"
           >
             <motion.div variants={fadeInUp} className="space-y-4">
-              <h2 className="text-3xl md:text-4xl font-bold font-serif text-stone-900">Hành trình lưu giữ kỷ niệm</h2>
+              <h2 className="text-3xl md:text-4xl font-bold font-sans text-stone-900">Hành trình lưu giữ kỷ niệm</h2>
               <p className="text-xl text-stone-600">Ba bước đơn giản, thong thả theo nhịp độ của riêng bạn.</p>
             </motion.div>
 
@@ -209,15 +203,15 @@ export default function LandingPage() {
             className="max-w-6xl mx-auto space-y-16"
           >
             <motion.div variants={fadeInUp} className="text-center space-y-4">
-              <h2 className="text-3xl md:text-4xl font-bold font-serif text-stone-900">Những câu chuyện đã được kể</h2>
+              <h2 className="text-3xl md:text-4xl font-bold font-sans text-stone-900">Những câu chuyện đã được kể</h2>
               <p className="text-xl text-stone-600">Hàng ngàn gia đình đã kết nối sâu sắc hơn qua từng trang viết.</p>
             </motion.div>
 
             <div className="grid md:grid-cols-2 gap-8">
               {/* Câu chuyện 1 */}
               <motion.div variants={fadeInUp} className="bg-white p-10 md:p-12 rounded-3xl shadow-sm border border-stone-200 relative flex flex-col h-full">
-                <span className="absolute top-6 left-6 text-6xl text-emerald-200 font-serif leading-none">"</span>
-                <p className="text-lg md:text-xl text-stone-700 font-serif italic leading-relaxed relative z-10 flex-grow">
+                <span className="absolute top-6 left-6 text-6xl text-emerald-200 font-sans leading-none">"</span>
+                <p className="text-lg md:text-xl text-stone-700 font-sans italic leading-relaxed relative z-10 flex-grow">
                   Lúc đầu tôi nghĩ mình chẳng có gì để viết, cuộc đời mình quá đỗi bình thường. Nhưng khi bắt đầu trả lời những câu hỏi gợi ý, ký ức tuổi thơ cứ thế ùa về. Giờ đây, các con tôi rất thích thú mỗi khi tôi gửi cho chúng một đường link kể về ngày xưa.
                 </p>
                 <div className="mt-8 flex items-center gap-4 pt-6 border-t border-stone-100">
@@ -233,8 +227,8 @@ export default function LandingPage() {
 
               {/* Câu chuyện 2 */}
               <motion.div variants={fadeInUp} className="bg-white p-10 md:p-12 rounded-3xl shadow-sm border border-stone-200 relative flex flex-col h-full">
-                <span className="absolute top-6 left-6 text-6xl text-emerald-200 font-serif leading-none">"</span>
-                <p className="text-lg md:text-xl text-stone-700 font-serif italic leading-relaxed relative z-10 flex-grow">
+                <span className="absolute top-6 left-6 text-6xl text-emerald-200 font-sans leading-none">"</span>
+                <p className="text-lg md:text-xl text-stone-700 font-sans italic leading-relaxed relative z-10 flex-grow">
                   Các con tôi định cư ở nước ngoài, mỗi năm chỉ về thăm được một lần. Nhờ viết lại những câu chuyện trên nền tảng này, tôi cảm thấy như đang trò chuyện với chúng mỗi ngày. Các cháu cũng hiểu hơn về ông bà và cội nguồn của mình dù ở xa.
                 </p>
                 <div className="mt-8 flex items-center gap-4 pt-6 border-t border-stone-100">
@@ -260,7 +254,7 @@ export default function LandingPage() {
             variants={staggerContainer}
             className="max-w-3xl mx-auto space-y-12"
           >
-            <motion.h2 variants={fadeInUp} className="text-3xl md:text-4xl font-bold font-serif text-stone-900 text-center">Câu hỏi thường gặp</motion.h2>
+            <motion.h2 variants={fadeInUp} className="text-3xl md:text-4xl font-bold font-sans text-stone-900 text-center">Câu hỏi thường gặp</motion.h2>
             <motion.div variants={fadeInUp} className="space-y-4">
               {FAQS.map((faq, index) => (
                 <div key={index} className="border border-stone-200 rounded-2xl overflow-hidden transition-all duration-300 hover:border-emerald-200 hover:shadow-sm">
@@ -296,8 +290,10 @@ export default function LandingPage() {
       {/* 5. FOOTER */}
       <footer className="bg-stone-900 text-stone-400 py-16 px-6">
         <div className="max-w-7xl mx-auto grid md:grid-cols-2 gap-12">
+
+          {/* Cột trái: Thông tin & Nút CTA */}
           <div className="space-y-6">
-            <div className="text-3xl font-bold font-serif text-white">A Story.</div>
+            <div className="text-3xl font-bold font-sans text-white">A Story.</div>
             <p className="text-lg max-w-sm">
               Lưu giữ kỷ niệm, thắt chặt tình thân qua từng trang viết.
             </p>
@@ -308,30 +304,39 @@ export default function LandingPage() {
               <Mail className="w-5 h-5" /> Bắt đầu ngay hôm nay
             </button>
           </div>
-          <div className="grid grid-cols-2 gap-8 md:text-right">
+
+          {/* Cột phải: Navigation Links */}
+          <div className="grid grid-cols-2 gap-8"> {/* Đã xóa md:text-right để căn trái đều đặn */}
+
+            {/* Về chúng tôi */}
             <div className="space-y-4">
               <h4 className="text-white text-lg font-bold">Về chúng tôi</h4>
-              <ul className="space-y-3">
-                <li><a href="#" className="hover:text-white transition-colors inline-flex items-center">Sứ mệnh</a></li>
-                <li><a href="#" className="hover:text-white transition-colors inline-flex items-center">Bảo mật</a></li>
-                <li><a href="#" className="hover:text-white transition-colors inline-flex items-center">Đội ngũ</a></li>
+              <ul className="space-y-3 list-none p-0 m-0">
+                <li><a href="#" className="hover:text-white transition-colors block">Sứ mệnh</a></li>
+                <li><a href="#" className="hover:text-white transition-colors block">Bảo mật</a></li>
+                <li><a href="#" className="hover:text-white transition-colors block">Đội ngũ</a></li>
               </ul>
             </div>
+
+            {/* Hỗ trợ */}
             <div className="space-y-4">
               <h4 className="text-white text-lg font-bold">Hỗ trợ</h4>
-              <ul className="space-y-3">
-                <li><a href="#" className="hover:text-white transition-colors inline-flex items-center">Hướng dẫn</a></li>
-                <li><a href="#" className="hover:text-white transition-colors inline-flex items-center">Liên hệ</a></li>
-                <li><a href="#" className="hover:text-white transition-colors inline-flex items-center">Câu hỏi thường gặp</a></li>
+              <ul className="space-y-3 list-none p-0 m-0">
+                <li><a href="#" className="hover:text-white transition-colors block">Hướng dẫn</a></li>
+                <li><a href="#" className="hover:text-white transition-colors block">Liên hệ</a></li>
+                <li><a href="#" className="hover:text-white transition-colors block">Câu hỏi thường gặp</a></li>
               </ul>
             </div>
+
           </div>
         </div>
+
+        {/* Bottom Footer */}
         <div className="max-w-7xl mx-auto mt-16 pt-8 border-t border-stone-800 text-center text-stone-500 flex flex-col md:flex-row justify-between items-center gap-4">
           <p>© {new Date().getFullYear()} A Story. Mọi quyền được bảo lưu.</p>
           <div className="flex gap-6 text-sm">
-            <a href="#" className="hover:text-white transition-colors">Chính sách bảo mật</a>
-            <a href="#" className="hover:text-white transition-colors">Điều khoản sử dụng</a>
+            <a href="#" className="hover:text-white transition-colors block">Chính sách bảo mật</a>
+            <a href="#" className="hover:text-white transition-colors block">Điều khoản sử dụng</a>
           </div>
         </div>
       </footer>
