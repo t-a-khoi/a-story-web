@@ -50,16 +50,13 @@ export default function CallbackPage() {
                 // Bước 3: Đổi mã code lấy Token từ Backend
                 const tokenResponse = await authService.exchangeToken(code, codeVerifier);
 
-                // Tạm thời lưu token vào Zustand để axios interceptor có thể dùng ngay
                 setToken(tokenResponse.access_token);
 
                 // Bước 4 & 5: Lấy thông tin User Profile hiện tại
                 const userData = await authService.getCurrentUser();
 
-                // Cập nhật lại Zustand với đầy đủ Token và User
                 setAuth(tokenResponse.access_token, userData);
 
-                // Dọn dẹp session storage cho sạch sẽ
                 sessionStorage.removeItem("pkce_code_verifier");
 
                 setStatusMessage("Hoàn tất! Đang vào trang chủ...");
@@ -74,7 +71,6 @@ export default function CallbackPage() {
                 setHasError(true);
                 setStatusMessage("Có lỗi xảy ra khi đăng nhập. Vui lòng thử lại sau.");
 
-                // Dọn dẹp và đẩy về trang ngoài
                 sessionStorage.removeItem("pkce_code_verifier");
                 setTimeout(() => router.push("/"), 3000);
             }
@@ -84,11 +80,9 @@ export default function CallbackPage() {
     }, [searchParams, router, setToken, setAuth]);
 
     return (
-        // Giao diện chờ: Trắng toàn màn hình, tập trung vào giữa
         <div className="min-h-screen bg-white flex flex-col items-center justify-center p-6 text-center">
             <div className="max-w-md flex flex-col items-center gap-6">
 
-                {/* Icon Loading xoay tròn hoặc Icon Lỗi */}
                 {!hasError ? (
                     <Loader2 className="w-16 h-16 text-blue-700 animate-spin" strokeWidth={2.5} />
                 ) : (
@@ -97,7 +91,6 @@ export default function CallbackPage() {
                     </div>
                 )}
 
-                {/* Thông báo trạng thái: Chữ rất to, màu tương phản */}
                 <h1 className={`text-2xl md:text-3xl font-bold ${hasError ? "text-red-700" : "text-gray-900"}`}>
                     {statusMessage}
                 </h1>

@@ -21,11 +21,8 @@ export async function generateCodeChallenge(codeVerifier: string): Promise<strin
     const encoder = new TextEncoder();
     const data = encoder.encode(codeVerifier);
     const digest = await window.crypto.subtle.digest('SHA-256', data);
-
-    // Chuyển đổi ArrayBuffer sang Base64 chuỗi chuẩn
     const base64String = btoa(String.fromCharCode(...new Uint8Array(digest)));
 
-    // Convert sang chuẩn Base64URL (thay thế +, / và xóa dấu = ở cuối)
     return base64String
         .replace(/\+/g, '-')
         .replace(/\//g, '_')

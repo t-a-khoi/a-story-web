@@ -30,14 +30,12 @@ export interface User {
     modifiedDate: string;
 }
 
-// Enum giới tính mapping với DB
 export enum Gender {
     MALE = 'MALE',
     FEMALE = 'FEMALE',
     OTHER = 'OTHER'
 }
 
-// Chi tiết Profile của User (từ API /api/v1/profiles/{id})
 export interface Profile {
     id: number;
     userId: number;
@@ -45,16 +43,15 @@ export interface Profile {
     fullname: string;
     phoneNumber?: string;
     address?: string;
-    legacySettings?: string | null; // Backend trả về chuỗi JSON stringified
+    legacySettings?: string | null; 
     isDeceased: boolean;
     memorialMessage?: string | null;
     gender?: Gender;
-    dateOfBirth?: string; // Định dạng YYYY-MM-DD
+    dateOfBirth?: string; 
     createdDate: string;
     modifiedDate: string;
 }
 
-// Cấu hình tuỳ chọn của User (từ API /api/v1/settings/{id})
 export interface UserSettings {
     id: number;
     userId: number;
@@ -86,31 +83,27 @@ export interface UserSettings {
  * ============================================================================
  */
 
-// Dùng cho màn hình Đăng ký
 export interface UserCreateRequest {
     username: string;
     email: string;
-    password?: string; // Thường backend sẽ xử lý password ở luồng register riêng
+    password?: string;
     fullName: string;
 }
 
-// Dùng cho màn hình Cập nhật tài khoản
 export interface UserUpdateRequest {
     email?: string;
     fullName?: string;
 }
 
-// Dùng cho màn hình Tạo Profile ban đầu (Onboarding sau khi đăng ký)
 export interface ProfileCreateRequest {
     userId: number;
     fullname: string;
     phoneNumber?: string;
     address?: string;
     gender?: Gender;
-    dateOfBirth?: string; // YYYY-MM-DD
+    dateOfBirth?: string; 
 }
 
-// Dùng cho màn hình Chỉnh sửa Profile
 export interface ProfileUpdateRequest {
     fullname?: string;
     phoneNumber?: string;
