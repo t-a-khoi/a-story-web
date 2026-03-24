@@ -1,6 +1,7 @@
 import MainLayout from "@/components/layout/MainLayout";
 import StoryCard, { StoryProps } from "@/components/story/StoryCard";
 import { PenSquare } from "lucide-react";
+import photo1 from "@/image/photo1.avif";
 
 const MOCK_STORIES: StoryProps[] = [
     {
