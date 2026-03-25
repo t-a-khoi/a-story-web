@@ -131,9 +131,6 @@ export default function LandingPage() {
                 >
                   {isRedirecting ? "Đang chuẩn bị..." : "Bắt đầu lưu giữ kỷ niệm"}
                 </button>
-                <button className="min-h-[60px] w-full sm:w-auto px-8 py-3 bg-white text-emerald-800 border border-emerald-200 rounded-xl text-lg font-bold shadow-sm hover:bg-emerald-50 transition-all">
-                  Mua tặng người thân
-                </button>
               </motion.div>
             </motion.div>
 

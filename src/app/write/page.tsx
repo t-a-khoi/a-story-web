@@ -1,87 +1,137 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useRef, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import MainLayout from "@/components/layout/MainLayout";
-import { Image as ImageIcon, Save, XCircle, Tag } from "lucide-react";
+import { Save, Image as ImageIcon, ArrowLeft, Lightbulb, CheckCircle2 } from "lucide-react";
 
-export default function WriteStoryPage() {
+export default function WritePage() {
     const router = useRouter();
     const [title, setTitle] = useState("");
     const [content, setContent] = useState("");
-    const [isPublishing, setIsPublishing] = useState(false);
+    const [isSaving, setIsSaving] = useState(false);
+    const [showSuccess, setShowSuccess] = useState(false);
 
-    const handlePublish = async () => {
-        if (!content.trim()) {
-            alert("Vui lòng viết nội dung câu chuyện !");
-            return;
+    // Tự động điều chỉnh chiều cao của Textarea khi nội dung dài ra
+    const textareaRef = useRef<HTMLTextAreaElement>(null);
+
+    useEffect(() => {
+        if (textareaRef.current) {
+            textareaRef.current.style.height = "auto";
+            textareaRef.current.style.height = `${textareaRef.current.scrollHeight}px`;
         }
+    }, [content]);
 
-        setIsPublishing(true);
-        console.log("Đang lưu:", { title, content });
+    const handleSave = async () => {
+        if (!title.trim() && !content.trim()) return;
 
-        setTimeout(() => {
-            setIsPublishing(false);
-            router.push("/home");
-        }, 1500);
+        setIsSaving(true);
+
+        try {
+            // Giả lập gọi API lưu bài viết
+            await new Promise((resolve) => setTimeout(resolve, 1500));
+
+            setShowSuccess(true);
+
+            // Chờ 2 giây để người dùng đọc thông báo thành công, sau đó về trang chủ
+            setTimeout(() => {
+                router.push("/home");
+            }, 2000);
+
+        } catch (error) {
+            console.error("Lỗi khi lưu bài:", error);
+            alert("Đã có lỗi xảy ra khi lưu. Vui lòng thử lại!");
+        } finally {
+            setIsSaving(false);
+        }
     };
 
     return (
         <MainLayout>
-            <div className="bg-white min-h-[calc(100vh-100px)] md:min-h-0 md:rounded-2xl md:shadow-sm md:border border-gray-200 overflow-hidden flex flex-col">
+            <div className="max-w-3xl mx-auto space-y-8 pb-20">
 
-                <header className="flex items-center justify-between p-4 border-b border-gray-100 bg-white sticky top-0 z-10">
+                {/* THANH ĐIỀU HƯỚNG TRONG TRANG VIẾT */}
+                <div className="flex items-center justify-between border-b-2 border-gray-200 pb-4">
                     <button
                         onClick={() => router.push("/home")}
-                        className="flex items-center gap-2 text-gray-600 hover:text-gray-900 font-medium p-2 rounded-lg hover:bg-gray-50 transition-colors"
+                        className="flex items-center gap-2 text-gray-600 hover:text-gray-900 transition-colors min-h-[48px] px-2 rounded-lg font-bold text-lg"
                     >
-                        <XCircle className="w-7 h-7" />
-                        <span className="text-lg">Hủy bỏ</span>
+                        <ArrowLeft className="w-6 h-6" />
+                        <span>Quay lại</span>
                     </button>
 
+                    {/* Nút Lưu bài - To, rõ ràng, màu xanh khích lệ */}
                     <button
-                        onClick={handlePublish}
-                        disabled={isPublishing}
-                        className="flex items-center gap-2 bg-blue-700 hover:bg-blue-800 text-white px-6 py-3 rounded-xl font-bold text-lg transition-all disabled:opacity-50"
+                        onClick={handleSave}
+                        disabled={isSaving || (!title.trim() && !content.trim()) || showSuccess}
+                        className={`flex items-center gap-2 min-h-[56px] px-8 rounded-xl text-xl font-bold transition-all shadow-sm ${showSuccess
+                                ? "bg-emerald-100 text-emerald-800 border-2 border-emerald-300"
+                                : "bg-emerald-800 text-white hover:bg-emerald-900 disabled:opacity-50 disabled:cursor-not-allowed"
+                            }`}
                     >
-                        <Save className="w-6 h-6" />
-                        <span>{isPublishing ? "Đang lưu..." : "Lưu câu chuyện"}</span>
+                        {showSuccess ? (
+                            <>
+                                <CheckCircle2 className="w-6 h-6" />
+                                <span>Đã lưu thành công!</span>
+                            </>
+                        ) : isSaving ? (
+                            <span>Đang lưu...</span>
+                        ) : (
+                            <>
+                                <Save className="w-6 h-6" />
+                                <span>Lưu câu chuyện</span>
+                            </>
+                        )}
                     </button>
-                </header>
+                </div>
 
-                {/* KHU VỰC SOẠN THẢO (Editor) */}
-                <div className="flex-1 flex flex-col p-6 md:p-8 gap-6">
+                {/* GỢI Ý CHỦ ĐỀ (Writing Prompt) - Giúp người lớn tuổi dễ bắt đầu */}
+                <div className="bg-amber-50 border-2 border-amber-200 rounded-2xl p-6 flex items-start gap-4">
+                    <div className="bg-amber-100 p-3 rounded-full shrink-0">
+                        <Lightbulb className="w-8 h-8 text-amber-700" />
+                    </div>
+                    <div>
+                        <h3 className="text-xl font-bold text-amber-900 mb-2">Gợi ý hôm nay:</h3>
+                        <p className="text-xl text-amber-800 leading-relaxed font-medium">
+                            "Hãy kể về một món đồ vật gắn bó với bạn từ thời trẻ mà đến giờ bạn vẫn còn giữ lại. Nó mang ý nghĩa gì với bạn?"
+                        </p>
+                    </div>
+                </div>
 
+                {/* KHU VỰC SOẠN THẢO CHÍNH */}
+                <div className="bg-white rounded-3xl shadow-sm border border-gray-200 p-6 md:p-10 space-y-8">
+
+                    {/* Input Tiêu đề */}
                     <input
                         type="text"
-                        placeholder="Tiêu đề"
                         value={title}
                         onChange={(e) => setTitle(e.target.value)}
-                        className="w-full text-3xl md:text-4xl font-bold text-gray-900 placeholder:text-gray-300 focus:outline-none bg-transparent"
+                        placeholder="Viết tiêu đề (ví dụ: Chiếc radio cũ năm 1990)..."
+                        className="w-full text-3xl md:text-4xl font-extrabold text-gray-950 placeholder-gray-400 bg-transparent border-none focus:ring-0 focus:outline-none p-0"
                     />
 
-                    {/* Ô nhập Nội dung: Tự động mở rộng, font to dễ đọc */}
+                    <hr className="border-gray-100" />
+
+                    {/* Textarea Nội dung */}
                     <textarea
-                        placeholder="Bạn đang nhớ về điều gì? Hãy kể lại nhé..."
+                        ref={textareaRef}
                         value={content}
                         onChange={(e) => setContent(e.target.value)}
-                        className="w-full flex-1 min-h-[300px] text-xl md:text-2xl text-gray-800 leading-relaxed placeholder:text-gray-400 focus:outline-none resize-none bg-transparent"
+                        placeholder="Bắt đầu kể câu chuyện của bạn tại đây..."
+                        className="w-full text-xl md:text-2xl text-gray-800 leading-[1.8] placeholder-gray-400 bg-transparent border-none focus:ring-0 focus:outline-none p-0 min-h-[300px] resize-none overflow-hidden"
                     />
 
-                    {/* KHU VỰC THÊM HÌNH ẢNH & DANH MỤC */}
-                    <div className="pt-6 border-t border-gray-100 flex flex-col sm:flex-row gap-4">
-
-                        <button className="flex-1 flex flex-col items-center justify-center gap-3 min-h-[120px] bg-slate-50 hover:bg-slate-100 border-2 border-dashed border-gray-300 rounded-2xl transition-colors">
-                            <ImageIcon className="w-10 h-10 text-gray-400" />
-                            <span className="text-lg font-medium text-gray-600">Thêm hình ảnh kỷ niệm</span>
+                    {/* Nút Thêm hình ảnh */}
+                    <div className="pt-8 border-t border-gray-100">
+                        <button className="flex items-center gap-3 min-h-[56px] px-6 py-3 bg-gray-50 hover:bg-emerald-50 text-gray-700 hover:text-emerald-800 border-2 border-dashed border-gray-300 hover:border-emerald-300 rounded-2xl text-lg font-bold transition-colors w-full sm:w-auto justify-center">
+                            <ImageIcon className="w-7 h-7" />
+                            <span>Đính kèm một bức ảnh kỷ niệm</span>
                         </button>
-
-                        <button className="flex-1 flex flex-col items-center justify-center gap-3 min-h-[120px] bg-slate-50 hover:bg-slate-100 border-2 border-dashed border-gray-300 rounded-2xl transition-colors">
-                            <Tag className="w-10 h-10 text-gray-400" />
-                            <span className="text-lg font-medium text-gray-600">Chọn chủ đề (Gia đình, Tuổi thơ...)</span>
-                        </button>
-
+                        <p className="mt-4 text-lg text-gray-500 font-medium">
+                            * Ảnh giúp câu chuyện của bạn thêm sinh động (không bắt buộc).
+                        </p>
                     </div>
+
                 </div>
             </div>
         </MainLayout>
