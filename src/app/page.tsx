@@ -4,6 +4,8 @@ import { useState, useEffect } from "react";
 import Image from "next/image";
 import { ChevronDown, BookOpen, Heart, ShieldCheck, Mail, Menu } from "lucide-react";
 import { authService } from "@/services/auth.service";
+import { useRouter } from "next/navigation";
+import { useAuthStore } from "@/store/useAuthStore";
 import { generateCodeVerifier, generateCodeChallenge } from "@/lib/pkce";
 import { motion, AnimatePresence, Variants } from "framer-motion"; // Import thêm Variants để fix lỗi TypeScript
 
@@ -43,6 +45,9 @@ export default function LandingPage() {
   const [isRedirecting, setIsRedirecting] = useState(false);
   const [openFaq, setOpenFaq] = useState<number | null>(0);
   const [scrolled, setScrolled] = useState(false);
+  
+  const router = useRouter();
+  const accessToken = useAuthStore(state => state.accessToken);
 
   // Hiệu ứng thay đổi header khi scroll
   useEffect(() => {
@@ -53,6 +58,11 @@ export default function LandingPage() {
 
   const handleStartJourney = async () => {
     try {
+      if (accessToken) {
+        router.push("/home");
+        return;
+      }
+      
       setIsRedirecting(true);
       const verifier = generateCodeVerifier();
       const challenge = await generateCodeChallenge(verifier);
@@ -82,7 +92,6 @@ export default function LandingPage() {
               <a href="#how-it-works" className="hover:text-emerald-800 transition-colors">Cách hoạt động</a>
               <a href="#testimonials" className="hover:text-emerald-800 transition-colors">Câu chuyện</a>
               <a href="#faq" className="hover:text-emerald-800 transition-colors">Hỏi đáp</a>
-              <a href="#pricing" className="hover:text-emerald-800 transition-colors">Bảng giá</a>
             </nav>
           </div>
 

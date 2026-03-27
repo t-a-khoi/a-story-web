@@ -1,39 +1,17 @@
 import { apiClient } from '@/lib/axios';
+import { PageResponse } from './stories.service'; // Tái sử dụng interface PageResponse
+import { Contact } from '@/types/contact';
 
-export interface SpringPage<T> {
-    content: T[];
-    totalElements: number;
-    totalPages: number;
-    size: number;
-    number: number;
-}
 
-export interface ContactsResponse {
-    id: number;
-    userId: number;
-    username: string;
-    email: string;
-    profileId: number;
-    fullname: string;
-    phoneNumber: string;
-    address: string;
-    categoryId: number;
-    name: string;
-    typeCode: string;
-    icon: string;
-    color: string;
-    preferenceName: string;
-}
-
-export const contactService = {
-    /**
-     * Lấy danh sách danh bạ người thân
-     * Endpoint: GET /api/v1/contacts
-     */
-    getContacts: async (page = 0, size = 50): Promise<SpringPage<ContactsResponse>> => {
-        const response = await apiClient.get<SpringPage<ContactsResponse>>('/contacts', {
-            params: { page, size }
-        });
-        return response.data;
-    }
+export const ContactService = {
+  /**
+   * Lấy danh sách danh bạ của người dùng (tương ứng với ContactsSearchService)
+   */
+  getContacts: async (): Promise<PageResponse<Contact>> => {
+    // Giả định endpoint BE là /contacts, có thể truyền thêm params size lớn để lấy hết
+    const response = await apiClient.get<PageResponse<Contact>>('/contacts', {
+      params: { size: 100, sort: 'preferenceName,asc' } 
+    });
+    return response.data;
+  }
 };

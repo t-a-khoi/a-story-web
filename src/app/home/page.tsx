@@ -1,109 +1,154 @@
+// src/app/home/page.tsx
 "use client";
 
-import MainLayout from "@/components/layout/MainLayout";
-import { PenSquare, Calendar, Book, Image as ImageIcon } from "lucide-react";
-import { useRouter } from "next/navigation";
-
-const MOCK_STORIES = [
-    {
-        id: "1",
-        title: "Ngày đầu tiên bước chân vào Sài Gòn",
-        excerpt: "Đó là một buổi sáng tháng 8 năm 1980. Tiếng còi tàu xé toạc màn sương...",
-        date: "12/03/2026",
-        hasImage: true,
-    },
-    {
-        id: "2",
-        title: "Kỷ niệm chiếc xe đạp Thống Nhất",
-        excerpt: "Hồi đó mua được chiếc xe đạp Thống Nhất là cả một gia tài. Cả xóm ai cũng ra xem...",
-        date: "05/03/2026",
-        hasImage: false,
-    }
-];
+import { useEffect, useState } from 'react';
+import Link from 'next/link';
+import { PenTool, AlertCircle, RefreshCcw, Sparkles } from 'lucide-react';
+import { StoryService, PageResponse } from '@/services/stories.service';
+import { Story } from '@/types/story';
+import StoryCard from '@/components/story/StoryCard';
+import MainLayout from '@/components/layout/MainLayout';
 
 export default function HomePage() {
-    const router = useRouter();
+  const [stories, setStories] = useState<Story[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
-    return (
-        <MainLayout>
-            <div className="space-y-10">
+  const [page, setPage] = useState(0);
+  const [hasMore, setHasMore] = useState(false);
 
-                {/* LỜI CHÀO & NÚT VIẾT BÀI MỚI */}
-                <section className="bg-white p-8 md:p-10 rounded-3xl shadow-sm border border-gray-200 text-center space-y-6">
-                    <h1 className="text-3xl md:text-4xl font-extrabold text-gray-900">
-                        Chào mừng bạn trở lại!
-                    </h1>
-                    <p className="text-xl text-gray-700 font-medium">
-                        Hôm nay bạn có câu chuyện hay kỷ niệm nào muốn lưu giữ không?
-                    </p>
-                    <div className="pt-4">
-                        <button
-                            onClick={() => router.push("/write")}
-                            className="w-full md:w-auto flex items-center justify-center gap-3 min-h-[64px] px-10 py-4 bg-emerald-800 text-white rounded-2xl text-2xl font-bold shadow-md hover:bg-emerald-900 transition-all hover:scale-[1.02]"
-                        >
-                            <PenSquare className="w-8 h-8" />
-                            <span>Viết kỷ niệm mới</span>
-                        </button>
-                    </div>
-                </section>
+  const fetchStories = async (pageNumber: number) => {
+    try {
+      setIsLoading(true);
+      const data: PageResponse<Story> = await StoryService.getMyStories({
+        page: pageNumber,
+        size: 10,
+        sort: 'createdDate,desc'
+      });
 
-                {/* DÒNG THỜI GIAN (TIMELINE) CÂU CHUYỆN */}
-                <section className="space-y-6">
-                    <h2 className="text-2xl font-bold text-gray-900 border-b-2 border-gray-200 pb-4">
-                        Các câu chuyện của bạn
-                    </h2>
+      // FIX LỖI Ở ĐÂY: Đảm bảo newStories luôn là mảng, kể cả khi data.content bị undefined
+      const newStories = data.content || [];
 
-                    {MOCK_STORIES.length > 0 ? (
-                        <div className="space-y-6">
-                            {MOCK_STORIES.map((story) => (
-                                <article
-                                    key={story.id}
-                                    onClick={() => router.push(`/story/${story.id}`)}
-                                    className="bg-white p-6 md:p-8 rounded-2xl border-2 border-gray-100 shadow-sm hover:border-emerald-300 hover:shadow-md transition-all cursor-pointer group"
-                                >
-                                    <div className="flex flex-col md:flex-row md:items-start justify-between gap-4">
-                                        <div className="space-y-3 flex-grow">
-                                            <h3 className="text-2xl font-bold text-gray-900 group-hover:text-emerald-800 transition-colors">
-                                                {story.title}
-                                            </h3>
-                                            <p className="text-xl text-gray-600 line-clamp-2 leading-relaxed">
-                                                {story.excerpt}
-                                            </p>
+      if (pageNumber === 0) {
+        setStories(newStories);
+      } else {
+        setStories(prev => [...(prev || []), ...newStories]);
+      }
 
-                                            {/* Meta data: Ngày tháng & Icon hình ảnh */}
-                                            <div className="flex items-center gap-6 text-gray-500 pt-2 font-medium">
-                                                <span className="flex items-center gap-2 text-lg">
-                                                    <Calendar className="w-5 h-5" />
-                                                    {story.date}
-                                                </span>
-                                                {story.hasImage && (
-                                                    <span className="flex items-center gap-2 text-lg text-emerald-700 bg-emerald-50 px-3 py-1 rounded-lg">
-                                                        <ImageIcon className="w-5 h-5" />
-                                                        Có hình ảnh
-                                                    </span>
-                                                )}
-                                            </div>
-                                        </div>
+      // Kiểm tra an toàn cho totalPages đề phòng backend trả thiếu
+      const totalPages = data.totalPages || 0;
+      const currentPage = data.number || 0;
+      setHasMore(currentPage < totalPages - 1);
 
-                                        {/* Nút xem chi tiết (chỉ hiển thị rõ trên Desktop, trên mobile chạm cả card) */}
-                                        <div className="hidden md:flex items-center pt-2">
-                                            <span className="text-emerald-700 font-bold text-lg group-hover:underline">Đọc lại</span>
-                                        </div>
-                                    </div>
-                                </article>
-                            ))}
-                        </div>
-                    ) : (
-                        /* Trạng thái trống (Empty State) khi chưa có bài viết nào */
-                        <div className="text-center py-16 px-6 bg-gray-50 rounded-2xl border-2 border-dashed border-gray-300">
-                            <Book className="w-16 h-16 text-gray-400 mx-auto mb-4" />
-                            <h3 className="text-2xl font-bold text-gray-900 mb-2">Cuốn sách của bạn đang chờ trang đầu tiên</h3>
-                            <p className="text-xl text-gray-600">Hãy nhấn nút "Viết kỷ niệm mới" ở trên để bắt đầu lưu giữ nhé.</p>
-                        </div>
-                    )}
-                </section>
+    } catch (err) {
+      setError('Không thể tải danh sách bài viết. Vui lòng thử lại sau.');
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
+  useEffect(() => {
+    fetchStories(0);
+  }, []);
+
+  const handleLoadMore = () => {
+    if (!isLoading && hasMore) {
+      const nextPage = page + 1;
+      setPage(nextPage);
+      fetchStories(nextPage);
+    }
+  };
+
+  const handleDelete = async (id: number) => {
+    if (window.confirm('Bạn có chắc chắn muốn xóa bài viết này không?')) {
+      try {
+        await StoryService.deleteStory(id);
+        // FIX LỖI Ở ĐÂY: Đảm bảo stories là mảng trước khi filter
+        setStories(prev => (prev || []).filter(story => story.id !== id));
+      } catch (err) {
+        alert('Xóa thất bại. Vui lòng thử lại.');
+      }
+    }
+  };
+
+  // Tránh lỗi null reference ở render
+  const safeStories = stories || [];
+
+  return (
+    <MainLayout>
+      <div className="max-w-3xl mx-auto space-y-8 pb-20">
+
+        {/* HEADER BANNER */}
+        <div className="bg-emerald-50 border-2 border-emerald-100 rounded-3xl p-8 shadow-sm flex flex-col sm:flex-row sm:items-center justify-between gap-6 relative overflow-hidden">
+          <div className="absolute top-0 right-0 p-4 opacity-10 pointer-events-none">
+            <Sparkles className="w-32 h-32 text-emerald-800" aria-hidden="true" />
+          </div>
+
+          <div className="relative z-10 space-y-2">
+            <h1 className="text-3xl md:text-4xl font-extrabold text-gray-900 tracking-tight">
+              Nhật ký của tôi
+            </h1>
+            <p className="text-gray-700 text-lg md:text-xl font-medium">
+              Không gian lưu giữ những câu chuyện và kỷ niệm quý giá.
+            </p>
+          </div>
+
+          <Link
+            href="/write"
+            className="relative z-10 flex items-center justify-center gap-3 min-h-[56px] px-8 py-3 bg-emerald-800 hover:bg-emerald-900 text-white rounded-xl shadow-md transition-all font-bold text-xl shrink-0"
+          >
+            <PenTool className="w-6 h-6" aria-hidden="true" />
+            <span>Viết bài mới</span>
+          </Link>
+        </div>
+
+        {/* ERROR STATE */}
+        {error && (
+          <div className="flex items-center gap-3 bg-red-50 text-red-700 p-6 rounded-2xl shadow-sm border-2 border-red-200">
+            <AlertCircle className="w-8 h-8 flex-shrink-0" aria-hidden="true" />
+            <p className="text-lg font-bold">{error}</p>
+          </div>
+        )}
+
+        {/* DANH SÁCH BÀI VIẾT */}
+        <div className="space-y-6">
+          {safeStories.length === 0 && !isLoading && !error ? (
+            <div className="text-center p-12 bg-white rounded-3xl shadow-sm border border-gray-200">
+              <div className="w-20 h-20 bg-emerald-50 rounded-full flex items-center justify-center mx-auto mb-6">
+                <PenTool className="w-10 h-10 text-emerald-700" aria-hidden="true" />
+              </div>
+              <p className="text-xl text-gray-800 font-bold mb-3">Bạn chưa có bài viết nào.</p>
+              <p className="text-lg text-gray-600 mb-8 font-medium">Hãy bắt đầu ghi lại những khoảnh khắc đáng nhớ nhé.</p>
+              <Link
+                href="/write"
+                className="inline-flex items-center gap-2 text-xl font-bold text-emerald-800 hover:text-emerald-900 underline"
+              >
+                Bắt đầu viết ngay &rarr;
+              </Link>
             </div>
-        </MainLayout>
-    );
+          ) : (
+            safeStories.map(story => (
+              <StoryCard key={story.id} story={story} onDelete={handleDelete} />
+            ))
+          )}
+        </div>
+
+        {/* NÚT TẢI THÊM */}
+        {hasMore && (
+          <div className="pt-8 flex justify-center">
+            <button
+              onClick={handleLoadMore}
+              disabled={isLoading}
+              className="flex items-center justify-center gap-3 min-h-[56px] px-10 py-3 bg-white text-gray-800 border-2 border-gray-200 hover:bg-gray-50 rounded-xl shadow-sm hover:shadow-md transition-all font-bold text-xl disabled:opacity-50"
+            >
+              {isLoading ? <RefreshCcw className="w-6 h-6 animate-spin" aria-hidden="true" /> : null}
+              <span>
+                {isLoading ? 'Đang tải thêm...' : 'Xem các bài cũ hơn'}
+              </span>
+            </button>
+          </div>
+        )}
+      </div>
+    </MainLayout>
+  );
 }

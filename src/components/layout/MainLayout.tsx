@@ -1,21 +1,34 @@
 "use client";
 import { ReactNode } from "react";
-import { Home, PenSquare, User, LogOut, Book } from "lucide-react";
+import { Home, PenSquare, User, LogOut, Book, Users, Settings } from "lucide-react";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
+import { useAuthStore } from "@/store/useAuthStore";
+import { useEffect } from "react";
 
 export default function MainLayout({ children }: { children: ReactNode }) {
     const pathname = usePathname();
     const router = useRouter();
 
+    const logout = useAuthStore((state) => state.logout);
+    const accessToken = useAuthStore((state) => state.accessToken);
+
+    useEffect(() => {
+        if (!accessToken) {
+            router.push("/");
+        }
+    }, [accessToken, router]);
+
     const handleLogout = () => {
+        logout();
         localStorage.removeItem("accessToken");
         router.push("/");
     };
     const navItems = [
         { name: "Trang chủ", href: "/home", icon: Home },
         { name: "Viết mới", href: "/write", icon: PenSquare },
-        { name: "Cá nhân", href: "/profile", icon: User },
+        { name: "Danh bạ", href: "/contacts", icon: Users },
+        { name: "Cài đặt", href: "/settings", icon: Settings },
     ];
 
 
@@ -23,7 +36,7 @@ export default function MainLayout({ children }: { children: ReactNode }) {
         <div className="min-h-screen flex flex-col bg-slate-50 font-sans">
             {/* HEADER DÀNH CHO APP */}
             <header className="bg-white border-b-2 border-gray-200 sticky top-0 z-40 shadow-sm">
-                <div className="max-w-4xl mx-auto px-4 sm:px-6 h-20 flex items-center justify-between">
+                <div className="max-w-6xl mx-auto px-4 sm:px-6 h-20 flex items-center justify-between">
 
                     {/* Logo */}
                     <Link href="/home" className="flex items-center gap-3 p-2 rounded-lg hover:bg-gray-50 transition">
@@ -41,7 +54,7 @@ export default function MainLayout({ children }: { children: ReactNode }) {
                                 <Link
                                     key={item.href}
                                     href={item.href}
-                                    className={`flex items-center gap-2 min-h-[56px] px-4 md:px-6 rounded-xl text-lg font-bold transition-colors ${isActive
+                                    className={`flex items-center gap-2 min-h-[56px] px-3 md:px-5 lg:px-6 rounded-xl text-lg font-bold transition-colors whitespace-nowrap ${isActive
                                         ? "bg-emerald-100 text-emerald-900 border-2 border-emerald-200"
                                         : "text-gray-700 hover:bg-gray-100 border-2 border-transparent"
                                         }`}
@@ -55,7 +68,7 @@ export default function MainLayout({ children }: { children: ReactNode }) {
                         {/* Nút Đăng xuất */}
                         <button
                             onClick={handleLogout}
-                            className="flex items-center gap-2 min-h-[56px] px-4 rounded-xl text-lg font-bold text-red-700 hover:bg-red-50 border-2 border-transparent hover:border-red-200 transition-colors ml-2"
+                            className="flex items-center gap-2 min-h-[56px] px-3 md:px-4 rounded-xl text-lg font-bold text-red-700 hover:bg-red-50 border-2 border-transparent hover:border-red-200 transition-colors ml-1 md:ml-2 whitespace-nowrap"
                             title="Đăng xuất"
                         >
                             <LogOut className="w-6 h-6" />

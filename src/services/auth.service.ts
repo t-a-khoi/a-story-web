@@ -50,6 +50,6 @@ export const authService = {
         const redirectUri = encodeURIComponent('http://localhost:3000/callback');
         const scope = encodeURIComponent('openid profile');
 
-        return `${authServerUrl}?response_type=code&client_id=${clientId}&redirect_uri=${redirectUri}&scope=${scope}&code_challenge=${codeChallenge}&code_challenge_method=S256`;
+        return `${authServerUrl}?response_type=code&client_id=${clientId}&redirect_uri=${redirectUri}&scope=${scope}&code_challenge=${codeChallenge}&code_challenge_method=S256&prompt=login`;
     }
 };

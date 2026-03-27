@@ -1,150 +1,388 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import MainLayout from "@/components/layout/MainLayout";
-import { Settings, User, Mail, Lock, LogOut, Trash2, AlertTriangle, ChevronRight } from "lucide-react";
+import { 
+    User, Bell, Shield, LogOut, CheckCircle2, Moon, 
+    Globe, Smartphone, Save, Loader2, BookOpen, AlertCircle
+} from "lucide-react";
+import { SettingsService } from "@/services/settings.service";
+
+// Define a local type for typed key access
+type TabType = "general" | "profile" | "story";
 
 export default function SettingsPage() {
     const router = useRouter();
+    const [isLoading, setIsLoading] = useState(true);
+    const [isSaving, setIsSaving] = useState(false);
+    const [toastMsg, setToastMsg] = useState<{ type: 'success' | 'error', text: string } | null>(null);
+    const [activeTab, setActiveTab] = useState<TabType>("general");
+    
+    // Lưu ID của setting bản ghi nếu đã tồn tại trên server
+    const [settingId, setSettingId] = useState<number | null>(null);
 
-    // States giả lập cho UI
-    const [userEmail, setUserEmail] = useState("nguyenvana@gmail.com");
-    const [userName, setUserName] = useState("Nguyễn Văn A");
+    // Trạng thái cục bộ (UI Flexible State mapping to backend's Record<string,any>)
+    const [settingsData, setSettingsData] = useState({
+        general: {
+            theme: "light",
+            language: "vi",
+            notifications: true,
+        },
+        profile: {
+            contactsOnlyView: true,
+            contactsOnlyMessage: true,
+        },
+        story: {
+            autoplay: false,
+            defaultPrivacy: "CONTACTS",
+        },
+        mediaFile: {
+            compressImage: true,
+        }
+    });
 
-    // Xử lý Đăng xuất
+    const userName = "Nguyễn Văn Khoa"; // Mocked User Name
+
+    useEffect(() => {
+        fetchInitialSettings();
+    }, []);
+
+    const fetchInitialSettings = async () => {
+        try {
+            // Dùng search filter userId (giả lập userId = 1 hiện tại)
+            const res = await SettingsService.searchSettings({
+                filter: { "userId": 1 },
+                size: 1
+            });
+
+            if (res.content && res.content.length > 0) {
+                const config = res.content[0];
+                setSettingId(config.id);
+
+                // Gộp Object mềm mại để tránh mất schema mặc định ở Frontend nếu Backend trả thiếu
+                setSettingsData(prev => ({
+                    general: { ...prev.general, ...(config.general || {}) },
+                    profile: { ...prev.profile, ...(config.profile || {}) },
+                    story: { ...prev.story, ...(config.story || {}) },
+                    mediaFile: { ...prev.mediaFile, ...(config.mediaFile || {}) },
+                }));
+            }
+        } catch (error) {
+            console.error("Lỗi khi tải cấu hình:", error);
+            showToast("error", "Không thể tải cấu hình từ máy chủ.");
+        } finally {
+            setIsLoading(false);
+        }
+    };
+
+    const handleSave = async () => {
+        setIsSaving(true);
+        try {
+            const payload = {
+                userId: 1, // Fixme: Lấy từ Context
+                general: settingsData.general,
+                profile: settingsData.profile,
+                story: settingsData.story,
+                mediaFile: settingsData.mediaFile,
+            };
+
+            if (settingId) {
+                // Đã có id -> Gọi PUT
+                await SettingsService.updateSettings(settingId, payload);
+            } else {
+                // Chưa có id -> Gọi POST tạo mới
+                const newSetting = await SettingsService.createSettings(payload);
+                setSettingId(newSetting.id);
+            }
+            showToast("success", "Đã lưu cài đặt thành công!");
+        } catch (error) {
+            showToast("error", "Lưu cài đặt thất bại. Vui lòng thử lại!");
+        } finally {
+            setIsSaving(false);
+        }
+    };
+
+    const showToast = (type: 'success' | 'error', text: string) => {
+        setToastMsg({ type, text });
+        setTimeout(() => setToastMsg(null), 3000);
+    };
+
     const handleLogout = () => {
-        if (window.confirm("Bạn có chắc chắn muốn đăng xuất khỏi ứng dụng không?")) {
+        if (window.confirm("Bạn có chắc chắn muốn thoát khỏi tài khoản không?")) {
             localStorage.removeItem("accessToken");
             router.push("/");
         }
     };
 
-    // Xử lý Xóa tài khoản
-    const handleDeleteAccount = () => {
-        const isConfirmed = window.confirm(
-            "CẢNH BÁO: Việc này sẽ xóa vĩnh viễn tài khoản và toàn bộ câu chuyện của bạn. Bạn có CHẮC CHẮN muốn xóa không?"
-        );
-        if (isConfirmed) {
-            alert("Yêu cầu xóa tài khoản đã được gửi. Đang xử lý...");
-            // Logic gọi API xóa tài khoản sẽ nằm ở đây
-            localStorage.removeItem("accessToken");
-            router.push("/");
-        }
+    // Hàm update state tiện lợi cho form
+    const updateSetting = (section: TabType, key: string, value: any) => {
+        setSettingsData(prev => ({
+            ...prev,
+            [section]: {
+                ...prev[section],
+                [key]: value
+            }
+        }));
     };
 
     return (
         <MainLayout>
-            <div className="space-y-8 md:space-y-10 pb-16">
+            <div className="max-w-3xl mx-auto space-y-8 pb-20 relative">
 
-                {/* HEADER */}
-                <div className="bg-white p-6 md:p-8 rounded-3xl shadow-sm border border-stone-200 flex items-center gap-4">
-                    <div className="w-14 h-14 bg-emerald-100 rounded-full flex items-center justify-center shrink-0">
-                        <Settings className="w-8 h-8 text-emerald-800" />
+                {/* TOAST MESSAGE */}
+                {toastMsg && (
+                    <div className={`fixed top-4 right-4 z-50 px-6 py-4 rounded-2xl shadow-lg border-2 font-bold text-lg flex items-center gap-3 animate-in fade-in slide-in-from-top-4 ${
+                        toastMsg.type === 'success' ? 'bg-emerald-50 text-emerald-800 border-emerald-200' : 'bg-red-50 text-red-800 border-red-200'
+                    }`}>
+                        {toastMsg.type === 'success' ? <CheckCircle2 className="w-6 h-6" /> : <AlertCircle className="w-6 h-6" />}
+                        {toastMsg.text}
                     </div>
-                    <div>
-                        <h1 className="text-3xl md:text-4xl font-extrabold text-stone-900">
-                            Cài đặt tài khoản
+                )}
+
+                {/* HEADER BANNER CÀI ĐẶT */}
+                <div className="bg-slate-800 border-2 border-slate-700 rounded-3xl p-6 md:p-8 shadow-sm flex flex-col sm:flex-row sm:items-center justify-between gap-6 relative overflow-hidden">
+                    <div className="absolute top-0 right-0 p-4 opacity-10 pointer-events-none">
+                        <Globe className="w-32 h-32 text-slate-100" />
+                    </div>
+
+                    <div className="relative z-10 space-y-2">
+                        <h1 className="text-3xl md:text-4xl font-extrabold text-white tracking-tight">
+                            Cấu hình hệ thống
                         </h1>
-                        <p className="text-xl text-stone-600 font-medium mt-1">
-                            Quản lý thông tin và bảo mật của bạn.
+                        <p className="text-slate-300 text-lg md:text-xl font-medium">
+                            Quản lý giao diện, quyền riêng tư và thói quen của bạn.
                         </p>
                     </div>
+
+                    <button
+                        onClick={handleSave}
+                        disabled={isSaving || isLoading}
+                        className="relative z-10 flex items-center justify-center gap-3 min-h-[56px] px-8 py-3 bg-emerald-500 hover:bg-emerald-400 text-slate-900 rounded-xl shadow-[0_0_15px_rgba(16,185,129,0.4)] transition-all font-extrabold text-xl shrink-0 disabled:opacity-50"
+                    >
+                        {isSaving ? <Loader2 className="w-6 h-6 animate-spin" /> : <Save className="w-6 h-6" />}
+                        Lưu cài đặt
+                    </button>
                 </div>
 
-                {/* 1. KHỐI THÔNG TIN TÀI KHOẢN (View account information) */}
-                <section className="bg-white rounded-3xl shadow-sm border border-stone-200 overflow-hidden">
-                    <div className="bg-stone-50 px-6 py-4 border-b border-stone-200">
-                        <h2 className="text-2xl font-bold text-stone-900 flex items-center gap-2">
-                            <User className="w-6 h-6 text-stone-700" /> Hồ sơ của bạn
-                        </h2>
-                    </div>
-                    <div className="p-6 md:p-8 space-y-6">
-                        <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 p-4 bg-stone-50 rounded-2xl border border-stone-100">
+                {/* 1. KHỐI LIÊN KẾT NHANH ĐẾN HỒ SƠ */}
+                <section className="bg-white rounded-3xl shadow-sm border border-gray-200 overflow-hidden">
+                    <div className="bg-emerald-50/50 px-6 py-4 flex flex-col sm:flex-row sm:justify-between sm:items-center gap-4">
+                        <div className="flex items-center gap-4">
+                            <div className="w-12 h-12 bg-emerald-100 rounded-full flex items-center justify-center">
+                                <User className="w-6 h-6 text-emerald-700" />
+                            </div>
                             <div>
-                                <p className="text-lg text-stone-500 font-medium">Họ và tên</p>
-                                <p className="text-2xl font-bold text-stone-900">{userName}</p>
+                                <h2 className="text-xl font-bold text-gray-900">{userName}</h2>
+                                <p className="text-gray-500 font-medium">Thông tin cá nhân & Liên hệ</p>
                             </div>
                         </div>
-
-                        <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 p-4 bg-stone-50 rounded-2xl border border-stone-100">
-                            <div>
-                                <p className="text-lg text-stone-500 font-medium">Địa chỉ Email</p>
-                                <p className="text-2xl font-bold text-stone-900">{userEmail}</p>
-                            </div>
-                            {/* Nút Đổi Email */}
-                            <button
-                                onClick={() => alert("Mở Pop-up nhập Email mới")}
-                                className="flex items-center justify-center gap-2 min-h-[48px] px-6 bg-white border-2 border-stone-300 hover:border-emerald-500 hover:text-emerald-800 text-stone-700 text-lg font-bold rounded-xl transition-all"
-                            >
-                                <Mail className="w-5 h-5" /> Thay đổi
-                            </button>
-                        </div>
-                    </div>
-                </section>
-
-                {/* 2. KHỐI BẢO MẬT (Security) */}
-                <section className="bg-white rounded-3xl shadow-sm border border-stone-200 overflow-hidden">
-                    <div className="bg-stone-50 px-6 py-4 border-b border-stone-200">
-                        <h2 className="text-2xl font-bold text-stone-900 flex items-center gap-2">
-                            <Lock className="w-6 h-6 text-stone-700" /> Bảo mật
-                        </h2>
-                    </div>
-                    <div className="p-2">
-                        {/* Nút Đổi Mật Khẩu */}
                         <button
-                            onClick={() => alert("Mở Pop-up nhập Mật khẩu mới")}
-                            className="w-full flex items-center justify-between p-6 hover:bg-stone-50 transition-colors rounded-2xl text-left group"
+                            onClick={() => router.push('/profile')}
+                            className="bg-white hover:bg-emerald-50 text-emerald-800 border-2 border-emerald-200 px-6 py-2.5 rounded-xl font-bold transition-all shadow-sm w-fit truncate shrink-0"
                         >
-                            <div>
-                                <h3 className="text-2xl font-bold text-stone-900 group-hover:text-emerald-800 transition-colors">Đổi mật khẩu</h3>
-                                <p className="text-lg text-stone-600 font-medium mt-1">Cập nhật mật khẩu mới để bảo vệ tài khoản tốt hơn.</p>
-                            </div>
-                            <ChevronRight className="w-8 h-8 text-stone-400 group-hover:text-emerald-800 transition-colors" />
+                            Chỉnh sửa hồ sơ
                         </button>
                     </div>
                 </section>
 
-                {/* 3. VÙNG NGUY HIỂM (Danger Zone) */}
-                <section className="bg-red-50 rounded-3xl shadow-sm border-2 border-red-100 overflow-hidden mt-12">
-                    <div className="bg-red-100/50 px-6 py-4 border-b border-red-100">
-                        <h2 className="text-2xl font-bold text-red-800 flex items-center gap-2">
-                            <AlertTriangle className="w-6 h-6" /> Quản lý truy cập
-                        </h2>
+                {/* HỆ THỐNG TABS CHO SETTINGS */}
+                <div className="bg-white rounded-3xl shadow-sm border border-gray-200 overflow-hidden">
+                    {/* Tabs Header */}
+                    <div className="flex overflow-x-auto border-b border-gray-200 bg-gray-50 hide-scrollbar">
+                        <button 
+                            onClick={() => setActiveTab('general')}
+                            className={`flex items-center gap-2 px-6 py-4 font-bold text-lg whitespace-nowrap transition-colors border-b-2 ${
+                                activeTab === 'general' ? 'border-emerald-600 text-emerald-800 bg-white' : 'border-transparent text-gray-500 hover:text-gray-700'
+                            }`}
+                        >
+                            <Globe className="w-5 h-5" /> Cài đặt chung
+                        </button>
+                        <button 
+                            onClick={() => setActiveTab('profile')}
+                            className={`flex items-center gap-2 px-6 py-4 font-bold text-lg whitespace-nowrap transition-colors border-b-2 ${
+                                activeTab === 'profile' ? 'border-emerald-600 text-emerald-800 bg-white' : 'border-transparent text-gray-500 hover:text-gray-700'
+                            }`}
+                        >
+                            <Shield className="w-5 h-5" /> Quyền riêng tư
+                        </button>
+                        <button 
+                            onClick={() => setActiveTab('story')}
+                            className={`flex items-center gap-2 px-6 py-4 font-bold text-lg whitespace-nowrap transition-colors border-b-2 ${
+                                activeTab === 'story' ? 'border-emerald-600 text-emerald-800 bg-white' : 'border-transparent text-gray-500 hover:text-gray-700'
+                            }`}
+                        >
+                            <BookOpen className="w-5 h-5" /> Câu chuyện
+                        </button>
                     </div>
-                    <div className="p-6 md:p-8 space-y-6">
 
-                        {/* Nút Đăng xuất */}
-                        <div className="flex flex-col sm:flex-row items-center justify-between gap-4 pb-6 border-b border-red-100">
-                            <div className="text-center sm:text-left">
-                                <h3 className="text-2xl font-bold text-stone-900">Đăng xuất khỏi thiết bị</h3>
-                                <p className="text-lg text-stone-600 font-medium mt-1">Bạn sẽ cần nhập lại email và mật khẩu ở lần sau.</p>
+                    {/* Tabs Body */}
+                    <div className="p-6 md:p-8 min-h-[400px]">
+                        {isLoading ? (
+                            <div className="flex flex-col items-center justify-center h-full py-20 text-emerald-800 gap-4">
+                                <Loader2 className="w-10 h-10 animate-spin" />
+                                <p className="font-bold text-xl">Đang tải cấu hình...</p>
                             </div>
-                            <button
-                                onClick={handleLogout}
-                                className="w-full sm:w-auto flex items-center justify-center gap-2 min-h-[56px] px-8 bg-white border-2 border-stone-300 hover:bg-stone-100 text-stone-800 text-xl font-bold rounded-xl transition-all"
-                            >
-                                <LogOut className="w-6 h-6" /> Đăng xuất
-                            </button>
-                        </div>
+                        ) : (
+                            <div className="space-y-6 animate-in fade-in zoom-in-95 duration-200">
+                                
+                                {/* TAB: CÀI ĐẶT CHUNG */}
+                                {activeTab === 'general' && (
+                                    <>
+                                        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 p-5 bg-gray-50 rounded-2xl border border-gray-100">
+                                            <div>
+                                                <p className="text-xl font-bold text-gray-900 flex items-center gap-2">
+                                                    <Moon className="w-5 h-5 text-indigo-500" /> Giao diện hiển thị
+                                                </p>
+                                                <p className="text-gray-500 font-medium pt-1">Chọn chế độ Màn hình sáng hoặc Tối</p>
+                                            </div>
+                                            <select
+                                                value={settingsData.general.theme}
+                                                onChange={(e) => updateSetting("general", "theme", e.target.value)}
+                                                className="min-h-[48px] px-4 py-2 border-2 border-gray-300 rounded-xl font-bold text-gray-800 focus:ring-emerald-200 focus:border-emerald-500 outline-none w-full sm:w-auto"
+                                            >
+                                                <option value="light">Sáng (Light Mode)</option>
+                                                <option value="dark">Tối (Dark Mode)</option>
+                                                <option value="system">Theo hệ thống</option>
+                                            </select>
+                                        </div>
 
-                        {/* Nút Xóa tài khoản (Yêu cầu xác nhận) */}
-                        <div className="flex flex-col sm:flex-row items-center justify-between gap-4 pt-2">
-                            <div className="text-center sm:text-left max-w-lg">
-                                <h3 className="text-2xl font-bold text-red-700">Xóa tài khoản vĩnh viễn</h3>
-                                <p className="text-lg text-red-600/80 font-medium mt-1">Toàn bộ câu chuyện, hình ảnh và danh bạ của bạn sẽ bị xóa sạch khỏi hệ thống. Không thể khôi phục.</p>
+                                        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 p-5 bg-gray-50 rounded-2xl border border-gray-100">
+                                            <div>
+                                                <p className="text-xl font-bold text-gray-900 flex items-center gap-2">
+                                                    <Globe className="w-5 h-5 text-blue-500" /> Ngôn ngữ
+                                                </p>
+                                                <p className="text-gray-500 font-medium pt-1">Ngôn ngữ chính trên ứng dụng</p>
+                                            </div>
+                                            <select
+                                                value={settingsData.general.language}
+                                                onChange={(e) => updateSetting("general", "language", e.target.value)}
+                                                className="min-h-[48px] px-4 py-2 border-2 border-gray-300 rounded-xl font-bold text-gray-800 focus:ring-emerald-200 focus:border-emerald-500 outline-none w-full sm:w-auto"
+                                            >
+                                                <option value="vi">Tiếng Việt</option>
+                                                <option value="en">English (US)</option>
+                                            </select>
+                                        </div>
+
+                                        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 p-5 bg-gray-50 rounded-2xl border border-gray-100">
+                                            <div className="pr-4">
+                                                <p className="text-xl font-bold text-gray-900 flex items-center gap-2">
+                                                    <Bell className="w-5 h-5 text-amber-500" /> Thông báo đẩy
+                                                </p>
+                                                <p className="text-gray-500 font-medium pt-1">Nhận thông báo khi có bình luận hoặc tương tác mới</p>
+                                            </div>
+                                            <label className="relative inline-flex items-center cursor-pointer shrink-0">
+                                                <input 
+                                                    type="checkbox" 
+                                                    checked={settingsData.general.notifications} 
+                                                    onChange={(e) => updateSetting("general", "notifications", e.target.checked)}
+                                                    className="sr-only peer" 
+                                                />
+                                                <div className="w-14 h-7 bg-gray-300 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-0.5 after:start-[4px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-6 after:w-6 after:transition-all peer-checked:bg-emerald-600"></div>
+                                            </label>
+                                        </div>
+                                    </>
+                                )}
+
+                                {/* TAB: QUYỀN RIÊNG TƯ PROFILE */}
+                                {activeTab === 'profile' && (
+                                    <>
+                                        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 p-5 bg-gray-50 rounded-2xl border border-gray-100">
+                                            <div className="pr-4">
+                                                <p className="text-xl font-bold text-gray-900 flex items-center gap-2">
+                                                    <Shield className="w-5 h-5 text-emerald-600" /> Chỉ cho phép Danh bạ xem Hồ sơ
+                                                </p>
+                                                <p className="text-gray-500 font-medium pt-1">Hồ sơ cá nhân và mọi kỷ niệm của bạn sẽ được bảo vệ, chỉ những người bạn đã lưu số trong Danh bạ mới có quyền truy cập và xem.</p>
+                                            </div>
+                                            <label className="relative inline-flex items-center cursor-pointer shrink-0">
+                                                <input 
+                                                    type="checkbox" 
+                                                    checked={settingsData.profile.contactsOnlyView} 
+                                                    onChange={(e) => updateSetting("profile", "contactsOnlyView", e.target.checked)}
+                                                    className="sr-only peer" 
+                                                />
+                                                <div className="w-14 h-7 bg-gray-300 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-0.5 after:start-[4px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-6 after:w-6 after:transition-all peer-checked:bg-emerald-600"></div>
+                                            </label>
+                                        </div>
+
+                                        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 p-5 bg-gray-50 rounded-2xl border border-gray-100">
+                                            <div className="pr-4">
+                                                <p className="text-xl font-bold text-gray-900 flex items-center gap-2">
+                                                    <Globe className="w-5 h-5 text-gray-400" /> Chỉ nhận liên lạc từ Danh bạ
+                                                </p>
+                                                <p className="text-gray-500 font-medium pt-1">Từ chối mọi tin nhắn hay thông báo tương tác từ người lạ. Việc kết nối là đặc quyền duy nhất của người trong Danh bạ.</p>
+                                            </div>
+                                            <label className="relative inline-flex items-center cursor-pointer shrink-0">
+                                                <input 
+                                                    type="checkbox" 
+                                                    checked={settingsData.profile.contactsOnlyMessage} 
+                                                    onChange={(e) => updateSetting("profile", "contactsOnlyMessage", e.target.checked)}
+                                                    className="sr-only peer" 
+                                                />
+                                                <div className="w-14 h-7 bg-gray-300 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-0.5 after:start-[4px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-6 after:w-6 after:transition-all peer-checked:bg-emerald-600"></div>
+                                            </label>
+                                        </div>
+                                    </>
+                                )}
+
+                                {/* TAB: CÂU CHUYỆN */}
+                                {activeTab === 'story' && (
+                                    <>
+                                        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 p-5 bg-gray-50 rounded-2xl border border-gray-100">
+                                            <div>
+                                                <p className="text-xl font-bold text-gray-900 flex items-center gap-2">
+                                                    <Shield className="w-5 h-5 text-indigo-500" /> Quyền được xem Nhật ký mới thiết lập
+                                                </p>
+                                                <p className="text-gray-500 font-medium pt-1">Theo nguyên tắc cá nhân hóa, hệ thống sẽ giới hạn mức độ chia sẻ để bảo vệ mọi câu chuyện của bạn an toàn trong vòng kết nối gia đình/bạn bè.</p>
+                                            </div>
+                                            <select
+                                                value={settingsData.story.defaultPrivacy}
+                                                onChange={(e) => updateSetting("story", "defaultPrivacy", e.target.value)}
+                                                className="min-h-[48px] px-4 py-2 border-2 border-gray-300 rounded-xl font-bold text-gray-800 focus:ring-emerald-200 focus:border-emerald-500 outline-none w-full sm:w-auto"
+                                            >
+                                                <option value="CONTACTS">Chia sẻ cho Danh bạ</option>
+                                                <option value="PRIVATE">Chỉ mình tôi (Bí mật)</option>
+                                            </select>
+                                        </div>
+
+                                        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 p-5 bg-gray-50 rounded-2xl border border-gray-100">
+                                            <div className="pr-4">
+                                                <p className="text-xl font-bold text-gray-900 flex items-center gap-2">
+                                                    <Smartphone className="w-5 h-5 text-gray-500" /> Tự động phát Video
+                                                </p>
+                                                <p className="text-gray-500 font-medium pt-1">Video và nhạc nền trong Story sẽ tự động phát khi bạn cuộn qua.</p>
+                                            </div>
+                                            <label className="relative inline-flex items-center cursor-pointer shrink-0">
+                                                <input 
+                                                    type="checkbox" 
+                                                    checked={settingsData.story.autoplay} 
+                                                    onChange={(e) => updateSetting("story", "autoplay", e.target.checked)}
+                                                    className="sr-only peer" 
+                                                />
+                                                <div className="w-14 h-7 bg-gray-300 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-0.5 after:start-[4px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-6 after:w-6 after:transition-all peer-checked:bg-emerald-600"></div>
+                                            </label>
+                                        </div>
+                                    </>
+                                )}
                             </div>
-                            <button
-                                onClick={handleDeleteAccount}
-                                className="w-full sm:w-auto flex items-center justify-center gap-2 min-h-[56px] px-8 bg-red-600 hover:bg-red-700 text-white text-xl font-bold rounded-xl transition-all shadow-sm"
-                            >
-                                <Trash2 className="w-6 h-6" /> Xóa tài khoản
-                            </button>
-                        </div>
-
+                        )}
                     </div>
+                </div>
+
+                {/* KHU VỰC ĐĂNG XUẤT */}
+                <section className="bg-red-50 border-2 border-red-100 rounded-3xl p-6 md:p-8 flex flex-col md:flex-row items-center justify-between gap-6 shadow-sm">
+                    <div>
+                        <h3 className="text-2xl font-bold text-red-800 mb-2 whitespace-nowrap">Đăng xuất</h3>
+                        <p className="text-red-600 font-medium text-lg">Đăng xuất khỏi thiết bị này. Dữ liệu của bạn sẽ vẫn được lưu an toàn.</p>
+                    </div>
+                    <button
+                        onClick={handleLogout}
+                        className="flex items-center justify-center gap-2 px-8 py-3 w-full sm:w-auto min-h-[56px] bg-white hover:bg-red-100 text-red-600 border-2 border-red-200 hover:border-red-300 font-bold rounded-xl transition-colors shadow-sm text-xl whitespace-nowrap"
+                    >
+                        <LogOut className="w-6 h-6" />
+                        Đăng xuất
+                    </button>
                 </section>
-
             </div>
         </MainLayout>
     );

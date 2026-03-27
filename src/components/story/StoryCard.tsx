@@ -1,77 +1,111 @@
-import Image from "next/image";
-import { Calendar, Tag } from "lucide-react"; // Thêm icon Tag cho sinh động và dễ hiểu
+// src/components/story/StoryCard.tsx
+"use client";
 
-export interface StoryProps {
-    id: string | number;
-    date: string;
-    category: string;
-    title?: string;
-    content: string;
-    imageUrl?: string;
-    onClick?: () => void;
+import { useState } from 'react';
+import Link from 'next/link';
+import { BookOpen, Pencil, Trash2 } from 'lucide-react';
+import { Story } from '@/types/story';
+import { formatDate } from '@/lib/utils';
+import ShareModal from '@/components/story/ShareModal';
+import ShareStoryButton from '@/components/story/ShareStoryButton';
+
+interface StoryCardProps {
+  story: Story;
+  onDelete?: (id: number) => void;
 }
 
-export default function StoryCard({ id, date, category, title, content, imageUrl, onClick }: StoryProps) {
-    return (
-        <article
-            onClick={onClick}
-            // Thêm cursor-pointer và group để tạo hiệu ứng hover đồng bộ
-            className="bg-white rounded-2xl shadow-sm border-2 border-gray-100 p-6 md:p-8 flex flex-col gap-6 transition-all hover:shadow-md hover:border-emerald-200 cursor-pointer group"
+export default function StoryCard({ story, onDelete }: StoryCardProps) {
+  const [isShareModalOpen, setIsShareModalOpen] = useState(false);
+
+  return (
+    <article className="bg-white rounded-3xl p-6 md:p-8 flex flex-col gap-5 shadow-sm border border-gray-200 hover:shadow-md transition-all duration-300">
+      
+      {/* 1. Header: Chữ gọn gàng hơn */}
+      <div className="flex flex-col gap-2 border-b border-gray-100 pb-4">
+        <div className="flex items-start justify-between gap-4">
+          <h2 className="text-2xl font-bold text-gray-900 leading-snug line-clamp-2">
+            {story.title}
+          </h2>
+          {/* Cấp độ Badge thể loại */}
+          {story.category && (
+            <span 
+              className="inline-flex items-center justify-center px-4 py-1.5 rounded-xl text-sm font-bold whitespace-nowrap shrink-0 shadow-sm border"
+              style={{
+                backgroundColor: story.category.color ? `${story.category.color}15` : '#ecfdf5',
+                color: story.category.color || '#065f46',
+                borderColor: story.category.color ? `${story.category.color}30` : '#a7f3d0'
+              }}
+            >
+              {story.category.name}
+            </span>
+          )}
+        </div>
+        
+        <div className="flex flex-wrap items-center gap-2 text-base font-medium text-gray-500">
+          {story.profile && (
+            <>
+              <span className="text-gray-700 font-bold">{story.profile.fullname}</span>
+              <span className="w-1.5 h-1.5 rounded-full bg-gray-300" />
+            </>
+          )}
+          <time dateTime={story.createdDate}>
+            {formatDate(story.createdDate)}
+          </time>
+        </div>
+      </div>
+
+      {/* 2. Nội dung */}
+      <div className="text-lg text-gray-700 leading-relaxed line-clamp-3">
+        {/* Render dangerouslySetInnerHTML nếu content là HTML, nhưng tam thời chỉ render p để tránh lỗi hydration */}
+        <div dangerouslySetInnerHTML={{ __html: story.content }} />
+      </div>
+
+      {/* 4. Hành động */}
+      <div className="flex flex-wrap items-center gap-3 pt-4 border-t border-gray-100 mt-auto">
+        
+        {/* Nút Đọc bài */}
+        <Link
+          href={`/story/${story.id}`}
+          className="flex flex-1 sm:flex-none items-center justify-center gap-2 px-6 min-h-[48px] bg-emerald-50 hover:bg-emerald-100 text-emerald-800 font-bold rounded-xl transition-colors border border-emerald-100 hover:border-emerald-200"
+          aria-label={`Đọc bài viết: ${story.title}`}
         >
+          <BookOpen className="w-5 h-5" aria-hidden="true" />
+          <span className="text-base">Đọc bài</span>
+        </Link>
 
-            {/* HEADER: Ngày tháng và Danh mục */}
-            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b-2 border-gray-50 pb-4">
-                <div className="flex items-center gap-3 text-gray-900">
-                    {/* Đồng bộ màu emerald-800 */}
-                    <div className="p-2 bg-emerald-50 rounded-lg">
-                        <Calendar className="w-7 h-7 text-emerald-800" strokeWidth={2.5} />
-                    </div>
-                    <span className="text-xl md:text-2xl font-extrabold">{date}</span>
-                </div>
+        {/* Nút Chia sẻ đã được đóng gói */}
+        <ShareStoryButton 
+          storyId={story.id} 
+          onClick={() => setIsShareModalOpen(true)} 
+        />
 
-                {/* Tăng cỡ chữ lên text-lg, thêm icon để người lớn tuổi dễ hiểu đây là "Nhãn/Danh mục" */}
-                <div className="inline-flex items-center gap-2 px-4 py-2 bg-slate-100 text-gray-800 rounded-xl text-lg font-bold">
-                    <Tag className="w-5 h-5 text-gray-500" />
-                    {category}
-                </div>
-            </div>
+        {/* Nút Sửa */}
+        <Link
+          href={`/story/${story.id}/edit`}
+          className="flex flex-1 sm:flex-none items-center justify-center gap-2 px-6 min-h-[48px] bg-gray-50 hover:bg-gray-100 text-gray-700 font-bold rounded-xl transition-colors border border-gray-200"
+        >
+          <Pencil className="w-4 h-4" aria-hidden="true" />
+          <span className="text-base">Sửa</span>
+        </Link>
 
-            {/* BODY: Tiêu đề và Nội dung */}
-            <div className="space-y-4">
-                {title && (
-                    <h2 className="text-2xl md:text-3xl font-bold text-gray-900 leading-snug group-hover:text-emerald-800 transition-colors">
-                        {title}
-                    </h2>
-                )}
-                {/* Dùng line-clamp-3 để giới hạn nội dung hiển thị tối đa 3 dòng */}
-                <p className="text-xl text-gray-700 leading-relaxed whitespace-pre-line line-clamp-3">
-                    {content}
-                </p>
-            </div>
+        {/* Nút Xóa */}
+        {onDelete && (
+          <button
+            onClick={() => onDelete(story.id)}
+            className="flex flex-1 sm:flex-none items-center justify-center gap-2 px-6 min-h-[48px] bg-red-50 hover:bg-red-100 text-red-600 font-bold rounded-xl transition-colors ml-auto sm:ml-0 border border-red-100 hover:border-red-200"
+          >
+            <Trash2 className="w-4 h-4" aria-hidden="true" />
+            <span className="text-base">Xóa</span>
+          </button>
+        )}
+      </div>
 
-            {/* MEDIA: Hình ảnh đính kèm */}
-            {imageUrl && (
-                <div className="relative w-full h-[250px] sm:h-[350px] md:h-[450px] rounded-2xl overflow-hidden border-2 border-gray-100">
-                    <Image
-                        src={imageUrl}
-                        alt={`Hình ảnh đính kèm cho câu chuyện: ${title || date}`}
-                        fill
-                        className="object-cover transition-transform duration-500 group-hover:scale-105"
-                        sizes="(max-width: 768px) 100vw, 800px"
-                    />
-                </div>
-            )}
-
-            {/* FOOTER: Nút thao tác mở rộng */}
-            <div className="pt-4 mt-auto">
-                {/* Đồng bộ màu sắc nút bấm với màu thương hiệu emerald */}
-                <button
-                    className="min-h-[60px] w-full bg-emerald-50 hover:bg-emerald-100 border-2 border-emerald-200 text-emerald-800 rounded-xl text-xl font-bold transition-colors flex items-center justify-center gap-2"
-                    aria-label={`Xem lại toàn bộ câu chuyện viết ngày ${date}`}
-                >
-                    Xem lại toàn bộ câu chuyện
-                </button>
-            </div>
-        </article>
-    );
+      <ShareModal 
+        storyId={story.id} 
+        storyTitle={story.title}
+        isOpen={isShareModalOpen}
+        onClose={() => setIsShareModalOpen(false)}
+      />
+    </article>
+  );
 }
