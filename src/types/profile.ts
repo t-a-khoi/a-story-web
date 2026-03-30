@@ -15,7 +15,7 @@ export interface ProfilesResponse {
 }
 
 export interface ProfilesCreateRequest {
-  userId: number; // Định danh tài khoản tạo hồ sơ này
+  userId: number;
   fullname: string;
   phoneNumber?: string;
   address?: string;
@@ -24,7 +24,7 @@ export interface ProfilesCreateRequest {
   isDeceased: boolean;
   memorialMessage?: string;
   gender: 'MALE' | 'FEMALE' | 'OTHER';
-  dateOfBirth?: string; // ISO 8601
+  dateOfBirth?: string; 
 }
 
 export interface ProfilesUpdateRequest {
@@ -39,7 +39,6 @@ export interface ProfilesUpdateRequest {
   dateOfBirth?: string; // ISO 8601
 }
 
-// Giống cấu trúc phân trang dùng chung
 export interface PageResponse<T> {
   content: T[];
   totalElements: number;
@@ -48,7 +47,6 @@ export interface PageResponse<T> {
   number: number;
 }
 
-// Cấu trúc query tìm kiếm
 export interface ProfileQueryRequest {
   page?: number;
   size?: number;

@@ -20,7 +20,7 @@ export default function HomePage() {
   const fetchStories = async (pageNumber: number) => {
     try {
       setIsLoading(true);
-      const data: PageResponse<Story> = await StoryService.getMyStories({
+      const data: PageResponse<Story> = await StoryService.getStories({
         page: pageNumber,
         size: 10,
         sort: 'createdDate,desc'

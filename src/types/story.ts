@@ -17,10 +17,6 @@ export interface Story {
   deleted: boolean;
   createdDate: string;
   modifiedDate: string;
-  category: Category;
-  profile: {
-    fullname: string;
-  };
 }
 
 export interface StoryCreateRequest {

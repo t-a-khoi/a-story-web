@@ -12,6 +12,7 @@ export default function MainLayout({ children }: { children: ReactNode }) {
 
     const logout = useAuthStore((state) => state.logout);
     const accessToken = useAuthStore((state) => state.accessToken);
+    console.log("accessToken", accessToken);
 
     useEffect(() => {
         if (!accessToken) {

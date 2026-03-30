@@ -26,25 +26,20 @@ export default function StoryCard({ story, onDelete }: StoryCardProps) {
           <h2 className="text-2xl font-bold text-gray-900 leading-snug line-clamp-2">
             {story.title}
           </h2>
-          {/* Cấp độ Badge thể loại */}
-          {story.category && (
+          {/* Cấp độ Badge thể loại dùng tạm catId */}
+          {story.catId && (
             <span 
-              className="inline-flex items-center justify-center px-4 py-1.5 rounded-xl text-sm font-bold whitespace-nowrap shrink-0 shadow-sm border"
-              style={{
-                backgroundColor: story.category.color ? `${story.category.color}15` : '#ecfdf5',
-                color: story.category.color || '#065f46',
-                borderColor: story.category.color ? `${story.category.color}30` : '#a7f3d0'
-              }}
+              className="inline-flex items-center justify-center px-4 py-1.5 rounded-xl text-sm font-bold whitespace-nowrap shrink-0 shadow-sm border bg-emerald-50 text-emerald-800 border-emerald-200"
             >
-              {story.category.name}
+              Chủ đề #{story.catId}
             </span>
           )}
         </div>
         
         <div className="flex flex-wrap items-center gap-2 text-base font-medium text-gray-500">
-          {story.profile && (
+          {story.profileId && (
             <>
-              <span className="text-gray-700 font-bold">{story.profile.fullname}</span>
+              <span className="text-gray-700 font-bold">Tác giả #{story.profileId}</span>
               <span className="w-1.5 h-1.5 rounded-full bg-gray-300" />
             </>
           )}
@@ -56,7 +51,6 @@ export default function StoryCard({ story, onDelete }: StoryCardProps) {
 
       {/* 2. Nội dung */}
       <div className="text-lg text-gray-700 leading-relaxed line-clamp-3">
-        {/* Render dangerouslySetInnerHTML nếu content là HTML, nhưng tam thời chỉ render p để tránh lỗi hydration */}
         <div dangerouslySetInnerHTML={{ __html: story.content }} />
       </div>
 

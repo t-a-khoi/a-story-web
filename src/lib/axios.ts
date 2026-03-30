@@ -1,7 +1,7 @@
 import axios from 'axios';
 import { useAuthStore } from '@/store/useAuthStore';
 
-const BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:9084/api/v1';
+const BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:9082/ph-story-mvp-service/api/v1';
 
 export const apiClient = axios.create({
     baseURL: BASE_URL,

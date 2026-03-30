@@ -17,9 +17,9 @@ export const StoryService = {
     return response.data;
   },
 
-  // Lấy danh sách chuyện của người dùng đăng nhập
-  getMyStories: async (params?: StoryQueryParams): Promise<PageResponse<Story>> => {
-    const response = await apiClient.get<PageResponse<Story>>('/stories/me', { params });
+  // Lấy danh sách chuyện (Phân trang)
+  getStories: async (params?: StoryQueryParams): Promise<PageResponse<Story>> => {
+    const response = await apiClient.get<PageResponse<Story>>('/stories', { params });
     return response.data;
   },
 
@@ -38,18 +38,9 @@ export const StoryService = {
           content: data.content,
           deleted: false,
           createdDate: new Date().toISOString(),
-          modifiedDate: new Date().toISOString(),
-          category: {
-            id: data.catId,
-            name: "Thể Loại Lịch Sử (Mock)",
-            color: "#10b981",
-            icon: "tag"
-          },
-          profile: {
-            fullname: "Nguyễn Văn Khoa"
-          }
+          modifiedDate: new Date().toISOString()
         });
-      }, 1500); // Trễ 1.5s tạo cảm giác đang gửi file lên máy chủ
+      }, 1500);
     });
 
     // Code thực sự của bạn sau này khi Java viết xong API /stories
@@ -70,7 +61,7 @@ export const StoryService = {
 
   // Tìm kiếm nâng cao
   searchStories: async (body: QueryRequest): Promise<PageResponse<Story>> => {
-    // API backend đang mong form POST có data là body chứa QueryRequest
+
     const response = await apiClient.post<PageResponse<Story>>('/stories/search', body);
     return response.data;
   }

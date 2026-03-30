@@ -45,10 +45,9 @@ export default function LandingPage() {
   const [isRedirecting, setIsRedirecting] = useState(false);
   const [openFaq, setOpenFaq] = useState<number | null>(0);
   const [scrolled, setScrolled] = useState(false);
-  
+
   const router = useRouter();
   const accessToken = useAuthStore(state => state.accessToken);
-
   // Hiệu ứng thay đổi header khi scroll
   useEffect(() => {
     const handleScroll = () => setScrolled(window.scrollY > 20);
@@ -62,7 +61,7 @@ export default function LandingPage() {
         router.push("/home");
         return;
       }
-      
+
       setIsRedirecting(true);
       const verifier = generateCodeVerifier();
       const challenge = await generateCodeChallenge(verifier);
