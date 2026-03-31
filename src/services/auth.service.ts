@@ -1,6 +1,7 @@
 import axios from 'axios';
 import { apiClient } from '@/lib/axios';
 import { TokenResponse, User, UserCreateRequest } from '@/types/auth';
+import { useAuthStore } from '@/store/useAuthStore';
 
 const AUTH_TOKEN_URL = process.env.NEXT_PUBLIC_AUTH_URL || 'http://localhost:9084/oauth2/token';
 
@@ -27,11 +28,11 @@ export const authService = {
     },
 
     /**
-     * 2. Lấy thông tin User hiện tại sau khi đã có Token
-     * API: GET /api/v1/users/me
-     */
+    * 2. Lấy thông tin User hiện tại sau khi đã có Token
+    * API: GET /api/v1/users/me
+    */
     getCurrentUser: async (): Promise<User> => {
-        const response = await apiClient.get<User>('/users/me');
+        const response = await apiClient.get<User>('ph-story-users-service/api/v1/users/me');
         return response.data;
     },
 
@@ -51,5 +52,51 @@ export const authService = {
         const scope = encodeURIComponent('openid profile');
 
         return `${authServerUrl}?response_type=code&client_id=${clientId}&redirect_uri=${redirectUri}&scope=${scope}&code_challenge=${codeChallenge}&code_challenge_method=S256&prompt=login`;
+    },
+
+    /**
+     * Xử lý callback sau khi đăng nhập thành công từ Auth Server
+     */
+    handleCallback: async (code: string): Promise<void> => {
+        const codeVerifier = sessionStorage.getItem("pkce_code_verifier");
+        
+        if (!codeVerifier) {
+            throw new Error("Không tìm thấy mã xác thực. Vui lòng đăng nhập lại.");
+        }
+
+        try {
+            // 1. Phục hồi access token từ code
+            const tokenResponse = await authService.exchangeToken(code, codeVerifier);
+            const accessToken = tokenResponse.access_token;
+
+            // 2. Lưu token tạm thời vào store để getCurrentUser có thể dùng chung cấu hình axios
+            const authStore = useAuthStore.getState();
+            authStore.setToken(accessToken);
+
+            // 3. Lấy thông tin User hiện tại
+            const user = await authService.getCurrentUser();
+
+            // 4. Lưu toàn bộ thông tin Auth vào store
+            authStore.setAuth(accessToken, user);
+
+            // 5. Dọn dẹp session sau khi hoàn thành
+            sessionStorage.removeItem("pkce_code_verifier");
+        } catch (error) {
+            useAuthStore.getState().logout();
+            throw error;
+        }
+    },
+
+    /**
+     * Dọn dẹp trạng thái đăng nhập
+     */
+    logout: () => {
+        // Dọn dẹp state
+        useAuthStore.getState().logout();
+        
+        // Dọn dẹp các token thừa
+        localStorage.removeItem("accessToken");
+        localStorage.removeItem("a-story-auth-storage");
+        sessionStorage.clear();
     }
 };

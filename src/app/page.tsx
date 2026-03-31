@@ -6,8 +6,8 @@ import { ChevronDown, BookOpen, Heart, ShieldCheck, Mail, Menu } from "lucide-re
 import { authService } from "@/services/auth.service";
 import { useRouter } from "next/navigation";
 import { useAuthStore } from "@/store/useAuthStore";
+import { motion, AnimatePresence, Variants } from "framer-motion";
 import { generateCodeVerifier, generateCodeChallenge } from "@/lib/pkce";
-import { motion, AnimatePresence, Variants } from "framer-motion"; // Import thêm Variants để fix lỗi TypeScript
 
 // Dữ liệu mẫu cho FAQ
 const FAQS = [
@@ -48,6 +48,8 @@ export default function LandingPage() {
 
   const router = useRouter();
   const accessToken = useAuthStore(state => state.accessToken);
+  console.log("accessToken", accessToken);
+
   // Hiệu ứng thay đổi header khi scroll
   useEffect(() => {
     const handleScroll = () => setScrolled(window.scrollY > 20);
@@ -58,21 +60,39 @@ export default function LandingPage() {
   const handleStartJourney = async () => {
     try {
       if (accessToken) {
+        // Nếu đã đăng nhập, cho vào thẳng trang Home
         router.push("/home");
         return;
       }
 
       setIsRedirecting(true);
-      const verifier = generateCodeVerifier();
-      const challenge = await generateCodeChallenge(verifier);
-      sessionStorage.setItem("pkce_code_verifier", verifier);
-      window.location.href = authService.getLoginUrl(challenge);
+
+      // 1. Tạo Code Verifier và Challenge
+      const codeVerifier = generateCodeVerifier();
+      const codeChallenge = await generateCodeChallenge(codeVerifier);
+      sessionStorage.setItem("pkce_code_verifier", codeVerifier);
+
+      // 2. Chuyển hướng sang Auth Server
+      const authServerUrl = process.env.NEXT_PUBLIC_AUTH_SERVER_URL || "http://localhost:9084";
+      const clientId = "spa-client";
+      const redirectUri = process.env.NEXT_PUBLIC_REDIRECT_URI || "http://localhost:3000/callback";
+
+      const authUrl = new URL(`${authServerUrl}/oauth2/authorize`);
+      authUrl.searchParams.append("response_type", "code");
+      authUrl.searchParams.append("client_id", clientId);
+      authUrl.searchParams.append("redirect_uri", redirectUri);
+      authUrl.searchParams.append("scope", "openid profile");
+      authUrl.searchParams.append("code_challenge", codeChallenge);
+      authUrl.searchParams.append("code_challenge_method", "S256");
+      authUrl.searchParams.append("prompt", "login"); 
+
+      window.location.href = authUrl.toString();
     } catch (error) {
-      console.error("Lỗi chuyển hướng:", error);
+      console.error("Lỗi chuyển hướng đăng nhập:", error);
       setIsRedirecting(false);
     }
   };
-
+  
   return (
     <div className="min-h-screen bg-stone-50 text-stone-900 font-sans selection:bg-emerald-200">
 

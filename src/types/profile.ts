@@ -1,3 +1,4 @@
+
 export interface ProfilesResponse {
   id: number;
   userId: number;
@@ -9,9 +10,9 @@ export interface ProfilesResponse {
   isDeceased: boolean;
   memorialMessage?: string;
   gender: 'MALE' | 'FEMALE' | 'OTHER';
-  dateOfBirth?: string; // ISO 8601
-  createdDate: string; // ISO 8601
-  modifiedDate: string; // ISO 8601
+  dateOfBirth?: string; 
+  createdDate: string; 
+  modifiedDate: string; 
 }
 
 export interface ProfilesCreateRequest {
@@ -36,23 +37,5 @@ export interface ProfilesUpdateRequest {
   isDeceased: boolean;
   memorialMessage?: string;
   gender: 'MALE' | 'FEMALE' | 'OTHER';
-  dateOfBirth?: string; // ISO 8601
-}
-
-export interface PageResponse<T> {
-  content: T[];
-  totalElements: number;
-  totalPages: number;
-  size: number;
-  number: number;
-}
-
-export interface ProfileQueryRequest {
-  page?: number;
-  size?: number;
-  sort?: string;
-  filter?: {
-    [key: string]: any;
-  };
-  search?: string;
+  dateOfBirth?: string; 
 }

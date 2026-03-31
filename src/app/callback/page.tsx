@@ -1,59 +1,41 @@
 "use client";
 
-import { useEffect, useState, useRef } from "react";
+import { useEffect, useState, useRef, Suspense } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { authService } from "@/services/auth.service";
-import { useAuthStore } from "@/store/useAuthStore"; // Giả định bạn dùng Zustand ở đây
 import { Loader2, AlertCircle } from "lucide-react";
 
-export default function CallbackPage() {
-    const router = useRouter();
+function CallbackContent() {
     const searchParams = useSearchParams();
+    const router = useRouter();
     const [error, setError] = useState<string | null>(null);
-    const setAuth = useAuthStore((state: any) => state.setAuth); // Hàm lưu token & user
-
-    // Dùng useRef để tránh gọi API 2 lần trong React Strict Mode
     const isProcessing = useRef(false);
 
     useEffect(() => {
-        const processAuth = async () => {
+        const handleAuth = async () => {
             if (isProcessing.current) return;
             isProcessing.current = true;
 
             const code = searchParams.get("code");
-            const verifier = sessionStorage.getItem("pkce_code_verifier");
-
-            if (!code || !verifier) {
-                setError("Không tìm thấy thông tin xác thực. Vui lòng đăng nhập lại.");
+            if (!code) {
+                setError("Không tìm thấy mã xác thực. Vui lòng đăng nhập lại.");
                 return;
             }
 
             try {
-                // 1. Đổi Code lấy Access Token
-                const tokenResponse = await authService.exchangeToken(code, verifier);
-
-                // 2. Lấy thông tin User hiện tại (cần cấu hình axios để dùng token vừa lấy)
-                // Lưu ý: Tạm lưu token vào localStorage/store trước khi gọi getCurrentUser
-                localStorage.setItem("accessToken", tokenResponse.access_token);
-                const user = await authService.getCurrentUser();
-
-                // 3. Lưu vào Zustand Store
-                if (setAuth) {
-                    setAuth(tokenResponse.access_token, user);
-                }
-
-                // 4. Xóa verifier và chuyển hướng vào trang chủ
-                sessionStorage.removeItem("pkce_code_verifier");
+                // Toàn bộ logic giải mã token, lấy thông tin user đã được chuyển vào authService
+                await authService.handleCallback(code);
+                
+                // Chuyển hướng tới trang chủ sau khi xử lý thành công
                 router.push("/home");
-
-            } catch (err) {
-                console.error("Lỗi xác thực:", err);
-                setError("Quá trình đăng nhập thất bại. Vui lòng thử lại.");
+            } catch (err: any) {
+                console.error("Lỗi callback:", err);
+                setError(err.message || "Lỗi trong quá trình xác thực");
             }
         };
 
-        processAuth();
-    }, [searchParams, router, setAuth]);
+        handleAuth();
+    }, [searchParams, router]);
 
     return (
         <div className="min-h-screen bg-slate-50 flex flex-col items-center justify-center p-6 text-center">
@@ -77,5 +59,21 @@ export default function CallbackPage() {
                 </div>
             )}
         </div>
+    );
+}
+
+export default function CallbackPage() {
+    return (
+        <Suspense fallback={
+            <div className="min-h-screen bg-slate-50 flex flex-col items-center justify-center p-6 text-center">
+                <div className="space-y-8 flex flex-col items-center">
+                    <Loader2 className="w-20 h-20 text-emerald-700 animate-spin" />
+                    <h1 className="text-3xl font-bold text-gray-900">Đang chuẩn bị không gian của bạn...</h1>
+                    <p className="text-xl text-gray-600 font-medium">Xin vui lòng đợi trong giây lát.</p>
+                </div>
+            </div>
+        }>
+            <CallbackContent />
+        </Suspense>
     );
 }

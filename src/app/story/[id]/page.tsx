@@ -72,7 +72,7 @@ export default function StoryDetailPage() {
 
         {/* PHẦN ĐẦU BÀI VIẾT (HEADER) */}
         <div className="px-6 md:px-12 pt-10 pb-8 space-y-6 text-center">
-          <h1 className="text-4xl md:text-5xl font-extrabold text-stone-900 leading-[1.3] tracking-tight">
+          <h1 className="text-3xl md:text-5xl font-extrabold text-stone-900 leading-[1.3] tracking-tight">
             {story.title}
           </h1>
 
@@ -127,7 +127,7 @@ export default function StoryDetailPage() {
       <ShareModal
         isOpen={isShareModalOpen}
         onClose={() => setIsShareModalOpen(false)}
-        storyId={story.id}
+        storyId={Number(story.id)}
         storyTitle={story.title}
       />
     </MainLayout>

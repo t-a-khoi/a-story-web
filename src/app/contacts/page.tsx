@@ -1,3 +1,4 @@
+// src/app/contacts/page.tsx
 "use client";
 
 import { useState, useEffect } from "react";
@@ -52,7 +53,7 @@ export default function ContactsPage() {
           </div>
 
           <div className="relative z-10 space-y-2">
-            <h1 className="text-3xl md:text-4xl font-extrabold text-gray-900 tracking-tight">
+            <h1 className="text-2xl md:text-3xl font-extrabold text-gray-900 tracking-tight">
               Danh bạ người thân
             </h1>
             <p className="text-gray-700 text-lg md:text-xl font-medium">

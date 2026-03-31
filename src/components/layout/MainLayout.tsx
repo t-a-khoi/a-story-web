@@ -1,10 +1,10 @@
 "use client";
-import { ReactNode } from "react";
+import { ReactNode, useState, useEffect } from "react";
 import { Home, PenSquare, User, LogOut, Book, Users, Settings } from "lucide-react";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { useAuthStore } from "@/store/useAuthStore";
-import { useEffect } from "react";
+import { authService } from "@/services/auth.service";
 
 export default function MainLayout({ children }: { children: ReactNode }) {
     const pathname = usePathname();
@@ -14,17 +14,28 @@ export default function MainLayout({ children }: { children: ReactNode }) {
     const accessToken = useAuthStore((state) => state.accessToken);
     console.log("accessToken", accessToken);
 
+    const [isHydrated, setIsHydrated] = useState(false);
+
     useEffect(() => {
-        if (!accessToken) {
+        // Đánh dấu Zustand đã lấy xong dữ liệu từ localStorage
+        setIsHydrated(true);
+    }, []);
+
+    useEffect(() => {
+        // Chỉ chạy logic chuyển hướng KHI đã hydrated xong
+        if (isHydrated && !accessToken) {
             router.push("/");
         }
-    }, [accessToken, router]);
+    }, [isHydrated, accessToken, router]);
 
     const handleLogout = () => {
-        logout();
-        localStorage.removeItem("accessToken");
+        authService.logout();
         router.push("/");
     };
+
+    if (!isHydrated) {
+        return <div className="min-h-screen bg-slate-50"></div>;
+    }
     const navItems = [
         { name: "Trang chủ", href: "/home", icon: Home },
         { name: "Viết mới", href: "/write", icon: PenSquare },

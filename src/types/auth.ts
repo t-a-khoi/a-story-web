@@ -19,7 +19,6 @@ export interface TokenResponse {
  * ============================================================================
  */
 
-// Thông tin cơ bản của User (từ API /api/v1/users/me)
 export interface User {
     id: number;
     username: string;

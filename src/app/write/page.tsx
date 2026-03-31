@@ -11,7 +11,7 @@ export default function WritePage() {
     const [title, setTitle] = useState("");
     const [content, setContent] = useState("");
     const [selectedCatId, setSelectedCatId] = useState<number>(0);
-    
+
     const [isSaving, setIsSaving] = useState(false);
     const [showSuccess, setShowSuccess] = useState(false);
     const [errorMsg, setErrorMsg] = useState("");
@@ -81,7 +81,7 @@ export default function WritePage() {
                             <ArrowLeft className="w-6 h-6" />
                             <span>Quay lại</span>
                         </button>
-                        <h1 className="text-3xl md:text-4xl font-extrabold text-gray-900 tracking-tight">
+                        <h1 className="text-2xl md:text-3xl font-extrabold text-gray-900 tracking-tight">
                             Kể câu chuyện mới
                         </h1>
                     </div>
@@ -90,11 +90,10 @@ export default function WritePage() {
                     <button
                         onClick={handleSave}
                         disabled={isSaving || showSuccess}
-                        className={`relative z-10 flex items-center justify-center gap-2 min-h-[56px] px-8 py-3 rounded-xl text-xl font-bold transition-all shadow-md shrink-0 ${
-                            showSuccess
-                                ? "bg-emerald-100 text-emerald-800 border-2 border-emerald-300"
-                                : "bg-emerald-800 text-white hover:bg-emerald-900 disabled:opacity-50 disabled:cursor-not-allowed"
-                        }`}
+                        className={`relative z-10 flex items-center justify-center gap-2 min-h-[56px] px-8 py-3 rounded-xl text-xl font-bold transition-all shadow-md shrink-0 ${showSuccess
+                            ? "bg-emerald-100 text-emerald-800 border-2 border-emerald-300"
+                            : "bg-emerald-800 text-white hover:bg-emerald-900 disabled:opacity-50 disabled:cursor-not-allowed"
+                            }`}
                     >
                         {showSuccess ? (
                             <>
@@ -141,7 +140,7 @@ export default function WritePage() {
                         value={title}
                         onChange={(e) => setTitle(e.target.value)}
                         placeholder="Viết tiêu đề (ví dụ: Chiếc radio cũ năm 1990)..."
-                        className="w-full text-3xl md:text-4xl font-extrabold text-gray-900 placeholder-gray-400 bg-transparent border-none focus:ring-0 focus:outline-none p-0"
+                        className="w-full text-2xl md:text-3xl font-extrabold text-gray-900 placeholder-gray-400 bg-transparent border-none focus:ring-0 focus:outline-none p-0"
                     />
 
                     <hr className="border-gray-100" />
