@@ -13,6 +13,12 @@ export const ProfileService = {
     return response.data;
   },
 
+  // Lấy Profile của chính mình
+  getMyProfile: async (): Promise<ProfilesResponse> => {
+    const response = await apiClient.get<ProfilesResponse>('/ph-story-mvp-service/api/v1/profiles/me');
+    return response.data;
+  },
+
   // Lấy chi tiết 1 Profile
   getProfileById: async (id: number): Promise<ProfilesResponse> => {
     const response = await apiClient.get<ProfilesResponse>(`/ph-story-mvp-service/api/v1/profiles/${id}`);
@@ -31,9 +37,8 @@ export const ProfileService = {
     return response.data;
   },
 
-  // Xóa mềm Profile
   deleteProfile: async (id: number): Promise<void> => {
-    await apiClient.delete(`/profiles/${id}`);
+    await apiClient.delete(`/ph-story-mvp-service/api/v1/profiles/${id}`);
   },
 
   // Tìm kiếm bằng QueryRequest tùy biến

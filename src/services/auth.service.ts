@@ -41,7 +41,7 @@ export const authService = {
      * API: POST /api/v1/users
      */
     register: async (data: UserCreateRequest): Promise<User> => {
-        const response = await apiClient.post<User>('/users', data);
+        const response = await apiClient.post<User>('ph-story-users-service/api/v1/users', data);
         return response.data;
     },
 

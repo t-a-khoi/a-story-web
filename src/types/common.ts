@@ -5,6 +5,7 @@ export interface PageResponse<T> {
     totalPages: number;
     size: number;
     number: number;
+    empty?: boolean;
 }
 
 // 2. Các type và interface phục vụ cho Request Search nâng cao

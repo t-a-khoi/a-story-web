@@ -11,9 +11,8 @@ export const StoryService = {
     return response.data;
   },
 
-  // Lấy danh sách chuyện (Phân trang)
   getStories: async (params?: StoryQueryParams): Promise<PageResponse<Story>> => {
-    const response = await apiClient.get<PageResponse<Story>>('/ph-story-mvp-service/api/v1/stories', { params });
+    const response = await apiClient.get<PageResponse<Story>>('/ph-story-mvp-service/api/v1/stories/me', { params });
     return response.data;
   },
 

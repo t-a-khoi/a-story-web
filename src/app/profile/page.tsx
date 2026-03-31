@@ -34,43 +34,31 @@ export default function ProfilePage() {
 
     const fetchInitialProfile = async () => {
         const { accessToken } = useAuthStore.getState();
-        if (!accessToken) return; // Bảo vệ API khỏi việc gửi request thiếu Authorization header sẽ gây lỗi 500 trên Backend
+        if (!accessToken) return;
 
         try {
-            // Giả định backend service profile.service.ts có hàm searchProfiles tương tự settings
-            const res = await ProfileService.searchProfiles({
-                filters: [
-                    {
-                        field: "userId",
-                        operator: "EQUAL",
-                        value: 1 //TODO: Thay thế bằng userId từ Context/Auth khi tích hợp thật
-                    }
-                ],
-                pagination: {
-                    page: 0,
-                    size: 1
-                }
-            });
+            const profile = await ProfileService.getMyProfile();
 
-            if (res.content && res.content.length > 0) {
-                const profile = res.content[0];
+            if (profile) {
                 setProfileId(profile.id);
                 setFormData({
                     fullname: profile.fullname || "",
                     gender: profile.gender || "MALE",
-                    dateOfBirth: profile.dateOfBirth ? profile.dateOfBirth.split('T')[0] : "", // Parse từ ISO 8601 sang yyyy-MM-dd
+                    dateOfBirth: profile.dateOfBirth ? profile.dateOfBirth.split('T')[0] : "",
                     phoneNumber: profile.phoneNumber || "",
                     address: profile.address || "",
                     isDeceased: profile.isDeceased || false,
                     memorialMessage: profile.memorialMessage || "",
                 });
-            } else {
-                // Nếu chưa có profile nào, để người dùng tự tạo
-                setIsEditing(true);
             }
-        } catch (error) {
-            console.error("Lỗi tải profile:", error);
-            showToast("error", "Không thể tải thông tin hồ sơ. Vui lòng thử lại!");
+        } catch (error: any) {
+            // Backend trả về lỗi 404 nếu chưa có profile
+            if (error.response?.status === 404) {
+                setIsEditing(true);
+            } else {
+                console.error("Lỗi tải profile:", error);
+                showToast("error", "Không thể tải thông tin hồ sơ. Vui lòng thử lại!");
+            }
         } finally {
             setIsLoading(false);
         }
@@ -119,8 +107,9 @@ export default function ProfilePage() {
                 showToast("success", "Đã cập nhật hồ sơ thành công!");
             } else {
                 // Tạo mới Profile
+                const user = useAuthStore.getState().user;
                 const payload: ProfilesCreateRequest = {
-                    userId: 1, // TODO: Lấy từ Context
+                    userId: user?.id || 0,
                     fullname: formData.fullname.trim(),
                     gender: formData.gender,
                     dateOfBirth: isoDateOfBirth,
