@@ -154,10 +154,10 @@ export default function HomePage() {
         <Link
           href="/write"
           className="flex items-center justify-center gap-3 w-full bg-emerald-800 hover:bg-emerald-900 text-white font-bold py-5 px-6 rounded-2xl min-h-[64px] transition-colors shadow-sm active:scale-[0.98] relative z-10"
-          aria-label="Nhấn vào đây để viết kỷ niệm mới"
+          aria-label="Nhấn vào đây để viết bài viết mới"
         >
           <PlusCircle className="w-7 h-7" aria-hidden="true" />
-          <span className="text-xl">Viết kỷ niệm mới</span>
+          <span className="text-xl">Tạo bài viết</span>
         </Link>
 
         {/* --- DANH SÁCH BÀI VIẾT --- */}

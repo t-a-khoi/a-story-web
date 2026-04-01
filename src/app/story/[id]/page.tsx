@@ -7,6 +7,9 @@ import MainLayout from "@/components/layout/MainLayout";
 import { ArrowLeft, Calendar, Edit3, Share2, Clock, Trash2, Loader2, AlertTriangle, CheckCircle2 } from "lucide-react";
 import ShareModal from "@/components/story/ShareModal";
 import { StoryService } from "@/services/stories.service";
+import { StoryMediaService } from "@/services/storyMedia.service";
+import { MediaFilesService } from "@/services/mediaFiles.service";
+import { FileUploadService } from "@/services/fileUpload.service";
 import { Story } from "@/types/story";
 
 export default function StoryDetailPage() {
@@ -24,6 +27,8 @@ export default function StoryDetailPage() {
   // Toasts
   const [toastMsg, setToastMsg] = useState<{ type: 'success' | 'error', text: string } | null>(null);
 
+  const [attachedMediaUrls, setAttachedMediaUrls] = useState<string[]>([]);
+
   useEffect(() => {
     if (params.id) {
       fetchStoryDetail(Number(params.id));
@@ -35,6 +40,20 @@ export default function StoryDetailPage() {
     try {
       const data = await StoryService.getStoryById(id);
       setStory(data);
+
+      try {
+          const storyMediaList = await StoryMediaService.getStoryMediaByStoryId(id);
+          if (storyMediaList && storyMediaList.length > 0) {
+              const urls = await Promise.all(storyMediaList.map(async (sm) => {
+                  const fileObj = await MediaFilesService.getMediaFileById(sm.mediaId);
+                  return await FileUploadService.fetchImageBlobUrl(fileObj.urlPath);
+              }));
+              setAttachedMediaUrls(urls.filter(url => url !== ""));
+          }
+      } catch (mediaErr) {
+          console.warn("Lỗi tải ảnh đính kèm:", mediaErr);
+      }
+
     } catch (error) {
       console.error("Lỗi lấy chi tiết story:", error);
       showToast("error", "Không thể tải câu chuyện lúc này.");
@@ -188,18 +207,32 @@ export default function StoryDetailPage() {
             </div>
           </div>
 
-          {/* HÌNH ẢNH MẶC ĐỊNH (Placeholder vì MVP chưa có mediaUrl) */}
-          <div className="px-6 md:px-12 pb-10">
-            <div className="relative aspect-[16/9] w-full rounded-2xl overflow-hidden shadow-md border border-stone-200 bg-stone-100">
-              <Image
-                src={"https://images.unsplash.com/photo-1555939594-58d7cb561ad1?q=80&w=1200&auto=format&fit=crop"}
-                alt={`Minh hoạ câu chuyện`}
-                fill
-                className="object-cover"
-              />
+          {/* HIỂN THỊ HÌNH ẢNH ĐÍNH KÈM */}
+          {attachedMediaUrls.length > 0 ? (
+            <div className="px-6 md:px-12 pb-10 space-y-6">
+              {attachedMediaUrls.map((url, idx) => (
+                  <div key={idx} className="relative w-full rounded-2xl overflow-hidden shadow-md border border-stone-200 bg-stone-100 flex justify-center max-h-[600px]">
+                    <img
+                      src={url}
+                      alt={`Minh họa ${idx + 1}`}
+                      className="w-full h-full object-contain max-h-[600px] bg-stone-100"
+                    />
+                  </div>
+              ))}
             </div>
-            <p className="text-center text-sm text-stone-400 mt-3 italic">Hình ảnh kỉ niệm (Minh họa gốc)</p>
-          </div>
+          ) : (
+            <div className="px-6 md:px-12 pb-10">
+              <div className="relative aspect-[16/9] w-full rounded-2xl overflow-hidden shadow-md border border-stone-200 bg-stone-100">
+                <Image
+                  src={"https://images.unsplash.com/photo-1555939594-58d7cb561ad1?q=80&w=1200&auto=format&fit=crop"}
+                  alt={`Minh hoạ mặc định`}
+                  fill
+                  className="object-cover"
+                />
+              </div>
+              <p className="text-center text-sm text-stone-400 mt-3 italic">Hình ảnh kỉ niệm (Minh họa gốc chưa được thay thế)</p>
+            </div>
+          )}
 
           {/* NỘI DUNG VĂN BẢN (BODY) */}
           <div className="px-6 md:px-12 text-xl md:text-2xl text-stone-800">

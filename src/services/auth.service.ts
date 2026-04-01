@@ -37,6 +37,15 @@ export const authService = {
     },
 
     /**
+     * 2.5 Lấy thông tin Profile cơ bản sau khi login
+     * API: GET /api/v1/profiles/me
+     */
+    getCurrentProfile: async (): Promise<any> => {
+        const response = await apiClient.get('ph-story-mvp-service/api/v1/profiles/me');
+        return response.data;
+    },
+
+    /**
      * 3. Đăng ký Tài khoản mới
      * API: POST /api/v1/users
      */
@@ -76,8 +85,16 @@ export const authService = {
             // 3. Lấy thông tin User hiện tại
             const user = await authService.getCurrentUser();
 
+            // 3.5 Lấy thông tin Profile (nếu có)
+            let profile = null;
+            try {
+                profile = await authService.getCurrentProfile();
+            } catch (err) {
+                console.warn("Người dùng này chưa có profile", err);
+            }
+
             // 4. Lưu toàn bộ thông tin Auth vào store
-            authStore.setAuth(accessToken, user);
+            authStore.setAuth(accessToken, user, profile);
 
             // 5. Dọn dẹp session sau khi hoàn thành
             sessionStorage.removeItem("pkce_code_verifier");
@@ -87,16 +104,16 @@ export const authService = {
         }
     },
 
-    /**
-     * Dọn dẹp trạng thái đăng nhập
-     */
     logout: () => {
-        // Dọn dẹp state
+        // 1. Xóa trạng thái trong Zustand store
         useAuthStore.getState().logout();
-        
-        // Dọn dẹp các token thừa
+
+        // 2. Dọn dẹp toàn bộ dữ liệu định danh ở Local/Session Storage
         localStorage.removeItem("accessToken");
         localStorage.removeItem("a-story-auth-storage");
         sessionStorage.clear();
+        
+        // 3. Hard Redirect về trang chủ
+        window.location.href = "/";
     }
 };

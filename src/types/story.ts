@@ -3,8 +3,31 @@
 export interface Category {
   id: number;
   name: string;
-  icon: string;
-  color: string;
+  typeCode?: string;
+  userId?: number;
+  username?: string;
+  icon?: string;
+  color?: string;
+  createdDate?: string;
+  createdBy?: string;
+  modifiedDate?: string;
+  modifiedBy?: string;
+}
+
+export interface CategoriesCreateRequest {
+  name: string;
+  typeCode?: string;
+  userId?: number;
+  icon?: string;
+  color?: string;
+}
+
+export interface CategoriesUpdateRequest {
+  name: string;
+  typeCode?: string;
+  userId?: number;
+  icon?: string;
+  color?: string;
 }
 
 export interface Story {
@@ -22,7 +45,7 @@ export interface Story {
 export interface StoryCreateRequest {
   userId: number;
   profileId: number;
-  catId: number;
+  catId?: number | null;
   title: string;
   content: string;
 }
@@ -30,7 +53,7 @@ export interface StoryCreateRequest {
 export interface StoryUpdateRequest {
   userId?: number;
   profileId?: number;
-  catId?: number;
+  catId?: number | null;
   title?: string;
   content?: string;
 }
@@ -52,4 +75,19 @@ export interface QueryRequest {
     [key: string]: any;
   };
   search?: string;
+}
+
+export interface StoryMediaResponse {
+    id: number;
+    storyId: number;
+    mediaId: number;
+    caption?: string;
+    deleted?: boolean;
+    createdDate?: string;
+}
+
+export interface StoryMediaCreateRequest {
+    storyId: number;
+    mediaId: number;
+    caption?: string;
 }

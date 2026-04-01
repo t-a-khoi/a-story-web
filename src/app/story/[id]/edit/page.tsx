@@ -4,24 +4,46 @@
 import { useState, useRef, useEffect, use, useMemo } from "react";
 import { useRouter } from "next/navigation";
 import MainLayout from "@/components/layout/MainLayout";
-import { Save, Image as ImageIcon, ArrowLeft, CheckCircle2, BookOpenText, AlertCircle, Loader2, Lightbulb } from "lucide-react";
+import { Save, Image as ImageIcon, ArrowLeft, CheckCircle2, BookOpenText, AlertCircle, Loader2, Lightbulb, XCircle } from "lucide-react";
 import { StoryService } from "@/services/stories.service";
+import { FileUploadService } from "@/services/fileUpload.service";
+import { MediaFilesService } from "@/services/mediaFiles.service";
+import { useAuthStore } from "@/store/useAuthStore";
+import { StoryMediaService } from "@/services/storyMedia.service";
+import { CategoriesService } from "@/services/categories.service";
+import { Category } from "@/types/story";
 
 export default function EditStoryPage({ params }: { params: Promise<{ id: string }> }) {
     const router = useRouter();
     const resolvedParams = use(params);
     const storyId = Number(resolvedParams.id);
+    const { user } = useAuthStore();
 
     // Form states
     const [title, setTitle] = useState("");
     const [content, setContent] = useState("");
     const [selectedCatId, setSelectedCatId] = useState<number>(0);
+    const [categories, setCategories] = useState<Category[]>([]);
+    const [isLoadingCategories, setIsLoadingCategories] = useState(true);
 
     // UI statuses
     const [isLoading, setIsLoading] = useState(true);
     const [isSaving, setIsSaving] = useState(false);
     const [showSuccess, setShowSuccess] = useState(false);
     const [errorMsg, setErrorMsg] = useState("");
+
+    // Media states
+    interface AttachedMedia {
+        id?: number; 
+        mediaFileId: number; 
+        fileKey: string; 
+        blobUrl: string;
+        isNew: boolean; 
+    }
+    const [attachedMedia, setAttachedMedia] = useState<AttachedMedia[]>([]);
+    const [deletedStoryMediaIds, setDeletedStoryMediaIds] = useState<number[]>([]);
+    const [isUploading, setIsUploading] = useState(false);
+    const fileInputRef = useRef<HTMLInputElement>(null);
 
     const textareaRef = useRef<HTMLTextAreaElement>(null);
 
@@ -41,7 +63,29 @@ export default function EditStoryPage({ params }: { params: Promise<{ id: string
                 const data = await StoryService.getStoryById(storyId);
                 setTitle(data.title);
                 setContent(data.content);
-                setSelectedCatId(data.catId);
+                setSelectedCatId(data.catId || 0);
+
+                try {
+                    // Fetch attached media
+                    const storyMediaList = await StoryMediaService.getStoryMediaByStoryId(storyId);
+                    if (storyMediaList && storyMediaList.length > 0) {
+                        const mediaItems = await Promise.all(storyMediaList.map(async (sm) => {
+                            const fileObj = await MediaFilesService.getMediaFileById(sm.mediaId);
+                            const blobUrl = await FileUploadService.fetchImageBlobUrl(fileObj.urlPath);
+                            return {
+                                id: sm.id,
+                                mediaFileId: sm.mediaId,
+                                fileKey: fileObj.urlPath,
+                                blobUrl: blobUrl,
+                                isNew: false
+                            };
+                        }));
+                        setAttachedMedia(mediaItems);
+                    }
+                } catch (mediaErr) {
+                    console.warn("Lỗi tải ảnh đính kèm:", mediaErr);
+                }
+
             } catch (error) {
                 console.error("Lỗi khi tải câu chuyện:", error);
                 setErrorMsg("Không thể tải nội dung câu chuyện. Có thể câu chuyện đã bị xóa hoặc kết nối mạng có vấn đề.");
@@ -55,14 +99,23 @@ export default function EditStoryPage({ params }: { params: Promise<{ id: string
         }
     }, [storyId]);
 
-    // Cấu trúc danh mục mẫu (Để dùng cho phần gợi ý)
-    const categories = useMemo(() => [
-        { id: 1, name: "Gia đình" },
-        { id: 2, name: "Tuổi trẻ" },
-        { id: 3, name: "Kỷ niệm & Đồ vật" },
-        { id: 4, name: "Kinh nghiệm sống" },
-        { id: 5, name: "Chuyện nghề" },
-    ], []);
+    // Fetch categories
+    useEffect(() => {
+        const fetchCategories = async () => {
+            try {
+                setIsLoadingCategories(true);
+                const res = await CategoriesService.getCategories(0, 50);
+                if (res && res.content) {
+                    setCategories(res.content);
+                }
+            } catch (error) {
+                console.error("Lỗi khi load danh mục:", error);
+            } finally {
+                setIsLoadingCategories(false);
+            }
+        };
+        fetchCategories();
+    }, []);
 
     // Gợi ý viết bài động dựa theo danh mục được chọn
     const writingPrompts = useMemo(() => {
@@ -83,8 +136,8 @@ export default function EditStoryPage({ params }: { params: Promise<{ id: string
     }, [selectedCatId]);
 
     const handleUpdate = async () => {
-        if (!title.trim() || !content.trim() || selectedCatId === 0) {
-            setErrorMsg("Vui lòng nhập đầy đủ tiêu đề, chủ đề và nội dung.");
+        if (!title.trim() || !content.trim()) {
+            setErrorMsg("Vui lòng nhập đầy đủ tiêu đề và nội dung câu chuyện.");
             return;
         }
 
@@ -93,10 +146,27 @@ export default function EditStoryPage({ params }: { params: Promise<{ id: string
 
         try {
             await StoryService.updateStory(storyId, {
-                catId: selectedCatId,
+                catId: selectedCatId > 0 ? selectedCatId : null,
                 title: title.trim(),
                 content: content.trim()
             });
+
+            // Gỡ ảnh cũ
+            if (deletedStoryMediaIds.length > 0) {
+                await Promise.all(deletedStoryMediaIds.map(id => StoryMediaService.deleteStoryMedia(id).catch(e=>console.error(e))));
+            }
+
+            // Thêm ảnh mới
+            const newMedia = attachedMedia.filter(m => m.isNew);
+            if (newMedia.length > 0) {
+                await Promise.all(newMedia.map(m => 
+                    StoryMediaService.createStoryMedia({
+                        storyId: storyId,
+                        mediaId: m.mediaFileId,
+                        caption: ""
+                    })
+                ));
+            }
 
             setShowSuccess(true);
             setTimeout(() => {
@@ -109,6 +179,59 @@ export default function EditStoryPage({ params }: { params: Promise<{ id: string
         } finally {
             setIsSaving(false);
         }
+    };
+
+    const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
+        const files = e.target.files;
+        if (!files || files.length === 0) return;
+
+        setIsUploading(true);
+        setErrorMsg("");
+
+        try {
+            for (let i = 0; i < files.length; i++) {
+                const file = files[i];
+                const uploadRes = await FileUploadService.uploadFile(file, "story-assets");
+                const blobUrl = await FileUploadService.fetchImageBlobUrl(uploadRes.key);
+                
+                const mediaRes = await MediaFilesService.createMediaFile({
+                    userId: user?.id || 1,
+                    categoryId: null, // Không đồng bộ catId giữa Story và MediaFiles để tránh lỗi Constraint
+                    mediaType: "IMAGE",
+                    urlPath: uploadRes.key,
+                    fileSize: uploadRes.size,
+                    title: file.name
+                });
+
+                setAttachedMedia(prev => [...prev, {
+                    id: undefined,
+                    mediaFileId: mediaRes.id,
+                    fileKey: uploadRes.key,
+                    blobUrl: blobUrl,
+                    isNew: true
+                }]);
+            }
+        } catch (error) {
+            console.error("Lỗi upload ảnh:", error);
+            setErrorMsg("Không thể tải ảnh lên. Vui lòng thử lại!");
+        } finally {
+            setIsUploading(false);
+            if (fileInputRef.current) fileInputRef.current.value = "";
+        }
+    };
+
+    const handleRemoveMedia = async (index: number) => {
+        const target = attachedMedia[index];
+        if (!target.isNew && target.id) {
+            setDeletedStoryMediaIds(prev => [...prev, target.id!]);
+        } else {
+            try {
+                await MediaFilesService.deleteMediaFile(target.mediaFileId);
+                await FileUploadService.deleteFile(target.fileKey);
+            } catch (e) {}
+        }
+        URL.revokeObjectURL(target.blobUrl);
+        setAttachedMedia(prev => prev.filter((_, i) => i !== index));
     };
 
     if (isLoading) {
@@ -128,8 +251,6 @@ export default function EditStoryPage({ params }: { params: Promise<{ id: string
             <div className="min-h-screen bg-stone-50 bg-opacity-60" style={{ backgroundImage: 'url("data:image/svg+xml,%3Csvg width=\'20\' height=\'20\' viewBox=\'0 0 20 20\' xmlns=\'http://www.w3.org/2000/svg\'%3E%3Cg fill=\'%23a8a29e\' fill-opacity=\'0.08\' fill-rule=\'evenodd\'%3E%3Ccircle cx=\'3\' cy=\'3\' r=\'3\'/%3E%3Ccircle cx=\'13\' cy=\'13\' r=\'3\'/%3E%3C/g%3E%3C/svg%3E")' }}>
 
                 <div className="max-w-7xl mx-auto px-4 py-6 md:py-10 space-y-8 pb-24">
-
-                    {/* HEADER BANNER - Giảm cỡ chữ, giảm padding */}
                     <div className="bg-emerald-50 border border-emerald-200 rounded-2xl p-5 md:p-6 shadow-sm flex flex-col sm:flex-row sm:items-center justify-between gap-5 relative overflow-hidden">
                         <div className="absolute top-0 right-0 p-3 opacity-[0.08] pointer-events-none">
                             <BookOpenText className="w-24 h-24 text-emerald-900" aria-hidden="true" />
@@ -144,13 +265,10 @@ export default function EditStoryPage({ params }: { params: Promise<{ id: string
                                 <ArrowLeft className="w-5 h-5" />
                                 <span>Quay lại</span>
                             </button>
-                            {/* Giảm size: text-2xl -> text-2xl */}
                             <h1 className="text-2xl md:text-2xl font-extrabold text-stone-900 tracking-tight">
                                 Sửa câu chuyện cũ
                             </h1>
                         </div>
-
-                        {/* Nút Cập nhật - Giảm text size, padding */}
                         <button
                             onClick={handleUpdate}
                             disabled={isSaving || showSuccess}
@@ -192,7 +310,7 @@ export default function EditStoryPage({ params }: { params: Promise<{ id: string
 
                         {/* CỘT 1: KHU VỰC SOẠN THẢO */}
                         <div className="bg-white rounded-3xl shadow-lg border border-stone-100 p-6 md:p-8 space-y-6">
-                            {/* Input Tiêu đề - Giảm text-2xl/4xl -> text-2xl/3xl */}
+                            {/* Input Tiêu đề */}
                             <div className="space-y-1.5">
                                 <label htmlFor="story-title" className="text-sm font-semibold text-stone-500 ml-1">Tiêu đề kỷ niệm</label>
                                 <input
@@ -207,7 +325,7 @@ export default function EditStoryPage({ params }: { params: Promise<{ id: string
 
                             <hr className="border-stone-100" />
 
-                            {/* Select Danh mục - Giảm text size, min-h */}
+                            {/* Select Danh mục */}
                             <div className="space-y-2.5">
                                 <label htmlFor="story-category" className="text-lg font-bold text-stone-900 block">
                                     Đây là câu chuyện về chủ đề gì?
@@ -216,19 +334,20 @@ export default function EditStoryPage({ params }: { params: Promise<{ id: string
                                     id="story-category"
                                     value={selectedCatId}
                                     onChange={(e) => setSelectedCatId(Number(e.target.value))}
-                                    // Giảm text-xl -> text-base, min-h-[64px] -> min-h-[56px]
-                                    className="w-full text-base text-stone-900 font-medium border border-stone-300 hover:border-emerald-300 focus:border-emerald-500 rounded-lg px-4 py-2 min-h-[56px] focus:ring-2 focus:ring-emerald-100 outline-none transition-colors shadow-sm bg-white"
+                                    className="w-full text-base text-stone-900 font-medium border border-stone-300 hover:border-emerald-300 focus:border-emerald-500 rounded-lg px-4 py-2 min-h-[56px] focus:ring-2 focus:ring-emerald-100 outline-none transition-colors shadow-sm bg-white disabled:bg-stone-100 disabled:cursor-not-allowed"
+                                    disabled={isLoadingCategories}
                                 >
-                                    <option value={0} disabled>Bác vui lòng chọn một chủ đề...</option>
+                                    <option value={0}>Không chọn danh mục (Tự chọn)</option>
                                     {categories.map(cat => (
                                         <option key={cat.id} value={cat.id}>{cat.name}</option>
                                     ))}
                                 </select>
+                                {isLoadingCategories && <p className="text-sm text-emerald-600 italic">Đang tải danh sách chủ đề...</p>}
                             </div>
 
                             <hr className="border-stone-100" />
 
-                            {/* Textarea Nội dung - Giảm text-xl/2xl -> text-lg/xl, line-height giảm nhẹ */}
+                            {/* Textarea Nội dung */}
                             <div className="space-y-1.5">
                                 <label htmlFor="story-content" className="text-sm font-semibold text-stone-500 ml-1">Nội dung câu chuyện</label>
                                 <textarea
@@ -237,21 +356,50 @@ export default function EditStoryPage({ params }: { params: Promise<{ id: string
                                     value={content}
                                     onChange={(e) => setContent(e.target.value)}
                                     placeholder="Bác nhớ lại và kể lại câu chuyện tại đây nhé..."
-                                    // text-xl/2xl -> text-lg/xl, leading-[1.8] -> leading-[1.7]
                                     className="w-full text-lg md:text-xl text-stone-800 leading-[1.7] placeholder-stone-300 bg-transparent border-none focus:ring-0 focus:outline-none p-0 min-h-[280px] resize-none overflow-hidden"
                                 />
                             </div>
 
                             {/* Hình ảnh */}
                             <div className="pt-6 border-t border-stone-100">
-                                <button className="flex items-center gap-2.5 min-h-[52px] px-5 py-3 bg-stone-50 hover:bg-emerald-50 text-stone-800 hover:text-emerald-900 border-2 border-dashed border-stone-300 hover:border-emerald-400 rounded-xl text-base font-semibold transition-colors w-fit justify-center shadow-sm">
-                                    <ImageIcon className="w-6 h-6 text-stone-500" />
-                                    <span>Thay đổi hình ảnh (Không bắt buộc)</span>
+                                {attachedMedia.length > 0 && (
+                                    <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-5">
+                                        {attachedMedia.map((m, index) => (
+                                            <div key={index} className="relative group rounded-xl overflow-hidden border border-stone-200 shadow-sm aspect-square bg-stone-50">
+                                                <img src={m.blobUrl} alt="preview" className="w-full h-full object-cover" />
+                                                <button 
+                                                    onClick={() => handleRemoveMedia(index)}
+                                                    className="absolute top-2 right-2 p-1.5 bg-red-100/90 text-red-600 rounded-full hover:bg-red-200 transition-colors opacity-0 group-hover:opacity-100 shadow-sm"
+                                                    title="Xoá ảnh"
+                                                >
+                                                    <XCircle className="w-5 h-5" />
+                                                </button>
+                                            </div>
+                                        ))}
+                                    </div>
+                                )}
+
+                                <input 
+                                    type="file" 
+                                    accept="image/*" 
+                                    multiple
+                                    ref={fileInputRef}
+                                    className="hidden"
+                                    onChange={handleFileChange}
+                                />
+
+                                <button 
+                                    onClick={() => fileInputRef.current?.click()}
+                                    disabled={isUploading}
+                                    className={`flex items-center gap-2.5 px-5 py-3 min-h-[52px] bg-stone-50 hover:bg-emerald-50 text-stone-800 hover:text-emerald-900 border-2 border-dashed border-stone-300 hover:border-emerald-400 rounded-xl text-base font-semibold transition-colors w-fit justify-center shadow-sm ${isUploading ? 'opacity-50 cursor-not-allowed' : ''}`}
+                                >
+                                    {isUploading ? <Loader2 className="w-6 h-6 animate-spin text-stone-500" /> : <ImageIcon className="w-6 h-6 text-stone-500" />}
+                                    <span>{isUploading ? 'Đang tải ảnh...' : 'Thêm hoặc thay đổi hình ảnh (Không bắt buộc)'}</span>
                                 </button>
                             </div>
                         </div>
 
-                        {/* CỘT 2: GÓC GỢI Ý KỶ NIỆM (Phần tử sáng tạo mới để bớt đơn điệu) */}
+                        {/* CỘT 2: GÓC GỢI Ý KỶ NIỆM */}
                         <div className="bg-white rounded-2xl shadow-sm border border-stone-100 p-6 space-y-5 sticky top-6">
                             <div className="flex items-center gap-3 pb-4 border-b border-stone-100">
                                 <div className="p-2.5 bg-amber-50 rounded-full border border-amber-200 shadow-inner">

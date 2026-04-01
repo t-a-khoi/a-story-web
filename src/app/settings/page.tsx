@@ -76,7 +76,7 @@ export default function SettingsPage() {
                 if (config.general?.language) {
                     setGlobalLanguage(config.general.language);
                 }
-                
+
                 setSettingsData(prev => ({
                     general: { ...prev.general, ...(config.general || {}) },
                     profile: { ...prev.profile, ...(config.profile || {}) },
@@ -127,7 +127,6 @@ export default function SettingsPage() {
     const handleLogout = () => {
         if (window.confirm(t("settings.logout.confirm"))) {
             authService.logout();
-            router.push("/");
         }
     };
 

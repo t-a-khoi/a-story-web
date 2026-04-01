@@ -1,6 +1,6 @@
 "use client";
 import { ReactNode, useState, useEffect } from "react";
-import { Home, PenSquare, User, LogOut, Book, Users, Settings } from "lucide-react";
+import { Home, Image as ImageIcon, User, LogOut, Book, Users, Settings, Tags } from "lucide-react";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { useAuthStore } from "@/store/useAuthStore";
@@ -8,37 +8,27 @@ import { authService } from "@/services/auth.service";
 
 export default function MainLayout({ children }: { children: ReactNode }) {
     const pathname = usePathname();
-    const router = useRouter();
 
     const logout = useAuthStore((state) => state.logout);
     const accessToken = useAuthStore((state) => state.accessToken);
     console.log("accessToken", accessToken);
 
     const [isHydrated, setIsHydrated] = useState(false);
-
-    useEffect(() => {
-        // Đánh dấu Zustand đã lấy xong dữ liệu từ localStorage
-        setIsHydrated(true);
-    }, []);
-
-    useEffect(() => {
-        // Chỉ chạy logic chuyển hướng KHI đã hydrated xong
-        if (isHydrated && !accessToken) {
-            router.push("/");
-        }
-    }, [isHydrated, accessToken, router]);
-
     const handleLogout = () => {
         authService.logout();
-        router.push("/");
     };
+    
+    useEffect(() => {
+        setIsHydrated(true);
+    }, []);
 
     if (!isHydrated) {
         return <div className="min-h-screen bg-slate-50"></div>;
     }
     const navItems = [
         { name: "Trang chủ", href: "/home", icon: Home },
-        { name: "Viết mới", href: "/write", icon: PenSquare },
+        { name: "Thư viện", href: "/library", icon: ImageIcon },
+        { name: "Danh mục", href: "/categories", icon: Tags },
         { name: "Danh bạ", href: "/contacts", icon: Users },
         { name: "Cài đặt", href: "/settings", icon: Settings },
     ];
@@ -91,7 +81,6 @@ export default function MainLayout({ children }: { children: ReactNode }) {
                 </div>
             </header>
             {/* VÙNG NỘI DUNG CHÍNH */}
-            {/* max-w-4xl giúp thu hẹp độ rộng dòng chữ trên Desktop, tối ưu cho việc đọc (Reading UX) */}
             <main className="flex-grow max-w-4xl w-full mx-auto p-4 sm:p-6 md:py-10">
                 {children}
             </main>

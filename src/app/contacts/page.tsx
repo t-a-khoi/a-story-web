@@ -4,7 +4,7 @@
 import { useState, useEffect } from "react";
 import Link from "next/link";
 import MainLayout from "@/components/layout/MainLayout";
-import { Users, Trash2, Edit, AlertCircle, Loader2, UserPlus, Phone, Mail, Tag } from "lucide-react";
+import { Users, Trash2, Edit, AlertCircle, Loader2, UserPlus, Phone, Mail, Tag, CheckCircle2 } from "lucide-react";
 import { ContactService } from "@/services/contact.service";
 import { Contact } from "@/types/contact";
 
@@ -12,10 +12,17 @@ export default function ContactsPage() {
   const [contacts, setContacts] = useState<Contact[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState("");
+  const [deletingId, setDeletingId] = useState<number | null>(null);
+  const [toast, setToast] = useState<{ type: "success" | "error"; text: string } | null>(null);
 
   useEffect(() => {
     fetchContacts();
   }, []);
+
+  const showToast = (type: "success" | "error", text: string) => {
+    setToast({ type, text });
+    setTimeout(() => setToast(null), 3000);
+  };
 
   const fetchContacts = async () => {
     setIsLoading(true);
@@ -32,19 +39,39 @@ export default function ContactsPage() {
   };
 
   const handleDelete = async (id: number, displayName: string) => {
-    if (window.confirm(`Bạn có chắc chắn muốn xóa "${displayName}" khỏi danh bạ không? Các câu chuyện đã chia sẻ trước đó sẽ không bị mất.`)) {
-      try {
-        setContacts(prev => prev.filter(c => c.id !== id));
-        alert(`Đã xóa ${displayName} thành công.`);
-      } catch (err) {
-        alert("Xóa thất bại. Vui lòng thử lại.");
-      }
+    if (!window.confirm(`Bạn có chắc chắn muốn xóa "${displayName}" khỏi danh bạ không?`)) return;
+    
+    setDeletingId(id);
+    try {
+      await ContactService.deleteContact(id);
+      setContacts(prev => prev.filter(c => c.id !== id));
+      showToast("success", `Đã xóa "${displayName}" khỏi danh bạ.`);
+    } catch (err) {
+      console.error("Lỗi xóa contact:", err);
+      showToast("error", "Xóa thất bại. Vui lòng thử lại.");
+    } finally {
+      setDeletingId(null);
     }
   };
 
   return (
     <MainLayout>
-      <div className="max-w-3xl mx-auto space-y-8 pb-20">
+      <div className="max-w-3xl mx-auto space-y-8 pb-20 relative">
+
+        {/* TOAST NOTIFICATION */}
+        {toast && (
+          <div className={`fixed top-4 right-4 z-50 px-5 py-3 rounded-xl shadow-lg border-2 font-bold text-base flex items-center gap-3 animate-in fade-in slide-in-from-top-4 duration-300 ${
+            toast.type === 'success'
+              ? 'bg-emerald-50 text-emerald-800 border-emerald-200'
+              : 'bg-red-50 text-red-800 border-red-200'
+          }`}>
+            {toast.type === 'success'
+              ? <CheckCircle2 className="w-5 h-5" />
+              : <AlertCircle className="w-5 h-5" />}
+            {toast.text}
+          </div>
+        )}
+
 
         {/* HEADER BANNER */}
         <div className="bg-emerald-50 border-2 border-emerald-100 rounded-3xl p-8 shadow-sm flex flex-col sm:flex-row sm:items-center justify-between gap-6 relative overflow-hidden">
@@ -152,10 +179,13 @@ export default function ContactsPage() {
                         </Link>
                         <button
                           onClick={() => handleDelete(contact.id, displayName)}
-                          className="flex items-center justify-center gap-2 min-h-[48px] bg-red-50 hover:bg-red-100 text-red-700 hover:text-red-800 text-lg font-bold rounded-xl transition-colors border border-red-100 hover:border-red-200 shadow-sm"
+                          disabled={deletingId === contact.id}
+                          className="flex items-center justify-center gap-2 min-h-[48px] bg-red-50 hover:bg-red-100 text-red-700 hover:text-red-800 text-lg font-bold rounded-xl transition-colors border border-red-100 hover:border-red-200 shadow-sm disabled:opacity-60 disabled:cursor-not-allowed"
                         >
-                          <Trash2 className="w-5 h-5" aria-hidden="true" />
-                          Xóa
+                          {deletingId === contact.id
+                            ? <Loader2 className="w-5 h-5 animate-spin" aria-hidden="true" />
+                            : <Trash2 className="w-5 h-5" aria-hidden="true" />}
+                          {deletingId === contact.id ? 'Đang xóa...' : 'Xóa'}
                         </button>
                       </div>
                     </article>
