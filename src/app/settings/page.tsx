@@ -18,6 +18,7 @@ type TabType = "general" | "profile" | "story";
 export default function SettingsPage() {
     const router = useRouter();
     const { t } = useTranslation();
+    const currentLang = useLanguageStore((state) => state.language);
     const setGlobalLanguage = useLanguageStore((state) => state.setLanguage);
     const [isLoading, setIsLoading] = useState(true);
     const [isSaving, setIsSaving] = useState(false);
@@ -47,6 +48,14 @@ export default function SettingsPage() {
     });
 
     const userName = "Nguyễn Văn Khoa"; // Mocked User Name
+
+    // Đồng bộ language selector trong Settings với store (phòng khi toggle từ Header)
+    useEffect(() => {
+        setSettingsData(prev => ({
+            ...prev,
+            general: { ...prev.general, language: currentLang }
+        }));
+    }, [currentLang]);
 
     useEffect(() => {
         fetchInitialSettings();
@@ -155,17 +164,16 @@ export default function SettingsPage() {
                 )}
 
                 {/* HEADER BANNER CÀI ĐẶT */}
-                <div className="bg-slate-800 border-2 border-slate-700 rounded-2xl p-6 md:p-8 shadow-sm flex flex-col sm:flex-row sm:items-center justify-between gap-6 relative overflow-hidden">
+                <div className="bg-emerald-50 border border-emerald-100 rounded-3xl p-6 md:p-8 shadow-sm flex flex-col sm:flex-row sm:items-center justify-between gap-6 relative overflow-hidden">
                     <div className="absolute top-0 right-0 p-4 opacity-10 pointer-events-none">
-                        <Globe className="w-32 h-32 text-slate-100" />
+                        <Globe className="w-32 h-32 text-emerald-800" />
                     </div>
 
-                    <div className="relative z-10 space-y-1.5">
-                        {/* Giảm text-3xl/4xl -> text-2xl/3xl */}
-                        <h1 className="text-2xl md:text-3xl font-extrabold text-white tracking-tight">
+                    <div className="relative z-10 space-y-2">
+                        <h1 className="text-2xl md:text-3xl font-extrabold text-emerald-900 tracking-tight">
                             {t("settings.header.title")}
                         </h1>
-                        <p className="text-slate-300 text-base md:text-lg font-medium">
+                        <p className="text-emerald-800 text-base md:text-lg font-medium">
                             {t("settings.header.subtitle")}
                         </p>
                     </div>
@@ -173,8 +181,7 @@ export default function SettingsPage() {
                     <button
                         onClick={handleSave}
                         disabled={isSaving || isLoading}
-                        // Giảm text-xl -> text-lg
-                        className="relative z-10 flex items-center justify-center gap-2 min-h-[56px] px-6 py-2 bg-emerald-500 hover:bg-emerald-400 text-slate-900 rounded-xl shadow-[0_0_15px_rgba(16,185,129,0.4)] transition-all font-extrabold text-lg shrink-0 disabled:opacity-50"
+                        className="relative z-10 flex items-center justify-center gap-2 min-h-[56px] px-8 py-3 bg-emerald-800 hover:bg-emerald-900 text-white rounded-xl shadow-md transition-all font-bold text-lg shrink-0 disabled:opacity-50"
                     >
                         {isSaving ? <Loader2 className="w-5 h-5 animate-spin" /> : <Save className="w-5 h-5" />}
                         {isSaving ? t("settings.buttons.saving") : t("settings.buttons.save")}

@@ -3,14 +3,16 @@
 
 import { useState, useEffect } from "react";
 import MainLayout from "@/components/layout/MainLayout";
-import { User, Mail, Phone, MapPin, Calendar, CheckCircle2, UserCircle, Edit3, Loader2, HeartCrack, Activity, Save, ArrowLeft } from "lucide-react";
+import { User, Phone, MapPin, Calendar, CheckCircle2, UserCircle, Edit3, Loader2, HeartCrack, Activity, Save, ArrowLeft } from "lucide-react";
 import { ProfileService } from "@/services/profile.service";
 import { ProfilesCreateRequest, ProfilesUpdateRequest } from "@/types/profile";
 import { useRouter } from "next/navigation";
 import { useAuthStore } from "@/store/useAuthStore";
+import { useTranslation } from "@/store/useLanguageStore";
 
 export default function ProfilePage() {
     const router = useRouter();
+    const { t } = useTranslation();
     const [isLoading, setIsLoading] = useState(true);
     const [isSaving, setIsSaving] = useState(false);
     const [toastMsg, setToastMsg] = useState<{ type: 'success' | 'error', text: string } | null>(null);
@@ -52,12 +54,11 @@ export default function ProfilePage() {
                 });
             }
         } catch (error: any) {
-            // Backend trả về lỗi 404 nếu chưa có profile
             if (error.response?.status === 404) {
                 setIsEditing(true);
             } else {
                 console.error("Lỗi tải profile:", error);
-                showToast("error", "Không thể tải thông tin hồ sơ. Vui lòng thử lại!");
+                showToast("error", t("profile.loadError"));
             }
         } finally {
             setIsLoading(false);
@@ -81,7 +82,7 @@ export default function ProfilePage() {
 
     const handleSave = async () => {
         if (!formData.fullname.trim()) {
-            showToast("error", "Vui lòng nhập họ và tên.");
+            showToast("error", t("profile.nameRequired"));
             return;
         }
 
@@ -89,11 +90,10 @@ export default function ProfilePage() {
         try {
             let isoDateOfBirth = undefined;
             if (formData.dateOfBirth) {
-                isoDateOfBirth = `${formData.dateOfBirth}T00:00:00Z`; // Chuẩn hóa ISO 8601
+                isoDateOfBirth = `${formData.dateOfBirth}T00:00:00Z`;
             }
 
             if (profileId) {
-                // Cập nhật Profile
                 const payload: ProfilesUpdateRequest = {
                     fullname: formData.fullname.trim(),
                     gender: formData.gender,
@@ -104,9 +104,8 @@ export default function ProfilePage() {
                     memorialMessage: formData.isDeceased ? formData.memorialMessage.trim() : undefined,
                 };
                 await ProfileService.updateProfile(profileId, payload);
-                showToast("success", "Đã cập nhật hồ sơ thành công!");
+                showToast("success", t("profile.saveSuccess"));
             } else {
-                // Tạo mới Profile
                 const user = useAuthStore.getState().user;
                 const payload: ProfilesCreateRequest = {
                     userId: user?.id || 0,
@@ -120,13 +119,13 @@ export default function ProfilePage() {
                 };
                 const newProfile = await ProfileService.createProfile(payload);
                 setProfileId(newProfile.id);
-                showToast("success", "Đã tạo hồ sơ mới thành công!");
+                showToast("success", t("profile.createSuccess"));
             }
 
             setIsEditing(false);
         } catch (error) {
             console.error(error);
-            showToast("error", "Đã có lỗi kết nối máy chủ khi lưu hồ sơ.");
+            showToast("error", t("profile.serverError"));
         } finally {
             setIsSaving(false);
         }
@@ -152,7 +151,7 @@ export default function ProfilePage() {
                     </div>
                 )}
 
-                {/* HEADER BANNER - Hạ size chữ text-2xl/3xl -> text-xl/2xl */}
+                {/* HEADER BANNER */}
                 <div className={`${bgHeader} border rounded-2xl p-6 md:p-8 shadow-sm flex flex-col sm:flex-row sm:items-center justify-between gap-6 relative overflow-hidden transition-colors duration-500`}>
                     <div className="absolute top-0 right-0 p-4 opacity-10 pointer-events-none">
                         {formData.isDeceased ? (
@@ -168,17 +167,16 @@ export default function ProfilePage() {
                             className={`flex items-center gap-1.5 font-bold text-base w-fit transition-colors px-3 py-1.5 rounded-lg border border-transparent hover:border-gray-200 hover:bg-white/50 ${textIcon}`}
                         >
                             <ArrowLeft className="w-5 h-5" />
-                            <span>Quay lại Cài đặt</span>
+                            <span>{t("profile.backToSettings")}</span>
                         </button>
                         <h1 className="text-xl md:text-2xl font-extrabold text-gray-900 tracking-tight">
-                            {profileId ? "Hồ sơ cá nhân" : "Tạo hồ sơ mới"}
+                            {profileId ? t("profile.headerTitle") : t("profile.createTitle")}
                         </h1>
                         <p className="text-gray-600 text-base md:text-lg font-medium">
-                            Nơi bạn cập nhật thông tin cá nhân.
+                            {t("profile.headerSubtitle")}
                         </p>
                     </div>
 
-                    {/* Nút lưu / sửa */}
                     <button
                         onClick={() => isEditing ? handleSave() : setIsEditing(true)}
                         disabled={isSaving}
@@ -187,9 +185,9 @@ export default function ProfilePage() {
                         {isSaving ? (
                             <Loader2 className="w-5 h-5 animate-spin" />
                         ) : isEditing ? (
-                            <><Save className="w-5 h-5" /> Lưu hồ sơ</>
+                            <><Save className="w-5 h-5" /> {t("profile.saveButton")}</>
                         ) : (
-                            <><Edit3 className="w-5 h-5" /> Chỉnh sửa</>
+                            <><Edit3 className="w-5 h-5" /> {t("profile.editButton")}</>
                         )}
                     </button>
                 </div>
@@ -197,7 +195,7 @@ export default function ProfilePage() {
                 {isLoading ? (
                     <div className={`flex flex-col items-center justify-center py-20 gap-4 ${textIcon}`}>
                         <Loader2 className="w-10 h-10 animate-spin" aria-hidden="true" />
-                        <p className="text-lg font-bold">Đang tải hồ sơ...</p>
+                        <p className="text-lg font-bold">{t("profile.loading")}</p>
                     </div>
                 ) : (
                     <div className="bg-white rounded-2xl shadow-sm border border-gray-200 overflow-hidden">
@@ -213,35 +211,35 @@ export default function ProfilePage() {
                                         value={formData.fullname}
                                         onChange={handleInputChange}
                                         className={`text-xl font-extrabold text-gray-900 bg-white border rounded-lg px-4 py-2 w-full focus:ring-2 outline-none ${inputClass}`}
-                                        placeholder="Nhập họ và tên..."
+                                        placeholder={t("profile.namePlaceholder")}
                                     />
                                 ) : (
-                                    <h2 className="text-xl font-extrabold text-gray-900">{formData.fullname || "Chưa có tên"}</h2>
+                                    <h2 className="text-xl font-extrabold text-gray-900">{formData.fullname || t("profile.noName")}</h2>
                                 )}
                                 <div className="flex items-center justify-center md:justify-start gap-2 pt-1.5">
-                                    <span className="text-base text-gray-500 font-bold">Trạng thái:</span>
+                                    <span className="text-base text-gray-500 font-bold">{t("profile.statusLabel")}</span>
                                     {isEditing ? (
                                         <label className="relative inline-flex items-center cursor-pointer">
                                             <input type="checkbox" name="isDeceased" checked={formData.isDeceased} onChange={handleInputChange} className="sr-only peer" />
                                             <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:start-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-stone-600"></div>
-                                            <span className="ms-3 text-base font-bold text-gray-700">{formData.isDeceased ? "Đã qua đời" : "Đang sinh sống"}</span>
+                                            <span className="ms-3 text-base font-bold text-gray-700">{formData.isDeceased ? t("profile.statusDeceased") : t("profile.statusAlive")}</span>
                                         </label>
                                     ) : (
                                         <div className={`inline-flex items-center gap-1 px-3 py-1 rounded-lg text-sm font-bold shadow-sm border ${formData.isDeceased ? "bg-stone-100 text-stone-700 border-stone-200" : "bg-emerald-50 text-emerald-700 border-emerald-100"}`}>
                                             {formData.isDeceased ? <HeartCrack className="w-3.5 h-3.5" /> : <Activity className="w-3.5 h-3.5" />}
-                                            {formData.isDeceased ? "Đã qua đời" : "Đang sinh sống"}
+                                            {formData.isDeceased ? t("profile.statusDeceased") : t("profile.statusAlive")}
                                         </div>
                                     )}
                                 </div>
                             </div>
                         </div>
 
-                        {/* Form Body - Input text-lg / text-base */}
+                        {/* Form Body */}
                         <div className="p-6 space-y-6">
                             <div className="grid md:grid-cols-2 gap-6">
                                 <div className="space-y-2">
                                     <label className="flex items-center gap-2 text-base font-bold text-gray-700">
-                                        <UserCircle className="w-4 h-4 text-gray-400" /> Giới tính
+                                        <UserCircle className="w-4 h-4 text-gray-400" /> {t("profile.genderLabel")}
                                     </label>
                                     {isEditing ? (
                                         <select
@@ -250,19 +248,19 @@ export default function ProfilePage() {
                                             onChange={handleInputChange}
                                             className={`w-full text-base text-gray-900 font-medium border rounded-lg px-3 py-2.5 min-h-[48px] focus:ring-2 outline-none ${inputClass}`}
                                         >
-                                            <option value="MALE">Nam</option>
-                                            <option value="FEMALE">Nữ</option>
-                                            <option value="OTHER">Khác</option>
+                                            <option value="MALE">{t("profile.genderMale")}</option>
+                                            <option value="FEMALE">{t("profile.genderFemale")}</option>
+                                            <option value="OTHER">{t("profile.genderOther")}</option>
                                         </select>
                                     ) : (
                                         <div className="w-full text-base text-gray-900 font-bold bg-gray-50 rounded-lg px-3 py-2.5 border border-gray-100 min-h-[48px] flex items-center">
-                                            {formData.gender === "MALE" ? "Nam" : formData.gender === "FEMALE" ? "Nữ" : "Khác"}
+                                            {formData.gender === "MALE" ? t("profile.genderMale") : formData.gender === "FEMALE" ? t("profile.genderFemale") : t("profile.genderOther")}
                                         </div>
                                     )}
                                 </div>
                                 <div className="space-y-2">
                                     <label className="flex items-center gap-2 text-base font-bold text-gray-700">
-                                        <Calendar className="w-4 h-4 text-gray-400" /> Ngày sinh
+                                        <Calendar className="w-4 h-4 text-gray-400" /> {t("profile.dobLabel")}
                                     </label>
                                     {isEditing ? (
                                         <input
@@ -274,13 +272,13 @@ export default function ProfilePage() {
                                         />
                                     ) : (
                                         <div className="w-full text-base text-gray-900 font-bold bg-gray-50 rounded-lg px-3 py-2.5 border border-gray-100 min-h-[48px] flex items-center">
-                                            {formData.dateOfBirth ? new Date(formData.dateOfBirth).toLocaleDateString('vi-VN') : "Chưa cập nhật"}
+                                            {formData.dateOfBirth ? new Date(formData.dateOfBirth).toLocaleDateString('vi-VN') : t("profile.notUpdated") ?? t("common.notUpdated")}
                                         </div>
                                     )}
                                 </div>
                                 <div className="space-y-2">
                                     <label className="flex items-center gap-2 text-base font-bold text-gray-700">
-                                        <Phone className="w-4 h-4 text-gray-400" /> Số điện thoại
+                                        <Phone className="w-4 h-4 text-gray-400" /> {t("profile.phoneLabel")}
                                     </label>
                                     {isEditing ? (
                                         <input
@@ -289,17 +287,17 @@ export default function ProfilePage() {
                                             value={formData.phoneNumber}
                                             onChange={handleInputChange}
                                             className={`w-full text-base text-gray-900 font-medium border rounded-lg px-3 py-2.5 min-h-[48px] focus:ring-2 outline-none ${inputClass}`}
-                                            placeholder="Nhập số điện thoại"
+                                            placeholder={t("profile.phonePlaceholder")}
                                         />
                                     ) : (
                                         <div className="w-full text-base text-gray-900 font-bold bg-gray-50 rounded-lg px-3 py-2.5 border border-gray-100 min-h-[48px] flex items-center truncate">
-                                            {formData.phoneNumber || "Chưa cập nhật"}
+                                            {formData.phoneNumber || t("common.notUpdated")}
                                         </div>
                                     )}
                                 </div>
                                 <div className="space-y-2">
                                     <label className="flex items-center gap-2 text-base font-bold text-gray-700">
-                                        <MapPin className="w-4 h-4 text-gray-400" /> Địa chỉ
+                                        <MapPin className="w-4 h-4 text-gray-400" /> {t("profile.addressLabel")}
                                     </label>
                                     {isEditing ? (
                                         <input
@@ -308,11 +306,11 @@ export default function ProfilePage() {
                                             value={formData.address}
                                             onChange={handleInputChange}
                                             className={`w-full text-base text-gray-900 font-medium border rounded-lg px-3 py-2.5 min-h-[48px] focus:ring-2 outline-none ${inputClass}`}
-                                            placeholder="Nhập địa chỉ nhà..."
+                                            placeholder={t("profile.addressPlaceholder")}
                                         />
                                     ) : (
                                         <div className="w-full text-base text-gray-900 font-bold bg-gray-50 rounded-lg px-3 py-2.5 border border-gray-100 min-h-[48px] flex items-center truncate">
-                                            {formData.address || "Chưa cập nhật"}
+                                            {formData.address || t("common.notUpdated")}
                                         </div>
                                     )}
                                 </div>
@@ -322,21 +320,21 @@ export default function ProfilePage() {
                             {formData.isDeceased && (
                                 <div className="space-y-3 pt-6 border-t border-gray-100 animate-in fade-in slide-in-from-bottom-2">
                                     <label className="flex items-center gap-2 text-lg font-extrabold text-stone-800">
-                                        <HeartCrack className="w-5 h-5 text-stone-500" /> Lời nhắn tưởng nhớ
+                                        <HeartCrack className="w-5 h-5 text-stone-500" /> {t("profile.memorialTitle")}
                                     </label>
-                                    <p className="text-stone-500 text-sm font-medium pb-2">Ghi lại vài dòng ý nghĩa để tưởng nhớ về người này.</p>
+                                    <p className="text-stone-500 text-sm font-medium pb-2">{t("profile.memorialSubtitle")}</p>
                                     {isEditing ? (
                                         <textarea
                                             name="memorialMessage"
                                             value={formData.memorialMessage}
                                             onChange={handleInputChange}
                                             className="w-full text-base text-stone-900 font-medium border border-stone-300 focus:border-stone-500 rounded-lg px-4 py-3 min-h-[120px] focus:ring-2 focus:ring-stone-100 outline-none resize-none"
-                                            placeholder="Viết một vài dòng tưởng nhớ..."
+                                            placeholder={t("profile.memorialPlaceholder")}
                                         />
                                     ) : (
                                         <div className="w-full text-base font-serif italic text-stone-800 bg-stone-50 rounded-lg px-5 py-4 border-l-4 border-stone-400 min-h-[100px] leading-relaxed relative">
                                             <span className="text-2xl text-stone-300 absolute top-1 left-2">"</span>
-                                            <span className="relative z-10">{formData.memorialMessage || "Chưa có lời tưởng nhớ."}</span>
+                                            <span className="relative z-10">{formData.memorialMessage || t("profile.noMemorial")}</span>
                                         </div>
                                     )}
                                 </div>

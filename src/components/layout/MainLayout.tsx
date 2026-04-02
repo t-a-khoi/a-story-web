@@ -5,9 +5,11 @@ import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { useAuthStore } from "@/store/useAuthStore";
 import { authService } from "@/services/auth.service";
+import { useLanguageStore, useTranslation } from "@/store/useLanguageStore";
 
 export default function MainLayout({ children }: { children: ReactNode }) {
     const pathname = usePathname();
+    const { t } = useTranslation();
 
     const logout = useAuthStore((state) => state.logout);
     const accessToken = useAuthStore((state) => state.accessToken);
@@ -26,11 +28,11 @@ export default function MainLayout({ children }: { children: ReactNode }) {
         return <div className="min-h-screen bg-slate-50"></div>;
     }
     const navItems = [
-        { name: "Trang chủ", href: "/home", icon: Home },
-        { name: "Thư viện", href: "/library", icon: ImageIcon },
-        { name: "Danh mục", href: "/categories", icon: Tags },
-        { name: "Danh bạ", href: "/contacts", icon: Users },
-        { name: "Cài đặt", href: "/settings", icon: Settings },
+        { name: t("nav.home"), href: "/home", icon: Home },
+        { name: t("nav.library"), href: "/library", icon: ImageIcon },
+        { name: t("nav.categories"), href: "/categories", icon: Tags },
+        { name: t("nav.contacts"), href: "/contacts", icon: Users },
+        { name: t("nav.settings"), href: "/settings", icon: Settings },
     ];
 
 
@@ -67,6 +69,9 @@ export default function MainLayout({ children }: { children: ReactNode }) {
                             );
                         })}
 
+                        {/* Nút chuyển ngôn ngữ */}
+                        <LanguageToggle />
+
                         {/* Nút Đăng xuất */}
                         <button
                             onClick={handleLogout}
@@ -74,7 +79,7 @@ export default function MainLayout({ children }: { children: ReactNode }) {
                             title="Đăng xuất"
                         >
                             <LogOut className="w-6 h-6" />
-                            <span className="hidden md:inline">Thoát</span>
+                            <span className="hidden md:inline">{t("nav.logout")}</span>
                         </button>
                     </nav>
 
@@ -85,5 +90,28 @@ export default function MainLayout({ children }: { children: ReactNode }) {
                 {children}
             </main>
         </div>
+    );
+}
+
+// ─── Language Toggle Component ────────────────────────────────────────────────
+function LanguageToggle() {
+    const language = useLanguageStore((state) => state.language);
+    const setLanguage = useLanguageStore((state) => state.setLanguage);
+
+    const isVi = language === "vi";
+
+    const toggle = () => {
+        setLanguage(isVi ? "en" : "vi");
+    };
+
+    return (
+        <button
+            onClick={toggle}
+            title={isVi ? "Switch to English" : "Chuyển sang Tiếng Việt"}
+            className="flex items-center gap-1.5 min-h-[44px] px-3 py-1.5 rounded-xl border-2 border-stone-200 bg-stone-50 hover:bg-emerald-50 hover:border-emerald-300 transition-all font-bold text-sm text-stone-700 hover:text-emerald-800 whitespace-nowrap select-none"
+        >
+            <span className="text-xl leading-none">{isVi ? "🇻🇳" : "🇺🇸"}</span>
+            <span className="hidden sm:inline">{isVi ? "VI" : "EN"}</span>
+        </button>
     );
 }

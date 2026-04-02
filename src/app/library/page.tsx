@@ -7,6 +7,7 @@ import { useAuthStore } from '@/store/useAuthStore';
 import MainLayout from '@/components/layout/MainLayout';
 import { MediaFilesService } from '@/services/mediaFiles.service';
 import { FileUploadService } from '@/services/fileUpload.service';
+import { useTranslation } from '@/store/useLanguageStore';
 
 interface MediaItem {
     id: number;
@@ -17,6 +18,7 @@ interface MediaItem {
 
 export default function LibraryPage() {
     const router = useRouter();
+    const { t } = useTranslation();
     const { accessToken, user } = useAuthStore();
     const [isInitializing, setIsInitializing] = useState(true);
     const [isLoading, setIsLoading] = useState(false);
@@ -40,8 +42,6 @@ export default function LibraryPage() {
                 pagination: { page: 0, size: 100 }
             });
 
-            // Nếu muốn tải nhanh giao diện, có thể render UI trước với blob placeholder đang load,
-            // nhưng ở MVP này mình sẽ load xong array blob urls rớt vào UI một cục.
             const items: MediaItem[] = [];
             if (response.content && response.content.length > 0) {
                 const results = await Promise.all(response.content.map(async (item) => {
@@ -70,7 +70,6 @@ export default function LibraryPage() {
         }
     }, [isInitializing, user?.id, fetchMyLibrary]);
 
-    // Tránh memory leak bằng cách thu hồi ObjectURL khi component unmount
     useEffect(() => {
         return () => {
             mediaItems.forEach(item => {
@@ -101,10 +100,10 @@ export default function LibraryPage() {
 
                     <div className="relative z-10 space-y-2">
                         <h1 className="text-2xl md:text-3xl font-extrabold text-emerald-900 tracking-tight">
-                            Thư viện hình ảnh
+                            {t("library.headerTitle")}
                         </h1>
                         <p className="text-emerald-800 text-lg font-medium">
-                            Những khoảnh khắc và kỷ niệm bác đã lưu giữ
+                            {t("library.headerSubtitle")}
                         </p>
                     </div>
                 </div>
@@ -114,13 +113,13 @@ export default function LibraryPage() {
                     {isLoading ? (
                         <div className="flex flex-col items-center justify-center py-20 space-y-4">
                             <Loader2 className="w-10 h-10 animate-spin text-emerald-500" />
-                            <p className="text-gray-500 font-medium text-lg">Đang tải từng bức ảnh...</p>
+                            <p className="text-gray-500 font-medium text-lg">{t("library.loading")}</p>
                         </div>
                     ) : mediaItems.length === 0 ? (
                         <div className="flex flex-col items-center justify-center py-24 text-center border-2 border-dashed border-gray-200 rounded-2xl bg-gray-50">
                             <ImageIcon className="w-16 h-16 text-gray-300 mb-4" />
-                            <h2 className="text-xl font-bold text-gray-700 mb-2">Thư viện trống</h2>
-                            <p className="text-gray-500 max-w-md">Bác chưa đính kèm bức ảnh nào lúc viết câu chuyện. Lúc bác viết mới, hãy thử đính kèm ảnh để lưu lại ở đây nhé!</p>
+                            <h2 className="text-xl font-bold text-gray-700 mb-2">{t("library.emptyTitle")}</h2>
+                            <p className="text-gray-500 max-w-md">{t("library.emptySubtitle")}</p>
                         </div>
                     ) : (
                         <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4">
@@ -128,7 +127,7 @@ export default function LibraryPage() {
                                 <div key={item.id} className="relative aspect-square group rounded-xl overflow-hidden bg-gray-100 shadow-sm border border-gray-200 cursor-pointer">
                                     <img 
                                         src={item.blobUrl} 
-                                        alt={item.title || "Hình ảnh kỷ niệm"} 
+                                        alt={item.title || t("library.imageAlt")} 
                                         className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110" 
                                     />
                                     <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-end p-3">

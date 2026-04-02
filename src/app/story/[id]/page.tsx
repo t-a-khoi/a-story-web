@@ -11,22 +11,21 @@ import { StoryMediaService } from "@/services/storyMedia.service";
 import { MediaFilesService } from "@/services/mediaFiles.service";
 import { FileUploadService } from "@/services/fileUpload.service";
 import { Story } from "@/types/story";
+import { useTranslation } from "@/store/useLanguageStore";
 
 export default function StoryDetailPage() {
   const params = useParams();
   const router = useRouter();
+  const { t } = useTranslation();
 
   const [story, setStory] = useState<Story | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   
-  // Modals state
   const [isShareModalOpen, setIsShareModalOpen] = useState(false);
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
   
-  // Toasts
   const [toastMsg, setToastMsg] = useState<{ type: 'success' | 'error', text: string } | null>(null);
-
   const [attachedMediaUrls, setAttachedMediaUrls] = useState<string[]>([]);
 
   useEffect(() => {
@@ -56,7 +55,7 @@ export default function StoryDetailPage() {
 
     } catch (error) {
       console.error("Lỗi lấy chi tiết story:", error);
-      showToast("error", "Không thể tải câu chuyện lúc này.");
+      showToast("error", t("story.loadError"));
     } finally {
       setIsLoading(false);
     }
@@ -73,13 +72,13 @@ export default function StoryDetailPage() {
     try {
       await StoryService.deleteStory(story.id);
       setIsDeleteModalOpen(false);
-      showToast("success", "Đã xóa câu chuyện thành công. Đang quay về trang chủ...");
+      showToast("success", t("story.deleteSuccess"));
       setTimeout(() => {
         router.push("/home");
       }, 1500);
     } catch (error) {
       console.error("Lỗi xoá story:", error);
-      showToast("error", "Xóa câu chuyện thất bại. Vui lòng thử lại!");
+      showToast("error", t("story.deleteError"));
       setIsDeleting(false);
     }
   };
@@ -89,7 +88,7 @@ export default function StoryDetailPage() {
       <MainLayout>
         <div className="flex flex-col items-center justify-center py-32 gap-4 text-emerald-800">
           <Loader2 className="w-12 h-12 animate-spin" />
-          <p className="text-xl font-bold">Đang tải câu chuyện...</p>
+          <p className="text-xl font-bold">{t("story.loading")}</p>
         </div>
       </MainLayout>
     );
@@ -100,22 +99,21 @@ export default function StoryDetailPage() {
       <MainLayout>
         <div className="flex flex-col items-center justify-center py-32 gap-4 text-stone-500">
           <AlertTriangle className="w-16 h-16 text-stone-300" />
-          <h2 className="text-2xl font-bold text-stone-800">Không tìm thấy câu chuyện</h2>
-          <p className="text-lg">Câu chuyện này có thể đã bị xóa hoặc không tồn tại.</p>
+          <h2 className="text-2xl font-bold text-stone-800">{t("story.notFoundTitle")}</h2>
+          <p className="text-lg">{t("story.notFoundMessage")}</p>
           <button 
             onClick={() => router.push("/home")}
             className="mt-4 px-6 py-2.5 bg-stone-800 text-white rounded-xl font-bold hover:bg-stone-900 transition-colors"
           >
-            Quay lại trang chủ
+            {t("story.backToHome")}
           </button>
         </div>
       </MainLayout>
     );
   }
 
-  // Format Date
   const formatDate = (isoString?: string) => {
-    if (!isoString) return "Không rõ ngày";
+    if (!isoString) return t("story.unknownDate");
     const date = new Date(isoString);
     return date.toLocaleDateString("vi-VN", {
       day: "numeric",
@@ -124,12 +122,11 @@ export default function StoryDetailPage() {
     });
   };
 
-  // Tính số phút đọc nhấp nháp (khoảng 200 từ/phút)
   const calculateReadTime = (text: string) => {
-    if (!text) return "1 phút đọc";
+    if (!text) return `1 ${t("story.readTimeUnit")}`;
     const words = text.split(/\s+/).length;
     const readingTime = Math.ceil(words / 200);
-    return `Khoảng ${readingTime} phút đọc`;
+    return `${t("story.readTimeApprox")} ${readingTime} ${t("story.readTimeUnit")}`;
   };
 
   return (
@@ -144,7 +141,6 @@ export default function StoryDetailPage() {
           </div>
         )}
 
-        {/* Bọc toàn bộ nội dung trong Article */}
         <article className="bg-[#FDFBF7] rounded-3xl shadow-sm border border-stone-200 overflow-hidden pb-16">
           
           {/* THANH ĐIỀU HƯỚNG */}
@@ -154,42 +150,39 @@ export default function StoryDetailPage() {
               className="flex items-center gap-2 text-stone-600 hover:text-stone-900 transition-colors min-h-[48px] px-2 rounded-lg font-bold text-lg"
             >
               <ArrowLeft className="w-6 h-6" />
-              <span>Trở về</span>
+              <span>{t("story.backButton")}</span>
             </button>
 
             <div className="flex items-center gap-3">
-              {/* Nút Xóa (Màu đỏ thu hút sự chú ý theo yêu cầu) */}
               <button
                 onClick={() => setIsDeleteModalOpen(true)}
                 className="flex items-center gap-2 min-h-[44px] px-4 rounded-xl text-base font-bold text-red-700 bg-red-50 hover:bg-red-100 transition-colors border border-red-100"
-                title="Xóa câu chuyện"
+                title={t("story.deleteButton")}
               >
                 <Trash2 className="w-5 h-5" />
-                <span className="hidden sm:inline">Xóa</span>
+                <span className="hidden sm:inline">{t("story.deleteButton")}</span>
               </button>
 
-              {/* Nút Chỉnh sửa */}
               <button
                 onClick={() => router.push(`/story/${story.id}/edit`)}
                 className="flex items-center gap-2 min-h-[44px] px-4 rounded-xl text-base font-bold text-stone-700 hover:bg-stone-100 transition-colors border border-transparent"
-                title="Sửa bài viết"
+                title={t("story.editButton")}
               >
                 <Edit3 className="w-5 h-5" />
-                <span className="hidden sm:inline">Sửa</span>
+                <span className="hidden sm:inline">{t("story.editButton")}</span>
               </button>
 
-              {/* Nút Chia sẻ */}
               <button
                 onClick={() => setIsShareModalOpen(true)}
                 className="flex items-center gap-2 min-h-[44px] px-4 bg-emerald-100 text-emerald-900 hover:bg-emerald-200 rounded-xl text-base font-bold transition-colors border-2 border-emerald-200"
               >
                 <Share2 className="w-5 h-5" />
-                <span className="hidden sm:inline">Gửi cho người thân</span>
+                <span className="hidden sm:inline">{t("story.shareButton")}</span>
               </button>
             </div>
           </div>
 
-          {/* PHẦN ĐẦU BÀI VIẾT (HEADER) */}
+          {/* PHẦN ĐẦU BÀI VIẾT */}
           <div className="px-6 md:px-12 pt-10 pb-8 space-y-6 text-center">
             <h1 className="text-3xl md:text-5xl font-extrabold text-stone-900 leading-[1.3] tracking-tight">
               {story.title}
@@ -214,7 +207,7 @@ export default function StoryDetailPage() {
                   <div key={idx} className="relative w-full rounded-2xl overflow-hidden shadow-md border border-stone-200 bg-stone-100 flex justify-center max-h-[600px]">
                     <img
                       src={url}
-                      alt={`Minh họa ${idx + 1}`}
+                      alt={`${t("story.imageAlt")} ${idx + 1}`}
                       className="w-full h-full object-contain max-h-[600px] bg-stone-100"
                     />
                   </div>
@@ -225,16 +218,16 @@ export default function StoryDetailPage() {
               <div className="relative aspect-[16/9] w-full rounded-2xl overflow-hidden shadow-md border border-stone-200 bg-stone-100">
                 <Image
                   src={"https://images.unsplash.com/photo-1555939594-58d7cb561ad1?q=80&w=1200&auto=format&fit=crop"}
-                  alt={`Minh hoạ mặc định`}
+                  alt={t("story.defaultImageCaption")}
                   fill
                   className="object-cover"
                 />
               </div>
-              <p className="text-center text-sm text-stone-400 mt-3 italic">Hình ảnh kỉ niệm (Minh họa gốc chưa được thay thế)</p>
+              <p className="text-center text-sm text-stone-400 mt-3 italic">{t("story.defaultImageCaption")}</p>
             </div>
           )}
 
-          {/* NỘI DUNG VĂN BẢN (BODY) */}
+          {/* NỘI DUNG VĂN BẢN */}
           <div className="px-6 md:px-12 text-xl md:text-2xl text-stone-800">
             {story.content?.split('\n').filter(p => p.trim() !== '').map((paragraph, index) => (
               <p
@@ -246,60 +239,57 @@ export default function StoryDetailPage() {
             ))}
           </div>
 
-          {/* CUỐI BÀI VIẾT (FOOTER CHỮ KÝ) */}
+          {/* CUỐI BÀI VIẾT */}
           <div className="px-6 md:px-12 mt-4 flex items-center justify-center">
             <div className="w-16 h-1 bg-emerald-200 rounded-full"></div>
           </div>
           <div className="px-6 md:px-12 mt-6 text-center text-lg text-stone-500 font-medium italic">
-            Đã viết và lưu giữ an toàn.
+            {t("story.footer")}
           </div>
         </article>
       </div>
 
-      {/* POPUP XÁC NHẬN XÓA (Delete Confirmation Modal) */}
+      {/* POPUP XÁC NHẬN XÓA */}
       {isDeleteModalOpen && (
         <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/50 p-4 animate-in fade-in duration-200">
           <div className="bg-white max-w-md w-full rounded-3xl overflow-hidden shadow-2xl relative animate-in zoom-in-95 duration-200">
-            {/* Header màu đỏ nổi bật */}
             <div className="bg-red-50 p-6 flex items-center gap-4 border-b border-red-100">
               <div className="w-12 h-12 bg-red-100 rounded-full flex items-center justify-center shrink-0">
                 <Trash2 className="w-6 h-6 text-red-600" />
               </div>
-              <h2 className="text-2xl font-extrabold text-red-900">Xác nhận Xóa</h2>
+              <h2 className="text-2xl font-extrabold text-red-900">{t("story.deleteModalTitle")}</h2>
             </div>
             
             <div className="p-6">
               <p className="text-lg text-stone-600 font-medium mb-2">
-                Bạn có chắc chắn muốn xóa câu chuyện <strong className="text-stone-900">"{story.title}"</strong> không?
+                {t("story.deleteConfirmMessage")} <strong className="text-stone-900">"{story.title}"</strong> {t("story.deleteConfirmSuffix")}
               </p>
               <p className="text-base text-stone-500">
-                Hành động này không thể hoàn tác. Các dữ liệu liên đới sẽ bị xoá khỏi máy chủ.
+                {t("story.deleteIrreversible")}
               </p>
             </div>
             
             <div className="p-4 bg-stone-50 border-t border-stone-100 flex items-center justify-end gap-3 flex-wrap">
-              {/* Nút thoát popup (Cancel) */}
               <button
                 onClick={() => setIsDeleteModalOpen(false)}
                 disabled={isDeleting}
                 className="px-6 py-2.5 rounded-xl font-bold text-lg text-stone-700 hover:bg-stone-200 bg-stone-100 transition-colors border border-stone-200"
               >
-                Thoát
+                {t("common.no")}
               </button>
-              {/* Nút Xóa (Xác nhận) */}
               <button
                 onClick={handleDeleteStory}
                 disabled={isDeleting}
                 className="flex items-center justify-center gap-2 px-6 py-2.5 rounded-xl font-bold text-lg text-white bg-red-600 hover:bg-red-700 transition-colors min-w-[120px]"
               >
-                {isDeleting ? <Loader2 className="w-5 h-5 animate-spin" /> : "Vâng, Xóa"}
+                {isDeleting ? <Loader2 className="w-5 h-5 animate-spin" /> : t("common.yes")}
               </button>
             </div>
           </div>
         </div>
       )}
 
-      {/* MODAL CHIA SẺ (Hiển thị khi click nút Share) */}
+      {/* MODAL CHIA SẺ */}
       <ShareModal
         isOpen={isShareModalOpen}
         onClose={() => setIsShareModalOpen(false)}

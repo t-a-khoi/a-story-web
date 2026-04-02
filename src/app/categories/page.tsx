@@ -6,16 +6,11 @@ import { Loader2, Plus, Edit3, Trash2, Tags, AlertTriangle, CheckCircle2, Bookma
 import { useAuthStore } from "@/store/useAuthStore";
 import { CategoriesService } from "@/services/categories.service";
 import { Category } from "@/types/story";
+import { useTranslation } from "@/store/useLanguageStore";
 
 const PRESET_COLORS = [
-    "#f87171", // red-400
-    "#fb923c", // orange-400
-    "#fbbf24", // amber-400
-    "#34d399", // emerald-400
-    "#38bdf8", // sky-400
-    "#818cf8", // indigo-400
-    "#c084fc", // purple-400
-    "#f472b6"  // pink-400
+    "#f87171", "#fb923c", "#fbbf24", "#34d399",
+    "#38bdf8", "#818cf8", "#c084fc", "#f472b6"
 ];
 
 const PRESET_EMOJIS = [
@@ -25,6 +20,7 @@ const PRESET_EMOJIS = [
 
 export default function CategoriesPage() {
     const { user } = useAuthStore();
+    const { t } = useTranslation();
     const [categories, setCategories] = useState<Category[]>([]);
     const [isLoading, setIsLoading] = useState(true);
 
@@ -41,16 +37,13 @@ export default function CategoriesPage() {
     const fetchCategories = useCallback(async () => {
         setIsLoading(true);
         try {
-            const res = await CategoriesService.searchCategories({
-                pagination: { page: 0, size: 200 },
-                sorts: [{ field: "createdDate", direction: "DESC" }]
-            });
+            const res = await CategoriesService.getCategories(0, 200);
             if (res && res.content) {
                 setCategories(res.content);
             }
         } catch (error) {
             console.error("Lỗi khi tải danh mục:", error);
-            showToast("error", "Không thể tải danh sách chủ đề.");
+            showToast("error", t("categories.toastLoadError"));
         } finally {
             setIsLoading(false);
         }
@@ -92,7 +85,7 @@ export default function CategoriesPage() {
 
     const handleSave = async () => {
         if (!formData.name.trim()) {
-            setFormError("Vui lòng nhập tên chủ đề.");
+            setFormError(t("categories.formError"));
             return;
         }
 
@@ -109,20 +102,18 @@ export default function CategoriesPage() {
             };
 
             if (currentCategory) {
-                // Update
                 const res = await CategoriesService.updateCategory(currentCategory.id, payload);
                 setCategories(prev => prev.map(c => c.id === res.id ? res : c));
-                showToast("success", "Cập nhật chủ đề thành công!");
+                showToast("success", t("categories.toastUpdateSuccess"));
             } else {
-                // Create
                 const res = await CategoriesService.createCategory(payload);
                 setCategories([res, ...categories]);
-                showToast("success", "Tạo chủ đề mới thành công!");
+                showToast("success", t("categories.toastCreateSuccess"));
             }
             setIsModalOpen(false);
         } catch (error) {
             console.error("Lỗi lưu:", error);
-            setFormError("Có lỗi xảy ra khi lưu trên máy chủ.");
+            setFormError(t("categories.toastSaveError"));
         } finally {
             setIsSaving(false);
         }
@@ -135,10 +126,10 @@ export default function CategoriesPage() {
             await CategoriesService.deleteCategory(currentCategory.id);
             setCategories(prev => prev.filter(c => c.id !== currentCategory.id));
             setIsDeleteModalOpen(false);
-            showToast("success", "Đã xóa chủ đề thành công.");
+            showToast("success", t("categories.toastDeleteSuccess"));
         } catch (error) {
             console.error("Lỗi xóa:", error);
-            showToast("error", "Xóa chủ đề thất bại.");
+            showToast("error", t("categories.toastDeleteError"));
         } finally {
             setIsSaving(false);
         }
@@ -164,10 +155,10 @@ export default function CategoriesPage() {
 
                     <div className="relative z-10 space-y-3">
                         <h1 className="text-2xl md:text-3xl font-extrabold text-emerald-900 tracking-tight">
-                            Quản lý Chủ đề
+                            {t("categories.headerTitle")}
                         </h1>
                         <p className="text-emerald-800 text-base md:text-lg font-medium">
-                            Tạo các danh mục để sắp xếp kỷ niệm của bạn dễ dàng hơn.
+                            {t("categories.headerSubtitle")}
                         </p>
                     </div>
 
@@ -176,7 +167,7 @@ export default function CategoriesPage() {
                         className="relative z-10 flex items-center justify-center gap-2 px-6 py-3 min-w-[160px] bg-emerald-800 hover:bg-emerald-900 text-white rounded-xl shadow-md transition-all font-bold text-lg shrink-0"
                     >
                         <Plus className="w-6 h-6" />
-                        Tạo chủ đề
+                        {t("categories.createButton")}
                     </button>
                 </div>
 
@@ -185,20 +176,20 @@ export default function CategoriesPage() {
                     {isLoading ? (
                         <div className="flex flex-col items-center justify-center py-20 space-y-4 bg-stone-50 rounded-3xl border border-stone-200">
                             <Loader2 className="w-12 h-12 text-emerald-700 animate-spin" />
-                            <p className="text-lg text-stone-600 font-medium">Đang tải danh sách chủ đề...</p>
+                            <p className="text-lg text-stone-600 font-medium">{t("categories.loading")}</p>
                         </div>
                     ) : categories.length === 0 ? (
                         <div className="flex flex-col items-center justify-center py-24 px-6 text-center bg-stone-50 rounded-3xl border-2 border-dashed border-stone-200">
                             <Bookmark className="w-16 h-16 text-emerald-200 mb-4" />
-                            <h2 className="text-2xl font-bold text-stone-800 mb-2">Chưa có chủ đề nào</h2>
+                            <h2 className="text-2xl font-bold text-stone-800 mb-2">{t("categories.emptyTitle")}</h2>
                             <p className="text-lg text-stone-600 mb-8 max-w-md">
-                                Hãy tạo một thư mục riêng để nhóm các câu chuyện giống nhau lại nhé!
+                                {t("categories.emptySubtitle")}
                             </p>
                             <button
                                 onClick={openAddModal}
                                 className="px-6 py-2.5 bg-emerald-100 text-emerald-800 font-bold rounded-xl hover:bg-emerald-200 transition-colors border border-emerald-200 flex items-center gap-2"
                             >
-                                <Plus className="w-5 h-5"/> Thêm Chủ đề đầu tiên
+                                <Plus className="w-5 h-5"/> {t("categories.addFirstButton")}
                             </button>
                         </div>
                     ) : (
@@ -209,14 +200,14 @@ export default function CategoriesPage() {
                                         <div className="flex items-center gap-4">
                                             <div 
                                                 className="w-12 h-12 rounded-xl flex items-center justify-center text-2xl shrink-0"
-                                                style={{ backgroundColor: typeof cat.color === "string" && cat.color.startsWith("#") ? cat.color + "20" : "#d1fae5" }}
+                                                style={{ backgroundColor: cat.color ? cat.color + "22" : "#d1fae5" }}
                                             >
                                                 {cat.icon || "🏷️"}
                                             </div>
                                             <div>
                                                 <h3 
-                                                    className="text-lg font-bold text-stone-900 break-words"
-                                                    style={{ color: cat.color ? cat.color : "#064e3b" }}
+                                                    className="text-lg font-bold break-words"
+                                                    style={{ color: cat.color || "#064e3b" }}
                                                 >
                                                     {cat.name}
                                                 </h3>
@@ -228,14 +219,14 @@ export default function CategoriesPage() {
                                         <button 
                                             onClick={() => openEditModal(cat)}
                                             className="p-2 text-stone-600 hover:text-emerald-700 hover:bg-emerald-50 rounded-lg transition-colors border border-transparent hover:border-emerald-100"
-                                            title="Sửa chủ đề"
+                                            title={t("categories.editTooltip")}
                                         >
                                             <Edit3 className="w-5 h-5" />
                                         </button>
                                         <button 
                                             onClick={() => openDeleteModal(cat)}
                                             className="p-2 text-red-600 hover:bg-red-50 rounded-lg transition-colors border border-transparent hover:border-red-100"
-                                            title="Xóa chủ đề"
+                                            title={t("categories.deleteTooltip")}
                                         >
                                             <Trash2 className="w-5 h-5" />
                                         </button>
@@ -246,7 +237,7 @@ export default function CategoriesPage() {
                     )}
                 </section>
 
-                {/* MÀN HÌNH TẠO / SỬA CHỦ ĐỀ (Modal) */}
+                {/* MODAL TẠO / SỬA */}
                 {isModalOpen && (
                     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4 animate-in fade-in duration-200">
                         <div className="bg-white max-w-lg w-full rounded-3xl overflow-hidden shadow-2xl relative animate-in zoom-in-95 duration-200">
@@ -256,7 +247,7 @@ export default function CategoriesPage() {
                                     <Tags className="w-6 h-6" />
                                 </div>
                                 <h2 className="text-2xl font-extrabold text-stone-900">
-                                    {currentCategory ? "Sửa Chủ Đề" : "Tạo Chủ Đề Mới"}
+                                    {currentCategory ? t("categories.modalEditTitle") : t("categories.modalAddTitle")}
                                 </h2>
                             </div>
 
@@ -268,19 +259,19 @@ export default function CategoriesPage() {
                                 )}
 
                                 <div>
-                                    <label className="block text-sm font-bold text-stone-700 mb-2">Tên chủ đề</label>
+                                    <label className="block text-sm font-bold text-stone-700 mb-2">{t("categories.formNameLabel")}</label>
                                     <input 
                                         type="text" 
                                         value={formData.name}
                                         onChange={(e) => setFormData({...formData, name: e.target.value})}
                                         className="w-full border-2 border-stone-200 px-4 py-3 rounded-xl text-lg font-bold text-stone-900 focus:outline-none focus:border-emerald-500 bg-stone-50 focus:bg-white transition-colors placeholder:font-normal"
-                                        placeholder="Ví dụ: Gia đình, Chuyến đi, Bạn bè..."
+                                        placeholder={t("categories.formNamePlaceholder")}
                                         maxLength={50}
                                     />
                                 </div>
 
                                 <div>
-                                    <label className="block text-sm font-bold text-stone-700 mb-3">Chọn màu sắc</label>
+                                    <label className="block text-sm font-bold text-stone-700 mb-3">{t("categories.formColorLabel")}</label>
                                     <div className="flex flex-wrap gap-3">
                                         {PRESET_COLORS.map(c => (
                                             <button 
@@ -296,7 +287,7 @@ export default function CategoriesPage() {
                                 </div>
 
                                 <div>
-                                    <label className="block text-sm font-bold text-stone-700 mb-3">Chọn biểu tượng</label>
+                                    <label className="block text-sm font-bold text-stone-700 mb-3">{t("categories.formIconLabel")}</label>
                                     <div className="grid grid-cols-8 gap-2 bg-stone-50 p-4 rounded-xl border border-stone-100">
                                         {PRESET_EMOJIS.map(emoji => (
                                             <button 
@@ -316,21 +307,21 @@ export default function CategoriesPage() {
                                     onClick={() => !isSaving && setIsModalOpen(false)}
                                     className="px-6 py-2.5 rounded-xl font-bold bg-white border border-stone-200 text-stone-700 hover:bg-stone-100"
                                 >
-                                    Đóng
+                                    {t("common.close")}
                                 </button>
                                 <button 
                                     onClick={handleSave}
                                     disabled={isSaving}
                                     className="px-6 py-2.5 rounded-xl font-bold bg-emerald-600 text-white hover:bg-emerald-700 flex items-center gap-2 min-w-[120px] justify-center"
                                 >
-                                    {isSaving ? <Loader2 className="w-5 h-5 animate-spin" /> : currentCategory ? "Lưu lại" : "Tạo mới"}
+                                    {isSaving ? <Loader2 className="w-5 h-5 animate-spin" /> : currentCategory ? t("categories.saveButton") : t("categories.createConfirm")}
                                 </button>
                             </div>
                         </div>
                     </div>
                 )}
 
-                {/* SCREEN DELETE CONFIRMATION */}
+                {/* MODAL XÓA */}
                 {isDeleteModalOpen && (
                     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4 animate-in fade-in duration-200">
                         <div className="bg-white max-w-md w-full rounded-3xl overflow-hidden shadow-2xl relative animate-in zoom-in-95 duration-200">
@@ -338,15 +329,15 @@ export default function CategoriesPage() {
                                 <div className="w-12 h-12 bg-red-100 rounded-full flex items-center justify-center shrink-0">
                                     <Trash2 className="w-6 h-6 text-red-600" />
                                 </div>
-                                <h2 className="text-2xl font-extrabold text-red-900">Xóa chủ đề</h2>
+                                <h2 className="text-2xl font-extrabold text-red-900">{t("categories.deleteModalTitle")}</h2>
                             </div>
                             
                             <div className="p-6">
                                 <p className="text-lg text-stone-700 font-medium mb-3">
-                                    Bạn có chắc muốn xóa chủ đề "<strong className="text-stone-900">{currentCategory?.name}</strong>"?
+                                    {t("categories.deleteConfirmMsg")} "<strong className="text-stone-900">{currentCategory?.name}</strong>"?
                                 </p>
                                 <p className="text-base text-stone-500 bg-stone-50 p-3 rounded-xl border border-stone-200">
-                                    Những câu chuyện thuộc chủ đề này <strong>sẽ không bị xóa</strong>, chúng sẽ chỉ mất nhãn chủ đề thôi.
+                                    {t("categories.deleteNote")}
                                 </p>
                             </div>
                             
@@ -355,14 +346,14 @@ export default function CategoriesPage() {
                                     onClick={() => !isSaving && setIsDeleteModalOpen(false)}
                                     className="px-6 py-2.5 rounded-xl font-bold text-lg text-stone-700 hover:bg-stone-200 bg-stone-100 border border-stone-200"
                                 >
-                                    Thoát
+                                    {t("common.no")}
                                 </button>
                                 <button
                                     onClick={handleDelete}
                                     disabled={isSaving}
                                     className="flex items-center justify-center gap-2 px-6 py-2.5 rounded-xl font-bold text-lg text-white bg-red-600 hover:bg-red-700 min-w-[120px]"
                                 >
-                                    {isSaving ? <Loader2 className="w-5 h-5 animate-spin" /> : "Vâng, Xóa"}
+                                    {isSaving ? <Loader2 className="w-5 h-5 animate-spin" /> : t("categories.confirmDelete")}
                                 </button>
                             </div>
                         </div>

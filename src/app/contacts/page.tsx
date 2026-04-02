@@ -7,8 +7,10 @@ import MainLayout from "@/components/layout/MainLayout";
 import { Users, Trash2, Edit, AlertCircle, Loader2, UserPlus, Phone, Mail, Tag, CheckCircle2 } from "lucide-react";
 import { ContactService } from "@/services/contact.service";
 import { Contact } from "@/types/contact";
+import { useTranslation } from "@/store/useLanguageStore";
 
 export default function ContactsPage() {
+  const { t } = useTranslation();
   const [contacts, setContacts] = useState<Contact[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState("");
@@ -32,23 +34,23 @@ export default function ContactsPage() {
       setContacts(data.content || []);
     } catch (err) {
       console.error("Lỗi lấy danh bạ:", err);
-      setError("Không thể tải danh sách người thân lúc này. Vui lòng thử lại sau.");
+      setError(t("contacts.loadError"));
     } finally {
       setIsLoading(false);
     }
   };
 
   const handleDelete = async (id: number, displayName: string) => {
-    if (!window.confirm(`Bạn có chắc chắn muốn xóa "${displayName}" khỏi danh bạ không?`)) return;
+    if (!window.confirm(`${t("contacts.deleteConfirm")} "${displayName}" ${t("contacts.deleteConfirmSuffix")}`)) return;
     
     setDeletingId(id);
     try {
       await ContactService.deleteContact(id);
       setContacts(prev => prev.filter(c => c.id !== id));
-      showToast("success", `Đã xóa "${displayName}" khỏi danh bạ.`);
+      showToast("success", `${t("contacts.deleteSuccess")} "${displayName}" ${t("contacts.deleteSuccessSuffix")}`);
     } catch (err) {
       console.error("Lỗi xóa contact:", err);
-      showToast("error", "Xóa thất bại. Vui lòng thử lại.");
+      showToast("error", t("contacts.deleteError"));
     } finally {
       setDeletingId(null);
     }
@@ -72,19 +74,18 @@ export default function ContactsPage() {
           </div>
         )}
 
-
         {/* HEADER BANNER */}
-        <div className="bg-emerald-50 border-2 border-emerald-100 rounded-3xl p-8 shadow-sm flex flex-col sm:flex-row sm:items-center justify-between gap-6 relative overflow-hidden">
+        <div className="bg-emerald-50 border border-emerald-100 rounded-3xl p-6 md:p-8 shadow-sm flex flex-col sm:flex-row sm:items-center justify-between gap-6 relative overflow-hidden">
           <div className="absolute top-0 right-0 p-4 opacity-10 pointer-events-none">
             <Users className="w-32 h-32 text-emerald-800" aria-hidden="true" />
           </div>
 
           <div className="relative z-10 space-y-2">
-            <h1 className="text-2xl md:text-3xl font-extrabold text-gray-900 tracking-tight">
-              Danh bạ người thân
+            <h1 className="text-2xl md:text-3xl font-extrabold text-emerald-900 tracking-tight">
+              {t("contacts.headerTitle")}
             </h1>
-            <p className="text-gray-700 text-lg md:text-xl font-medium">
-              Quản lý danh sách người thân để chia sẻ câu chuyện.
+            <p className="text-emerald-800 text-lg font-medium">
+              {t("contacts.headerSubtitle")}
             </p>
           </div>
 
@@ -93,7 +94,7 @@ export default function ContactsPage() {
             className="relative z-10 flex items-center justify-center gap-3 min-h-[56px] px-8 py-3 bg-emerald-800 hover:bg-emerald-900 text-white rounded-xl shadow-md transition-all font-bold text-xl shrink-0"
           >
             <UserPlus className="w-6 h-6" aria-hidden="true" />
-            <span>Thêm người thân</span>
+            <span>{t("contacts.addButton")}</span>
           </Link>
         </div>
 
@@ -109,22 +110,22 @@ export default function ContactsPage() {
         {isLoading ? (
           <div className="flex flex-col items-center justify-center py-20 gap-4 text-emerald-700">
             <Loader2 className="w-12 h-12 animate-spin" aria-hidden="true" />
-            <p className="text-xl font-bold">Đang tải danh sách...</p>
+            <p className="text-xl font-bold">{t("contacts.loading")}</p>
           </div>
         ) : !error && (
-          <section className="space-y-6" aria-label="Danh sách liên hệ">
+          <section className="space-y-6" aria-label={t("contacts.headerTitle")}>
             {contacts.length === 0 ? (
               <div className="text-center p-12 bg-white rounded-3xl shadow-sm border border-gray-200">
                 <div className="w-20 h-20 bg-emerald-50 rounded-full flex items-center justify-center mx-auto mb-6">
                   <Users className="w-10 h-10 text-emerald-700" aria-hidden="true" />
                 </div>
-                <p className="text-xl text-gray-800 font-bold mb-3">Danh bạ của bạn hiện chưa có ai.</p>
-                <p className="text-lg text-gray-600 mb-8 font-medium">Hãy thêm người thân để bắt đầu chia sẻ những câu chuyện của bạn.</p>
+                <p className="text-xl text-gray-800 font-bold mb-3">{t("contacts.emptyTitle")}</p>
+                <p className="text-lg text-gray-600 mb-8 font-medium">{t("contacts.emptySubtitle")}</p>
                 <Link
                   href="/contacts/add"
                   className="inline-flex items-center gap-2 text-xl font-bold text-emerald-800 hover:text-emerald-900 underline"
                 >
-                  Thêm người đầu tiên ngay &rarr;
+                  {t("contacts.addFirstLink")}
                 </Link>
               </div>
             ) : (
@@ -164,7 +165,7 @@ export default function ContactsPage() {
                         ) : null}
 
                         {(!contact.phoneNumber && !contact.email) && (
-                          <p className="italic text-gray-500">Chưa có thông tin liên lạc</p>
+                          <p className="italic text-gray-500">{t("contacts.noContactInfo")}</p>
                         )}
                       </div>
 
@@ -175,7 +176,7 @@ export default function ContactsPage() {
                           className="flex items-center justify-center gap-2 min-h-[48px] bg-slate-50 hover:bg-emerald-50 text-gray-800 hover:text-emerald-800 text-lg font-bold rounded-xl transition-colors border border-gray-200 hover:border-emerald-200 shadow-sm"
                         >
                           <Edit className="w-5 h-5" aria-hidden="true" />
-                          Sửa
+                          {t("contacts.editButton")}
                         </Link>
                         <button
                           onClick={() => handleDelete(contact.id, displayName)}
@@ -185,7 +186,7 @@ export default function ContactsPage() {
                           {deletingId === contact.id
                             ? <Loader2 className="w-5 h-5 animate-spin" aria-hidden="true" />
                             : <Trash2 className="w-5 h-5" aria-hidden="true" />}
-                          {deletingId === contact.id ? 'Đang xóa...' : 'Xóa'}
+                          {deletingId === contact.id ? t("contacts.deleteButton") + "..." : t("contacts.deleteButton")}
                         </button>
                       </div>
                     </article>

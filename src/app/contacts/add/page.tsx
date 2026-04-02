@@ -22,6 +22,7 @@ import { ProfileService } from "@/services/profile.service";
 import { ContactService } from "@/services/contact.service";
 import { ProfilesResponse } from "@/types/profile";
 import { Contact } from "@/types/contact";
+import { useTranslation } from "@/store/useLanguageStore";
 
 // ─── Dữ liệu quốc gia ────────────────────────────────────────────────────────
 const COUNTRIES = [
@@ -58,6 +59,7 @@ type SearchTab = "name" | "phone";
 
 export default function AddContactPage() {
   const router = useRouter();
+  const { t } = useTranslation();
 
   // ─── Tab tìm kiếm ────────────────────────────────────────────────────────
   const [activeTab, setActiveTab] = useState<SearchTab>("phone");
@@ -220,8 +222,8 @@ export default function AddContactPage() {
 
   // ─── Helpers ─────────────────────────────────────────────────────────────
   const formatGender = (g?: string) => {
-    if (g === "MALE") return "Nam";
-    if (g === "FEMALE") return "Nữ";
+    if (g === "MALE") return t("contacts.add.male");
+    if (g === "FEMALE") return t("contacts.add.female");
     return "";
   };
 
@@ -239,23 +241,23 @@ export default function AddContactPage() {
       <div className="max-w-3xl mx-auto space-y-8 pb-20">
 
         {/* ═══ HEADER BANNER ═══════════════════════════════════════════════ */}
-        <div className="bg-emerald-50 border-2 border-emerald-100 rounded-3xl p-6 md:p-8 shadow-sm flex flex-col sm:flex-row sm:items-center justify-between gap-6 relative overflow-hidden">
+        <div className="bg-emerald-50 border border-emerald-100 rounded-3xl p-6 md:p-8 shadow-sm flex flex-col sm:flex-row sm:items-center justify-between gap-6 relative overflow-hidden">
           <div className="absolute top-0 right-0 p-4 opacity-10 pointer-events-none">
             <Users className="w-32 h-32 text-emerald-800" aria-hidden="true" />
           </div>
-          <div className="relative z-10 space-y-3">
+          <div className="relative z-10 space-y-2">
             <button
               onClick={() => router.back()}
               className="flex items-center gap-2 text-emerald-800 hover:text-emerald-900 transition-colors font-bold text-lg w-fit bg-white/60 px-4 py-2 rounded-xl"
             >
               <ArrowLeft className="w-6 h-6" />
-              <span>Quay lại</span>
+              <span>{t("contacts.add.backButton")}</span>
             </button>
-            <h1 className="text-2xl md:text-3xl font-extrabold text-gray-900 tracking-tight">
-              Thêm người thân
+            <h1 className="text-2xl md:text-3xl font-extrabold text-emerald-900 tracking-tight">
+              {t("contacts.add.headerTitle")}
             </h1>
-            <p className="text-gray-700 text-lg font-medium">
-              Tìm kiếm theo tên hoặc số điện thoại để thêm vào danh bạ.
+            <p className="text-emerald-800 text-lg font-medium">
+              {t("contacts.add.headerSubtitle")}
             </p>
           </div>
         </div>
@@ -266,14 +268,14 @@ export default function AddContactPage() {
             <CheckCircle2 className="w-8 h-8 text-emerald-700 flex-shrink-0" />
             <div>
               <p className="text-lg font-bold text-emerald-800">
-                Đã thêm thành công {addedIds.size} người vào danh bạ!
-              </p>
-              <button
-                onClick={() => router.push("/contacts")}
-                className="text-emerald-700 hover:text-emerald-900 font-bold underline text-base mt-0.5"
-              >
-                Xem danh bạ đầy đủ →
-              </button>
+              {t("contacts.add.addedSuccess")} {addedIds.size} {t("contacts.add.addedSuccessSuffix")}
+            </p>
+            <button
+              onClick={() => router.push("/contacts")}
+              className="text-emerald-700 hover:text-emerald-900 font-bold underline text-base mt-0.5"
+            >
+              {t("contacts.add.viewContacts")}
+            </button>
             </div>
           </div>
         )}
@@ -292,7 +294,7 @@ export default function AddContactPage() {
               }`}
             >
               <Phone className="w-5 h-5" />
-              <span>Theo SĐT</span>
+              <span>{t("contacts.add.tabPhone")}</span>
             </button>
             <button
               onClick={() => switchTab("name")}
@@ -303,7 +305,7 @@ export default function AddContactPage() {
               }`}
             >
               <User className="w-5 h-5" />
-              <span>Theo tên</span>
+              <span>{t("contacts.add.tabName")}</span>
             </button>
           </div>
 
@@ -311,7 +313,7 @@ export default function AddContactPage() {
           {activeTab === "phone" && (
             <form onSubmit={handleSearchByPhone} className="space-y-4">
               <label className="text-lg font-bold text-gray-700 block">
-                Nhập số điện thoại người thân
+                {t("contacts.add.phoneLabel")}
               </label>
 
               <div className="flex gap-3 items-stretch">
@@ -342,7 +344,7 @@ export default function AddContactPage() {
                             type="text"
                             value={countrySearch}
                             onChange={e => setCountrySearch(e.target.value)}
-                            placeholder="Tìm quốc gia..."
+                            placeholder={t("contacts.add.searchCountryPlaceholder")}
                             className="w-full pl-9 pr-3 py-2 text-base border border-gray-200 focus:border-emerald-400 rounded-lg outline-none font-medium"
                             autoFocus
                           />
@@ -370,7 +372,7 @@ export default function AddContactPage() {
                           </button>
                         ))}
                         {filteredCountries.length === 0 && (
-                          <p className="text-center text-gray-400 py-6 font-medium">Không tìm thấy</p>
+                          <p className="text-center text-gray-400 py-6 font-medium">{t("contacts.add.noCountry")}</p>
                         )}
                       </div>
                     </div>
@@ -384,7 +386,7 @@ export default function AddContactPage() {
                     type="tel"
                     value={phoneNumber}
                     onChange={e => setPhoneNumber(e.target.value.replace(/[^\d\s\-]/g, ""))}
-                    placeholder="Nhập số còn lại..."
+                    placeholder={t("contacts.add.phonePlaceholder")}
                     className="w-full px-5 py-4 text-xl border-2 border-gray-300 hover:border-emerald-300 focus:border-emerald-500 focus:ring-4 focus:ring-emerald-100 rounded-xl outline-none transition-colors font-medium text-gray-900 placeholder-gray-400"
                     inputMode="numeric"
                   />
@@ -412,7 +414,7 @@ export default function AddContactPage() {
               {/* Hiển thị số đầy đủ */}
               {phoneNumber.trim() && (
                 <p className="text-base font-medium text-gray-500 pl-1">
-                  Sẽ tìm với số:{" "}
+                  {t("contacts.add.willSearch")}{" "}
                   <span className="font-extrabold text-emerald-800">
                     {selectedCountry.dial}{phoneNumber.trim().replace(/\D/g, "")}
                   </span>
@@ -425,7 +427,7 @@ export default function AddContactPage() {
           {activeTab === "name" && (
             <form onSubmit={handleSearchByName} className="space-y-4">
               <label htmlFor="name-search" className="text-lg font-bold text-gray-700 block">
-                Nhập tên người thân
+                {t("contacts.add.nameLabel")}
               </label>
               <div className="flex gap-3">
                 <div className="relative flex-1">
@@ -436,7 +438,7 @@ export default function AddContactPage() {
                     type="text"
                     value={nameKeyword}
                     onChange={e => setNameKeyword(e.target.value)}
-                    placeholder="Nhập tên đầy đủ..."
+                    placeholder={t("contacts.add.namePlaceholder")}
                     className="w-full pl-12 pr-11 py-4 text-xl border-2 border-gray-300 hover:border-emerald-300 focus:border-emerald-500 focus:ring-4 focus:ring-emerald-100 rounded-xl outline-none transition-colors font-medium text-gray-900 placeholder-gray-400"
                     autoComplete="off"
                   />
@@ -457,7 +459,7 @@ export default function AddContactPage() {
                 >
                   {isSearching
                     ? <Loader2 className="w-6 h-6 animate-spin" />
-                    : <><Search className="w-6 h-6" /><span>Tìm</span></>
+                    : <><Search className="w-6 h-6" /><span>{t("contacts.add.search") ?? t("common.search")}</span></>
                   }
                 </button>
               </div>
@@ -476,7 +478,7 @@ export default function AddContactPage() {
           {isSearching && (
             <div className="flex flex-col items-center justify-center py-10 gap-4 text-emerald-700">
               <Loader2 className="w-10 h-10 animate-spin" />
-              <p className="text-xl font-bold">Đang tìm kiếm...</p>
+              <p className="text-xl font-bold">{t("contacts.add.searching") ?? t("common.searching")}</p>
             </div>
           )}
 
@@ -486,17 +488,17 @@ export default function AddContactPage() {
               {results.length === 0 ? (
                 <div className="flex flex-col items-center justify-center py-12 px-6 text-center bg-gray-50 rounded-2xl border border-gray-200 border-dashed">
                   <User className="w-14 h-14 text-gray-200 mb-3" aria-hidden="true" />
-                  <p className="text-xl font-bold text-gray-700">Không tìm thấy kết quả</p>
+                  <p className="text-xl font-bold text-gray-700">{t("contacts.add.noResults")}</p>
                   <p className="text-lg text-gray-500 mt-1 font-medium">
                     {activeTab === "phone"
-                      ? "Kiểm tra lại số điện thoại hoặc đầu số quốc gia."
-                      : "Hãy thử từ khóa khác hoặc kiểm tra chính tả."}
+                      ? t("contacts.add.noResultsPhoneHint")
+                      : t("contacts.add.noResultsNameHint")}
                   </p>
                 </div>
               ) : (
                 <>
                   <p className="text-base font-bold text-gray-500">
-                    Tìm thấy {results.length} kết quả
+                    {t("contacts.add.foundResults")} {results.length} {t("contacts.add.foundResultsSuffix")}
                   </p>
                   <div className="flex flex-col gap-4">
                     {results.map(profile => {
@@ -557,7 +559,7 @@ export default function AddContactPage() {
                             {isBlocked ? (
                               <span className="flex items-center gap-2 px-4 py-2.5 bg-gray-100 text-gray-400 rounded-xl font-bold text-base border border-gray-200 flex-shrink-0 select-none">
                                 <CheckCircle2 className="w-5 h-5" />
-                                Đã là người thân
+                                {t("contacts.add.alreadyContact")}
                               </span>
                             ) : (
                               <button
@@ -569,7 +571,7 @@ export default function AddContactPage() {
                                 }`}
                               >
                                 <UserPlus className="w-5 h-5" />
-                                {isSelected ? "Đang chọn" : "Chọn"}
+                                {isSelected ? t("contacts.add.selectedButton") : t("contacts.add.selectButton")}
                               </button>
                             )}
                           </div>
@@ -592,7 +594,7 @@ export default function AddContactPage() {
             <div className="flex items-center justify-between">
               <h2 className="text-xl font-extrabold text-gray-900 flex items-center gap-3">
                 <UserPlus className="w-7 h-7 text-emerald-700" />
-                Thêm vào danh bạ
+                {t("contacts.add.addFormTitle")}
               </h2>
               <button
                 onClick={() => setSelectedProfile(null)}
@@ -622,14 +624,14 @@ export default function AddContactPage() {
             {/* Tên gợi nhớ */}
             <div className="space-y-3">
               <label htmlFor="preference-name" className="text-lg font-bold text-gray-700 block">
-                Bạn muốn gọi họ là gì?
+                {t("contacts.add.preferenceNameLabel")}
               </label>
               <input
                 id="preference-name"
                 type="text"
                 value={preferenceName}
                 onChange={e => setPreferenceName(e.target.value)}
-                placeholder="VD: Ba, Mẹ, Anh Hùng, Bạn thân Lan..."
+                placeholder={t("contacts.add.preferenceNamePlaceholder")}
                 className="w-full px-5 py-4 text-xl border-2 border-gray-300 hover:border-emerald-300 focus:border-emerald-500 focus:ring-4 focus:ring-emerald-100 rounded-xl outline-none transition-colors font-medium text-gray-900"
                 maxLength={100}
               />
@@ -638,7 +640,7 @@ export default function AddContactPage() {
 
             {/* Nhóm quan hệ */}
             <div className="space-y-3">
-              <label className="text-lg font-bold text-gray-700 block">Nhóm quan hệ</label>
+              <label className="text-lg font-bold text-gray-700 block">{t("contacts.add.relationshipLabel")}</label>
               <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
                 {RELATIONSHIP_GROUPS.map(group => (
                   <button
@@ -672,7 +674,7 @@ export default function AddContactPage() {
                 onClick={() => setSelectedProfile(null)}
                 className="flex-1 flex items-center justify-center min-h-[56px] px-8 py-3 bg-white border-2 border-gray-300 hover:bg-gray-100 text-gray-800 rounded-xl font-bold text-xl transition-colors"
               >
-                Hủy bỏ
+                {t("contacts.add.cancelButton")}
               </button>
               <button
                 onClick={handleAddContact}
@@ -680,9 +682,9 @@ export default function AddContactPage() {
                 className="flex-1 flex items-center justify-center gap-3 min-h-[56px] px-8 py-3 bg-emerald-800 hover:bg-emerald-900 text-white rounded-xl font-bold text-xl transition-all shadow-md disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 {isAdding ? (
-                  <><Loader2 className="w-6 h-6 animate-spin" /><span>Đang thêm...</span></>
+                  <><Loader2 className="w-6 h-6 animate-spin" /><span>{t("contacts.add.addingButton")}</span></>
                 ) : (
-                  <><UserPlus className="w-6 h-6" /><span>Thêm vào danh bạ</span></>
+                  <><UserPlus className="w-6 h-6" /><span>{t("contacts.add.addButton")}</span></>
                 )}
               </button>
             </div>
