@@ -1,10 +1,22 @@
 import { apiClient } from '@/lib/axios';
 import { MediaFilesCreateRequest, MediaFilesResponse } from '@/types/mediaFile';
 
+export interface MediaFilesUpdateRequest {
+    title?: string;
+    mediaType?: string;
+    urlPath?: string;
+    thumbnailUrl?: string;
+    fileSize?: number;
+}
 
 export const MediaFilesService = {
     createMediaFile: async (data: MediaFilesCreateRequest): Promise<MediaFilesResponse> => {
         const response = await apiClient.post<MediaFilesResponse>('/ph-story-mvp-service/api/v1/media-files', data);
+        return response.data;
+    },
+
+    updateMediaFile: async (id: number, data: MediaFilesUpdateRequest): Promise<MediaFilesResponse> => {
+        const response = await apiClient.put<MediaFilesResponse>(`/ph-story-mvp-service/api/v1/media-files/${id}`, data);
         return response.data;
     },
 

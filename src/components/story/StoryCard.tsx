@@ -28,19 +28,24 @@ export default function StoryCard({ story, onDelete }: StoryCardProps) {
         const medias = await StoryMediaService.getStoryMediaByStoryId(story.id);
         if (medias && medias.length > 0 && active) {
           const firstMedia = medias[0];
-          const mediaFile = await MediaFilesService.getMediaFileById(firstMedia.mediaId);
-          if (mediaFile && mediaFile.urlPath && active) {
-            const blobUrl = await FileUploadService.fetchImageBlobUrl(mediaFile.urlPath);
-            if (active) setCoverImageUrl(blobUrl);
+          try {
+            const mediaFile = await MediaFilesService.getMediaFileById(firstMedia.mediaId);
+            if (mediaFile && mediaFile.urlPath && active) {
+              const blobUrl = await FileUploadService.fetchImageBlobUrl(mediaFile.urlPath);
+              if (active) setCoverImageUrl(blobUrl);
+            }
+          } catch {
+            // Media file bị xóa hoặc không tồn tại — không hiển thị ảnh bìa
           }
         }
       } catch (err) {
-        console.error("Lỗi khi fetch ảnh bìa story", err);
+        console.warn("Không thể tải ảnh bìa story:", err);
       }
     };
     fetchCoverImage();
     return () => { active = false; };
   }, [story.id]);
+
 
   return (
     <article className="bg-white rounded-3xl p-6 md:p-8 flex flex-col gap-5 shadow-sm border border-gray-200 hover:shadow-md transition-all duration-300">

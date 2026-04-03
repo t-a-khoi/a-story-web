@@ -1,12 +1,13 @@
 import type { Metadata } from "next";
 import { Inter } from "next/font/google";
 import "./globals.css";
+import { TokenRefreshProvider } from "@/components/providers/TokenRefreshProvider";
 
 const inter = Inter({ subsets: ["latin", "vietnamese"] });
 
 export const metadata: Metadata = {
-  title: "A Story - Lưu giữ kỷ niệm",
-  description: "Không gian riêng tư, an toàn để bạn viết lại câu chuyện cuộc đời và chia sẻ cho người thân.",
+  title: "A Story - Preserve Your Memories",
+  description: "A private, secure space to rewrite your life story and share it with your loved ones.",
 };
 
 export default function RootLayout({
@@ -15,9 +16,11 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="vi" className="scroll-smooth">
+    <html lang="en-US" className="scroll-smooth">
       <body className={`${inter.className} bg-slate-50 text-gray-900 text-lg md:text-xl font-medium antialiased`}>
-        {children}
+        <TokenRefreshProvider>
+          {children}
+        </TokenRefreshProvider>
       </body>
     </html>
   );

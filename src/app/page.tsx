@@ -9,23 +9,23 @@ import { useAuthStore } from "@/store/useAuthStore";
 import { motion, AnimatePresence, Variants } from "framer-motion";
 import { generateCodeVerifier, generateCodeChallenge } from "@/lib/pkce";
 
-// Dữ liệu mẫu cho FAQ
+// Sample FAQ data
 const FAQS = [
   {
-    question: "Thông tin của tôi có được bảo mật không?",
-    answer: "Tuyệt đối an toàn. Nền tảng được thiết kế với tiêu chí 'Riêng tư mặc định'. Câu chuyện của bạn chỉ được chia sẻ với những người bạn đích thân lựa chọn. Không có quảng cáo, không theo dõi người dùng.",
+    question: "Is my information secure?",
+    answer: "Absolutely safe. The platform is designed with a 'Privacy by Default' approach. Your stories are only shared with the people you personally select. No ads, no user tracking.",
   },
   {
-    question: "Tôi không rành công nghệ thì có sử dụng được không?",
-    answer: "Hoàn toàn được. Giao diện được thiết kế với chữ lớn, màu sắc rõ ràng và các nút bấm dễ chạm, loại bỏ mọi tính năng phức tạp để bạn chỉ cần tập trung vào việc viết.",
+    question: "Can I use it if I'm not tech-savvy?",
+    answer: "Absolutely. The interface is designed with large text, clear colors, and easy-to-tap buttons, removing all complex features so you can just focus on writing.",
   },
   {
-    question: "Làm sao để chia sẻ câu chuyện cho con cháu?",
-    answer: "Sau khi hoàn thành một câu chuyện, bạn có thể tạo một liên kết xem riêng tư và gửi nó qua Zalo, Email hoặc tin nhắn cho người thân. Họ không cần tạo tài khoản vẫn có thể đọc được.",
+    question: "How do I share my stories with my family?",
+    answer: "Once you complete a story, you can generate a private viewing link and send it via messaging apps. They don't need to create an account to read it.",
   },
 ];
 
-// Khai báo kiểu Variants cho Framer Motion để hết lỗi gạch đỏ trong VSCode
+// Variants for Framer Motion
 const fadeInUp: Variants = {
   hidden: { opacity: 0, y: 40 },
   visible: { opacity: 1, y: 0, transition: { duration: 0.6, ease: "easeOut" } }
@@ -50,7 +50,7 @@ export default function LandingPage() {
   const accessToken = useAuthStore(state => state.accessToken);
   console.log("accessToken", accessToken);
 
-  // Hiệu ứng thay đổi header khi scroll
+  // Header scroll effect
   useEffect(() => {
     const handleScroll = () => setScrolled(window.scrollY > 20);
     window.addEventListener("scroll", handleScroll);
@@ -60,19 +60,19 @@ export default function LandingPage() {
   const handleStartJourney = async () => {
     try {
       if (accessToken) {
-        // Nếu đã đăng nhập, cho vào thẳng trang Home
+        // If logged in, redirect to Home
         router.push("/home");
         return;
       }
 
       setIsRedirecting(true);
 
-      // 1. Tạo Code Verifier và Challenge
+      // 1. Generate Code Verifier and Challenge
       const codeVerifier = generateCodeVerifier();
       const codeChallenge = await generateCodeChallenge(codeVerifier);
       sessionStorage.setItem("pkce_code_verifier", codeVerifier);
 
-      // 2. Chuyển hướng sang Auth Server
+      // 2. Redirect to Auth Server
       const authServerUrl = process.env.NEXT_PUBLIC_AUTH_SERVER_URL || "http://localhost:9084";
       const clientId = "spa-client";
       const redirectUri = process.env.NEXT_PUBLIC_REDIRECT_URI || "http://localhost:3000/callback";
@@ -84,23 +84,23 @@ export default function LandingPage() {
       authUrl.searchParams.append("scope", "openid profile");
       authUrl.searchParams.append("code_challenge", codeChallenge);
       authUrl.searchParams.append("code_challenge_method", "S256");
-      authUrl.searchParams.append("prompt", "login"); 
+      authUrl.searchParams.append("prompt", "login");
 
       window.location.href = authUrl.toString();
     } catch (error) {
-      console.error("Lỗi chuyển hướng đăng nhập:", error);
+      console.error("Login redirect error:", error);
       setIsRedirecting(false);
     }
   };
-  
+
   return (
     <div className="min-h-screen bg-stone-50 text-stone-900 font-sans selection:bg-emerald-200">
 
-      {/* HEADER ĐIỀU HƯỚNG CẬP NHẬT */}
+      {/* NAVIGATION HEADER */}
       <header className={`fixed top-0 w-full z-50 transition-all duration-300 ${scrolled ? "bg-white/95 backdrop-blur-md shadow-sm py-3" : "bg-transparent py-5"}`}>
         <div className="max-w-7xl mx-auto px-6 flex justify-between items-center">
 
-          {/* Logo và Menu điều hướng */}
+          {/* Logo and Nav Menu */}
           <div className="flex items-center gap-12">
             <div className="text-2xl md:text-3xl font-bold font-sans text-emerald-900 tracking-tight cursor-pointer">
               A Story.
@@ -108,22 +108,22 @@ export default function LandingPage() {
 
             {/* Desktop Navigation */}
             <nav className="hidden lg:flex items-center gap-8 font-medium text-stone-600">
-              <a href="#how-it-works" className="hover:text-emerald-800 transition-colors">Cách hoạt động</a>
-              <a href="#testimonials" className="hover:text-emerald-800 transition-colors">Câu chuyện</a>
-              <a href="#faq" className="hover:text-emerald-800 transition-colors">Hỏi đáp</a>
+              <a href="#how-it-works" className="hover:text-emerald-800 transition-colors">How it works</a>
+              <a href="#testimonials" className="hover:text-emerald-800 transition-colors">Stories</a>
+              <a href="#faq" className="hover:text-emerald-800 transition-colors">FAQ</a>
             </nav>
           </div>
 
-          {/* Nút hành động (Chỉ còn Bắt đầu ngay) */}
+          {/* Action Buttons */}
           <div className="flex items-center gap-4">
             <button
               onClick={handleStartJourney}
               className="min-h-[44px] px-6 bg-emerald-800 text-white rounded-full text-md font-medium hover:bg-emerald-900 shadow-sm transition-all hover:shadow-md"
             >
-              Bắt đầu ngay
+              Start now
             </button>
 
-            {/* Nút Hamburger cho Mobile */}
+            {/* Mobile Hamburger Button */}
             <button className="lg:hidden p-2 text-stone-600 hover:text-emerald-800">
               <Menu className="w-6 h-6" />
             </button>
@@ -143,12 +143,12 @@ export default function LandingPage() {
               className="space-y-8 z-10"
             >
               <motion.h1 variants={fadeInUp} className="text-4xl md:text-5xl lg:text-6xl font-bold font-sans text-stone-900 leading-[1.15]">
-                Lưu giữ di sản <br />
-                <span className="text-emerald-800 italic">bằng ngôn từ của bạn.</span>
+                Preserve your legacy <br />
+                <span className="text-emerald-800 italic">in your own words.</span>
               </motion.h1>
 
               <motion.p variants={fadeInUp} className="text-xl md:text-2xl text-stone-600 leading-relaxed max-w-lg">
-                Một không gian tĩnh lặng, an toàn để hồi tưởng, viết lại những thăng trầm cuộc đời và gửi gắm yêu thương đến thế hệ sau.
+                A quiet, safe space to reminisce, rewrite the ups and downs of life, and send love to the next generation.
               </motion.p>
 
               <motion.div variants={fadeInUp} className="pt-4 flex flex-col sm:flex-row gap-4">
@@ -157,7 +157,7 @@ export default function LandingPage() {
                   disabled={isRedirecting}
                   className="min-h-[60px] w-full sm:w-auto px-8 py-3 bg-emerald-800 text-white rounded-xl text-lg font-bold shadow-lg hover:bg-emerald-900 hover:scale-[1.02] hover:shadow-xl transition-all disabled:opacity-75"
                 >
-                  {isRedirecting ? "Đang chuẩn bị..." : "Bắt đầu lưu giữ kỷ niệm"}
+                  {isRedirecting ? "Preparing..." : "Start preserving memories"}
                 </button>
               </motion.div>
             </motion.div>
@@ -170,7 +170,7 @@ export default function LandingPage() {
             >
               <Image
                 src="https://images.unsplash.com/photo-1529070538774-1843cb3265df?q=80&w=1200&auto=format&fit=crop"
-                alt="Hai thế hệ đang chia sẻ câu chuyện"
+                alt="Two generations sharing a story"
                 fill
                 className="object-cover"
                 priority
@@ -190,17 +190,17 @@ export default function LandingPage() {
             className="max-w-6xl mx-auto text-center space-y-16"
           >
             <motion.div variants={fadeInUp} className="space-y-4">
-              <h2 className="text-3xl md:text-4xl font-bold font-sans text-stone-900">Hành trình lưu giữ kỷ niệm</h2>
-              <p className="text-xl text-stone-600">Ba bước đơn giản, thong thả theo nhịp độ của riêng bạn.</p>
+              <h2 className="text-3xl md:text-4xl font-bold font-sans text-stone-900">The memory preservation journey</h2>
+              <p className="text-xl text-stone-600">Three simple steps, taking your time at your own pace.</p>
             </motion.div>
 
             <div className="grid md:grid-cols-3 gap-12 relative max-w-5xl mx-auto">
               <div className="hidden md:block absolute top-12 left-[15%] right-[15%] h-0.5 border-t-2 border-dashed border-stone-300 z-0" />
 
               {[
-                { icon: BookOpen, title: "1. Nhận gợi ý", desc: "Mỗi tuần một câu hỏi gợi mở ký ức để bạn bắt đầu mạch cảm xúc mà không sợ 'bí ý tưởng'." },
-                { icon: Heart, title: "2. Viết thong thả", desc: "Không áp lực thời gian, không đếm lượt thích. Chỉ có bạn và những dòng hồi ức chân thực nhất." },
-                { icon: ShieldCheck, title: "3. Lưu giữ an toàn", desc: "Tác phẩm được bảo mật tuyệt đối. Bạn là người duy nhất quyết định ai được phép đọc chúng." }
+                { icon: BookOpen, title: "1. Get prompts", desc: "A weekly memory-evoking question to spark your emotions without the fear of 'writer's block'." },
+                { icon: Heart, title: "2. Write at your pace", desc: "No time pressure, no counting likes. Just you and your most authentic memories." },
+                { icon: ShieldCheck, title: "3. Secure storage", desc: "Your writing is strictly confidential. You are the only one who decides who is allowed to read it." }
               ].map((step, idx) => (
                 <motion.div
                   key={idx}
@@ -218,7 +218,7 @@ export default function LandingPage() {
           </motion.div>
         </section>
 
-        {/* 3. SOCIAL PROOF (Cập nhật 2 câu chuyện) */}
+        {/* 3. SOCIAL PROOF */}
         <section id="testimonials" className="py-24 bg-stone-100 px-6">
           <motion.div
             initial="hidden"
@@ -228,41 +228,41 @@ export default function LandingPage() {
             className="max-w-6xl mx-auto space-y-16"
           >
             <motion.div variants={fadeInUp} className="text-center space-y-4">
-              <h2 className="text-3xl md:text-4xl font-bold font-sans text-stone-900">Những câu chuyện đã được kể</h2>
-              <p className="text-xl text-stone-600">Hàng ngàn gia đình đã kết nối sâu sắc hơn qua từng trang viết.</p>
+              <h2 className="text-3xl md:text-4xl font-bold font-sans text-stone-900">Stories that have been told</h2>
+              <p className="text-xl text-stone-600">Thousands of families have connected more deeply through every written page.</p>
             </motion.div>
 
             <div className="grid md:grid-cols-2 gap-8">
-              {/* Câu chuyện 1 */}
+              {/* Testimonial 1 */}
               <motion.div variants={fadeInUp} className="bg-white p-10 md:p-12 rounded-3xl shadow-sm border border-stone-200 relative flex flex-col h-full">
                 <span className="absolute top-6 left-6 text-6xl text-emerald-200 font-sans leading-none">"</span>
                 <p className="text-lg md:text-xl text-stone-700 font-sans italic leading-relaxed relative z-10 flex-grow">
-                  Lúc đầu tôi nghĩ mình chẳng có gì để viết, cuộc đời mình quá đỗi bình thường. Nhưng khi bắt đầu trả lời những câu hỏi gợi ý, ký ức tuổi thơ cứ thế ùa về. Giờ đây, các con tôi rất thích thú mỗi khi tôi gửi cho chúng một đường link kể về ngày xưa.
+                  At first I thought I had nothing to write about, my life was too ordinary. But when I started answering the prompt questions, childhood memories came flooding back. Now, my children are thrilled whenever I send them a link telling a story about the old days.
                 </p>
                 <div className="mt-8 flex items-center gap-4 pt-6 border-t border-stone-100">
                   <div className="w-14 h-14 bg-stone-300 rounded-full overflow-hidden relative shrink-0">
-                    <Image src="https://images.unsplash.com/photo-1544005313-94ddf0286df2?q=80&w=200&auto=format&fit=crop" alt="Avatar Cô Ngọc Lan" fill className="object-cover" />
+                    <Image src="https://images.unsplash.com/photo-1544005313-94ddf0286df2?q=80&w=200&auto=format&fit=crop" alt="Avatar Ms. Ngoc Lan" fill className="object-cover" />
                   </div>
                   <div>
-                    <div className="text-lg font-bold text-stone-900">Cô Ngọc Lan</div>
-                    <div className="text-stone-500">Giáo viên về hưu, 62 tuổi</div>
+                    <div className="text-lg font-bold text-stone-900">Ms. Ngoc Lan</div>
+                    <div className="text-stone-500">Retired teacher, 62 years old</div>
                   </div>
                 </div>
               </motion.div>
 
-              {/* Câu chuyện 2 */}
+              {/* Testimonial 2 */}
               <motion.div variants={fadeInUp} className="bg-white p-10 md:p-12 rounded-3xl shadow-sm border border-stone-200 relative flex flex-col h-full">
                 <span className="absolute top-6 left-6 text-6xl text-emerald-200 font-sans leading-none">"</span>
                 <p className="text-lg md:text-xl text-stone-700 font-sans italic leading-relaxed relative z-10 flex-grow">
-                  Các con tôi định cư ở nước ngoài, mỗi năm chỉ về thăm được một lần. Nhờ viết lại những câu chuyện trên nền tảng này, tôi cảm thấy như đang trò chuyện với chúng mỗi ngày. Các cháu cũng hiểu hơn về ông bà và cội nguồn của mình dù ở xa.
+                  My children settled abroad and can only visit once a year. By rewriting my stories on this platform, I feel like I'm talking to them every day. They also understand more about their grandparents and their roots despite being far away.
                 </p>
                 <div className="mt-8 flex items-center gap-4 pt-6 border-t border-stone-100">
                   <div className="w-14 h-14 bg-stone-300 rounded-full overflow-hidden relative shrink-0">
-                    <Image src="https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?q=80&w=200&auto=format&fit=crop" alt="Avatar Chú Hoàng Minh" fill className="object-cover" />
+                    <Image src="https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?q=80&w=200&auto=format&fit=crop" alt="Avatar Mr. Hoang Minh" fill className="object-cover" />
                   </div>
                   <div>
-                    <div className="text-lg font-bold text-stone-900">Chú Hoàng Minh</div>
-                    <div className="text-stone-500">Cán bộ nhà nước, 68 tuổi</div>
+                    <div className="text-lg font-bold text-stone-900">Mr. Hoang Minh</div>
+                    <div className="text-stone-500">Government official, 68 years old</div>
                   </div>
                 </div>
               </motion.div>
@@ -279,7 +279,7 @@ export default function LandingPage() {
             variants={staggerContainer}
             className="max-w-3xl mx-auto space-y-12"
           >
-            <motion.h2 variants={fadeInUp} className="text-3xl md:text-4xl font-bold font-sans text-stone-900 text-center">Câu hỏi thường gặp</motion.h2>
+            <motion.h2 variants={fadeInUp} className="text-3xl md:text-4xl font-bold font-sans text-stone-900 text-center">Frequently Asked Questions</motion.h2>
             <motion.div variants={fadeInUp} className="space-y-4">
               {FAQS.map((faq, index) => (
                 <div key={index} className="border border-stone-200 rounded-2xl overflow-hidden transition-all duration-300 hover:border-emerald-200 hover:shadow-sm">
@@ -316,40 +316,40 @@ export default function LandingPage() {
       <footer className="bg-stone-900 text-stone-400 py-16 px-6">
         <div className="max-w-7xl mx-auto grid md:grid-cols-2 gap-12">
 
-          {/* Cột trái: Thông tin & Nút CTA */}
+          {/* Left Column: Info & CTA Button */}
           <div className="space-y-6">
             <div className="text-3xl font-bold font-sans text-white">A Story.</div>
             <p className="text-lg max-w-sm">
-              Lưu giữ kỷ niệm, thắt chặt tình thân qua từng trang viết.
+              Preserving memories, strengthening family bonds through every written page.
             </p>
             <button
               onClick={handleStartJourney}
               className="min-h-[56px] px-8 bg-stone-800 text-white rounded-xl text-lg font-medium hover:bg-stone-700 transition-colors border border-stone-700 flex items-center gap-3 w-fit"
             >
-              <Mail className="w-5 h-5" /> Bắt đầu ngay hôm nay
+              <Mail className="w-5 h-5" /> Get started today
             </button>
           </div>
 
-          {/* Cột phải: Navigation Links */}
-          <div className="grid grid-cols-2 gap-8"> {/* Đã xóa md:text-right để căn trái đều đặn */}
+          {/* Right Column: Navigation Links */}
+          <div className="grid grid-cols-2 gap-8">
 
-            {/* Về chúng tôi */}
+            {/* About us */}
             <div className="space-y-4">
-              <h4 className="text-white text-lg font-bold">Về chúng tôi</h4>
+              <h4 className="text-white text-lg font-bold">About us</h4>
               <ul className="space-y-3 list-none p-0 m-0">
-                <li><a href="#" className="hover:text-white transition-colors block">Sứ mệnh</a></li>
-                <li><a href="#" className="hover:text-white transition-colors block">Bảo mật</a></li>
-                <li><a href="#" className="hover:text-white transition-colors block">Đội ngũ</a></li>
+                <li><a href="#" className="hover:text-white transition-colors block">Mission</a></li>
+                <li><a href="#" className="hover:text-white transition-colors block">Privacy</a></li>
+                <li><a href="#" className="hover:text-white transition-colors block">Team</a></li>
               </ul>
             </div>
 
-            {/* Hỗ trợ */}
+            {/* Support */}
             <div className="space-y-4">
-              <h4 className="text-white text-lg font-bold">Hỗ trợ</h4>
+              <h4 className="text-white text-lg font-bold">Support</h4>
               <ul className="space-y-3 list-none p-0 m-0">
-                <li><a href="#" className="hover:text-white transition-colors block">Hướng dẫn</a></li>
-                <li><a href="#" className="hover:text-white transition-colors block">Liên hệ</a></li>
-                <li><a href="#" className="hover:text-white transition-colors block">Câu hỏi thường gặp</a></li>
+                <li><a href="#" className="hover:text-white transition-colors block">Guides</a></li>
+                <li><a href="#" className="hover:text-white transition-colors block">Contact</a></li>
+                <li><a href="#" className="hover:text-white transition-colors block">FAQ</a></li>
               </ul>
             </div>
 
@@ -358,10 +358,10 @@ export default function LandingPage() {
 
         {/* Bottom Footer */}
         <div className="max-w-7xl mx-auto mt-16 pt-8 border-t border-stone-800 text-center text-stone-500 flex flex-col md:flex-row justify-between items-center gap-4">
-          <p>© {new Date().getFullYear()} A Story. Mọi quyền được bảo lưu.</p>
+          <p>© {new Date().getFullYear()} A Story. All rights reserved.</p>
           <div className="flex gap-6 text-sm">
-            <a href="#" className="hover:text-white transition-colors block">Chính sách bảo mật</a>
-            <a href="#" className="hover:text-white transition-colors block">Điều khoản sử dụng</a>
+            <a href="#" className="hover:text-white transition-colors block">Privacy Policy</a>
+            <a href="#" className="hover:text-white transition-colors block">Terms of Use</a>
           </div>
         </div>
       </footer>

@@ -9,7 +9,9 @@ import {
     Globe, Smartphone, Save, Loader2, BookOpen, AlertCircle
 } from "lucide-react";
 import { SettingsService } from "@/services/settings.service";
+import { ProfileService } from "@/services/profile.service";
 import { authService } from "@/services/auth.service";
+import { useAuthStore } from "@/store/useAuthStore";
 import { useTranslation, useLanguageStore } from "@/store/useLanguageStore";
 
 // Define a local type for typed key access
@@ -20,14 +22,21 @@ export default function SettingsPage() {
     const { t } = useTranslation();
     const currentLang = useLanguageStore((state) => state.language);
     const setGlobalLanguage = useLanguageStore((state) => state.setLanguage);
+
+    // Lấy thông tin xác thực từ store
+    const authUser = useAuthStore((state) => state.user);
+    const authProfile = useAuthStore((state) => state.profile);
+    const setProfile = useAuthStore((state) => state.setProfile);
+
     const [isLoading, setIsLoading] = useState(true);
     const [isSaving, setIsSaving] = useState(false);
     const [toastMsg, setToastMsg] = useState<{ type: 'success' | 'error', text: string } | null>(null);
     const [activeTab, setActiveTab] = useState<TabType>("general");
+    const [userName, setUserName] = useState<string>("");
 
     const [settingId, setSettingId] = useState<number | null>(null);
 
-    // Trạng thái cục bộ (UI Flexible State mapping to backend's Record<string,any>)
+    // Trạng thái cục bộ (UI State mapping to backend's Record<string,any>)
     const [settingsData, setSettingsData] = useState({
         general: {
             theme: "light",
@@ -47,8 +56,6 @@ export default function SettingsPage() {
         }
     });
 
-    const userName = "Nguyễn Văn Khoa"; // Mocked User Name
-
     // Đồng bộ language selector trong Settings với store (phòng khi toggle từ Header)
     useEffect(() => {
         setSettingsData(prev => ({
@@ -58,18 +65,58 @@ export default function SettingsPage() {
     }, [currentLang]);
 
     useEffect(() => {
-        fetchInitialSettings();
+        fetchInitialData();
     }, []);
 
-    const fetchInitialSettings = async () => {
+    const fetchInitialData = async () => {
+        setIsLoading(true);
         try {
-            // Chuẩn hóa theo Backend DTO `QueryRequest` trong tài liệu STORY-API-DOC-SPEC-v3
+            await Promise.all([
+                fetchUserProfile(),
+                fetchInitialSettings(),
+            ]);
+        } finally {
+            setIsLoading(false);
+        }
+    };
+
+    // Lấy thông tin hồ sơ người dùng từ DB (ưu tiên cache trong store)
+    const fetchUserProfile = async () => {
+        try {
+            if (authProfile?.fullname) {
+                // Đã có trong store, dùng luôn
+                setUserName(authProfile.fullname);
+                return;
+            }
+            // Chưa có trong store → gọi API /me
+            const profile = await ProfileService.getMyProfile();
+            setProfile(profile as any);
+            setUserName(profile.fullname ?? "");
+        } catch (error) {
+            console.error("Lỗi khi tải hồ sơ người dùng:", error);
+            // Fallback: dùng fullName từ user nếu có
+            if (authUser?.fullName) {
+                setUserName(authUser.fullName);
+            }
+        }
+    };
+
+    // Lấy Settings từ BE theo userId thực
+    const fetchInitialSettings = async () => {
+        if (!authUser?.id) return;
+
+        try {
             const res = await SettingsService.searchSettings({
                 filters: [
                     {
                         field: "userId",
                         operator: "EQUAL",
-                        value: 1 // Giả lập userId = 1 hiện tại (Sau này thay bằng Context/Auth)
+                        value: authUser.id
+                    },
+                    {
+                        field: "deleted",
+                        operator: "EQUAL",
+                        value: false
                     }
                 ],
                 pagination: {
@@ -96,16 +143,19 @@ export default function SettingsPage() {
         } catch (error) {
             console.error("Lỗi khi tải cấu hình:", error);
             showToast("error", t("settings.loading.error"));
-        } finally {
-            setIsLoading(false);
         }
     };
 
     const handleSave = async () => {
+        if (!authUser?.id) {
+            showToast("error", t("settings.loading.error"));
+            return;
+        }
+
         setIsSaving(true);
         try {
             const payload = {
-                userId: 1,
+                userId: authUser.id,
                 general: settingsData.general,
                 profile: settingsData.profile,
                 story: settingsData.story,
@@ -196,8 +246,13 @@ export default function SettingsPage() {
                                 <User className="w-5 h-5 text-emerald-700" />
                             </div>
                             <div>
-                                {/* Giảm font size */}
-                                <h2 className="text-lg font-bold text-stone-900">{userName}</h2>
+                                {isLoading ? (
+                                    <div className="h-5 w-36 bg-stone-200 animate-pulse rounded-md" />
+                                ) : (
+                                    <h2 className="text-lg font-bold text-stone-900">
+                                        {userName || authUser?.fullName || authUser?.username || "—"}
+                                    </h2>
+                                )}
                                 <p className="text-sm text-stone-500 font-medium">{t("settings.profileBanner.subtitle")}</p>
                             </div>
                         </div>
@@ -216,7 +271,6 @@ export default function SettingsPage() {
                     <div className="flex overflow-x-auto border-b border-stone-200 bg-stone-50 hide-scrollbar">
                         <button
                             onClick={() => setActiveTab('general')}
-                            // Giảm text-lg -> text-base
                             className={`flex items-center gap-2 px-5 py-3.5 font-bold text-base whitespace-nowrap transition-colors border-b-2 ${activeTab === 'general' ? 'border-emerald-600 text-emerald-800 bg-white' : 'border-transparent text-stone-500 hover:text-stone-700'
                                 }`}
                         >

@@ -76,11 +76,14 @@ export const authService = {
         try {
             // 1. Phục hồi access token từ code
             const tokenResponse = await authService.exchangeToken(code, codeVerifier);
-            const accessToken = tokenResponse.access_token;
 
-            // 2. Lưu token tạm thời vào store để getCurrentUser có thể dùng chung cấu hình axios
+            // 2. Lưu tokens vào store (access + refresh + expiry)
             const authStore = useAuthStore.getState();
-            authStore.setToken(accessToken);
+            authStore.setTokens(
+                tokenResponse.access_token,
+                tokenResponse.refresh_token ?? null,
+                tokenResponse.expires_in,
+            );
 
             // 3. Lấy thông tin User hiện tại
             const user = await authService.getCurrentUser();
@@ -93,14 +96,58 @@ export const authService = {
                 console.warn("Người dùng này chưa có profile", err);
             }
 
-            // 4. Lưu toàn bộ thông tin Auth vào store
-            authStore.setAuth(accessToken, user, profile);
+            // 4. Lưu thông tin User/Profile vào store
+            authStore.setAuth(authStore.accessToken!, user, profile);
 
             // 5. Dọn dẹp session sau khi hoàn thành
             sessionStorage.removeItem("pkce_code_verifier");
         } catch (error) {
             useAuthStore.getState().logout();
             throw error;
+        }
+    },
+
+    /**
+     * 4. Silent Refresh - Đổi refresh_token lấy access_token mới
+     * Được gọi tự động trước khi access_token hết hạn 5 phút
+     */
+    refreshAccessToken: async (): Promise<boolean> => {
+        const authStore = useAuthStore.getState();
+        const refreshToken = authStore.refreshToken;
+
+        if (!refreshToken) {
+            console.warn('[TokenRefresh] Không có refresh token, bỏ qua.');
+            return false;
+        }
+
+        try {
+            const params = new URLSearchParams();
+            params.append('grant_type', 'refresh_token');
+            params.append('client_id', 'spa-client');
+            params.append('refresh_token', refreshToken);
+
+            const response = await axios.post<TokenResponse>(AUTH_TOKEN_URL, params, {
+                headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+            });
+
+            const { access_token, refresh_token, expires_in } = response.data;
+
+            authStore.setTokens(
+                access_token,
+                refresh_token ?? refreshToken, // giữ lại refresh token cũ nếu server không trả cái mới
+                expires_in,
+            );
+
+            console.log('[TokenRefresh] Token đã được làm mới thành công.');
+            return true;
+        } catch (error) {
+            console.error('[TokenRefresh] Không thể làm mới token:', error);
+            // Refresh thất bại → logout hoàn toàn
+            authStore.logout();
+            if (typeof window !== 'undefined') {
+                window.location.href = '/';
+            }
+            return false;
         }
     },
 

@@ -2,7 +2,6 @@
 
 import { useState, useEffect } from "react";
 import { useParams, useRouter } from "next/navigation";
-import Image from "next/image";
 import MainLayout from "@/components/layout/MainLayout";
 import { ArrowLeft, Calendar, Edit3, Share2, Clock, Trash2, Loader2, AlertTriangle, CheckCircle2 } from "lucide-react";
 import ShareModal from "@/components/story/ShareModal";
@@ -44,14 +43,20 @@ export default function StoryDetailPage() {
           const storyMediaList = await StoryMediaService.getStoryMediaByStoryId(id);
           if (storyMediaList && storyMediaList.length > 0) {
               const urls = await Promise.all(storyMediaList.map(async (sm) => {
-                  const fileObj = await MediaFilesService.getMediaFileById(sm.mediaId);
-                  return await FileUploadService.fetchImageBlobUrl(fileObj.urlPath);
+                  try {
+                      const fileObj = await MediaFilesService.getMediaFileById(sm.mediaId);
+                      return await FileUploadService.fetchImageBlobUrl(fileObj.urlPath);
+                  } catch {
+                      // File đã bị xóa hoặc không tìm thấy — bỏ qua
+                      return "";
+                  }
               }));
               setAttachedMediaUrls(urls.filter(url => url !== ""));
           }
       } catch (mediaErr) {
           console.warn("Lỗi tải ảnh đính kèm:", mediaErr);
       }
+
 
     } catch (error) {
       console.error("Lỗi lấy chi tiết story:", error);
@@ -201,7 +206,7 @@ export default function StoryDetailPage() {
           </div>
 
           {/* HIỂN THỊ HÌNH ẢNH ĐÍNH KÈM */}
-          {attachedMediaUrls.length > 0 ? (
+          {attachedMediaUrls.length > 0 && (
             <div className="px-6 md:px-12 pb-10 space-y-6">
               {attachedMediaUrls.map((url, idx) => (
                   <div key={idx} className="relative w-full rounded-2xl overflow-hidden shadow-md border border-stone-200 bg-stone-100 flex justify-center max-h-[600px]">
@@ -212,18 +217,6 @@ export default function StoryDetailPage() {
                     />
                   </div>
               ))}
-            </div>
-          ) : (
-            <div className="px-6 md:px-12 pb-10">
-              <div className="relative aspect-[16/9] w-full rounded-2xl overflow-hidden shadow-md border border-stone-200 bg-stone-100">
-                <Image
-                  src={"https://images.unsplash.com/photo-1555939594-58d7cb561ad1?q=80&w=1200&auto=format&fit=crop"}
-                  alt={t("story.defaultImageCaption")}
-                  fill
-                  className="object-cover"
-                />
-              </div>
-              <p className="text-center text-sm text-stone-400 mt-3 italic">{t("story.defaultImageCaption")}</p>
             </div>
           )}
 

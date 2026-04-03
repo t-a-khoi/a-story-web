@@ -82,22 +82,28 @@ export default function EditStoryPage({ params }: { params: Promise<{ id: string
                 try {
                     const storyMediaList = await StoryMediaService.getStoryMediaByStoryId(storyId);
                     if (storyMediaList && storyMediaList.length > 0) {
-                        const mediaItems = await Promise.all(storyMediaList.map(async (sm) => {
-                            const fileObj = await MediaFilesService.getMediaFileById(sm.mediaId);
-                            const blobUrl = await FileUploadService.fetchImageBlobUrl(fileObj.urlPath);
-                            return {
-                                id: sm.id,
-                                mediaFileId: sm.mediaId,
-                                fileKey: fileObj.urlPath,
-                                blobUrl: blobUrl,
-                                isNew: false
-                            };
-                        }));
+                        const mediaItems = (await Promise.all(storyMediaList.map(async (sm) => {
+                            try {
+                                const fileObj = await MediaFilesService.getMediaFileById(sm.mediaId);
+                                const blobUrl = await FileUploadService.fetchImageBlobUrl(fileObj.urlPath);
+                                return {
+                                    id: sm.id,
+                                    mediaFileId: sm.mediaId,
+                                    fileKey: fileObj.urlPath,
+                                    blobUrl: blobUrl,
+                                    isNew: false
+                                };
+                            } catch {
+                                // Media file bị xóa hoặc không tồn tại — bỏ qua
+                                return null;
+                            }
+                        }))).filter(Boolean) as AttachedMedia[];
                         setAttachedMedia(mediaItems);
                     }
                 } catch (mediaErr) {
                     console.warn("Lỗi tải ảnh đính kèm:", mediaErr);
                 }
+
 
             } catch (error) {
                 console.error("Lỗi khi tải câu chuyện:", error);

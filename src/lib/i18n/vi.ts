@@ -40,7 +40,7 @@ export const vi = {
   // ─── Settings ─────────────────────────────────────────────────────────────
   settings: {
     header: {
-      title: "Cấu hình hệ thống",
+      title: "Cài đặt",
       subtitle: "Quản lý giao diện, quyền riêng tư và thói quen của bạn."
     },
     buttons: {
@@ -238,6 +238,8 @@ export const vi = {
       addButton: "Thêm vào danh bạ",
       addingButton: "Đang thêm...",
       addError: "Thêm thất bại. Người này có thể đã có trong danh bạ.",
+      search: "Tìm",
+      searching: "Đang tìm kiếm...",
     }
   },
 
@@ -284,6 +286,25 @@ export const vi = {
     emptyTitle: "Thư viện trống",
     emptySubtitle: "Bạn chưa đính kèm bức ảnh nào lúc viết câu chuyện. Lúc viết mới, hãy thử đính kèm ảnh để lưu lại ở đây nhé!",
     imageAlt: "Hình ảnh kỷ niệm",
+    uploadButton: "Tải ảnh lên",
+    uploadingPhoto: "Đang tải ảnh...",
+    uploadSuccess: "Đã tải ảnh lên thành công!",
+    uploadError: "Không thể tải ảnh lên. Vui lòng thử lại!",
+    uploadTitlePlaceholder: "Nhập tên cho bức ảnh (không bắt buộc)...",
+    uploadModalTitle: "Tải ảnh lên thư viện",
+    uploadSelectFile: "Chọn ảnh từ thiết bị",
+    uploadDragHint: "Kéo thả hoặc nhấn để chọn ảnh",
+    uploadFileTypes: "Hỗ trợ JPG, PNG, GIF, WEBP",
+    deleteConfirmTitle: "Xóa ảnh này?",
+    deleteConfirmMessage: "Ảnh sẽ bị xóa vĩnh viễn và không thể khôi phục.",
+    deleteSuccess: "Đã xóa ảnh thành công.",
+    deleteError: "Xóa ảnh thất bại. Vui lòng thử lại!",
+    viewDetail: "Xem chi tiết",
+    photoOf: "Ảnh của",
+    uploadedAt: "Ngày tải lên",
+    noTitle: "Không có tiêu đề",
+    imageCount: "ảnh",
+    totalImages: "Tổng cộng",
   },
 
   // ─── Story Detail ─────────────────────────────────────────────────────────
@@ -308,6 +329,6 @@ export const vi = {
     readTimeApprox: "Khoảng",
     footer: "Đã viết và lưu giữ an toàn.",
     defaultImageCaption: "Hình ảnh kỉ niệm (Minh họa gốc chưa được thay thế)",
-    imageAlt: "Minh họa",
+    imageAlt: "Hình minh họa",
   },
 };
