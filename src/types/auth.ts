@@ -85,7 +85,12 @@ export interface UserCreateRequest {
     username: string;
     email: string;
     password?: string;
-    fullName: string;
+    fullname: string;
+    gender: string;
+    dateOfBirth?: string | null;
+    phoneNumber?: string;
+    address?: string;
+    userType?: string;
 }
 
 export interface UserUpdateRequest {

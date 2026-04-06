@@ -1,5 +1,5 @@
 import { apiClient } from '@/lib/axios';
-import { PageResponse } from '@/types/common';
+import { PageResponse, QueryRequest } from '@/types/common';
 import { Contact, ContactCreateRequest, ContactUpdateRequest } from '@/types/contact';
 
 export const ContactService = {
@@ -47,13 +47,7 @@ export const ContactService = {
   /**
    * Tìm kiếm contact
    */
-  searchContacts: async (body: {
-    page?: number;
-    size?: number;
-    sort?: string;
-    filter?: Record<string, unknown>;
-    search?: string;
-  }): Promise<PageResponse<Contact>> => {
+  searchContacts: async (body: QueryRequest): Promise<PageResponse<Contact>> => {
     const response = await apiClient.post<PageResponse<Contact>>(
       '/ph-story-mvp-service/api/v1/contacts/search',
       body

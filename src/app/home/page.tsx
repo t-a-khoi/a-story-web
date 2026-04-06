@@ -9,6 +9,7 @@ import { useAuthStore } from '@/store/useAuthStore';
 import MainLayout from '@/components/layout/MainLayout';
 import { Story } from '@/types/story';
 import { StoryService } from '@/services/stories.service';
+import { ProfileService } from '@/services/profile.service';
 import StoryCard from '@/components/story/StoryCard';
 import { useTranslation } from '@/store/useLanguageStore';
 
@@ -17,7 +18,7 @@ export default function HomePage() {
   const { t } = useTranslation();
 
   // 1. Context & State
-  const { accessToken, user, _hasHydrated } = useAuthStore();
+  const { accessToken, user, profile, setProfile, _hasHydrated } = useAuthStore();
   const [isInitializing, setIsInitializing] = useState(true);
   const [isLoadingStories, setIsLoadingStories] = useState(false);
 
@@ -72,6 +73,18 @@ export default function HomePage() {
       fetchMyStories(page);
     }
   }, [isInitializing, user?.id, page, fetchMyStories]);
+
+  // Kiểm tra và fetch profile nếu trong store chưa có
+  useEffect(() => {
+    if (!isInitializing && user?.id && !profile) {
+      ProfileService.getMyProfile()
+        .then((data) => {
+          // Ép kiểu do bất đồng bộ DTO, setProfile nhận Profile từ auth store
+          setProfile(data as any); 
+        })
+        .catch((err) => console.warn("Lỗi fetch profile:", err));
+    }
+  }, [isInitializing, user?.id, profile, setProfile]);
 
   // Observer cho tính năng Infinite Scroll
   useEffect(() => {

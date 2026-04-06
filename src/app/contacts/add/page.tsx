@@ -20,8 +20,10 @@ import {
 } from "lucide-react";
 import { ProfileService } from "@/services/profile.service";
 import { ContactService } from "@/services/contact.service";
+import { CategoriesService } from "@/services/categories.service";
 import { ProfilesResponse } from "@/types/profile";
 import { Contact } from "@/types/contact";
+import { Category } from "@/types/story";
 import { useTranslation } from "@/store/useLanguageStore";
 
 // ─── Dữ liệu quốc gia ────────────────────────────────────────────────────────
@@ -44,15 +46,6 @@ const COUNTRIES = [
   { code: "IN", name: "Ấn Độ", dial: "+91", flag: "🇮🇳" },
   { code: "KH", name: "Campuchia", dial: "+855", flag: "🇰🇭" },
   { code: "LA", name: "Lào", dial: "+856", flag: "🇱🇦" },
-];
-
-// ─── Nhóm quan hệ ────────────────────────────────────────────────────────────
-const RELATIONSHIP_GROUPS = [
-  { id: 1, name: "Gia đình", icon: "👨‍👩‍👧" },
-  { id: 2, name: "Bạn bè", icon: "👫" },
-  { id: 3, name: "Đồng nghiệp", icon: "🤝" },
-  { id: 4, name: "Hàng xóm", icon: "🏘️" },
-  { id: 5, name: "Khác", icon: "💬" },
 ];
 
 type SearchTab = "name" | "phone";
@@ -86,7 +79,9 @@ export default function AddContactPage() {
   // ─── Form thêm contact ───────────────────────────────────────────────────
   const [selectedProfile, setSelectedProfile] = useState<ProfilesResponse | null>(null);
   const [preferenceName, setPreferenceName] = useState("");
-  const [categoryId, setCategoryId] = useState<number>(1);
+  const [categoryId, setCategoryId] = useState<number>(0);
+  const [categories, setCategories] = useState<Category[]>([]);
+  const [isLoadingCategories, setIsLoadingCategories] = useState(true);
   const [isAdding, setIsAdding] = useState(false);
   const [addError, setAddError] = useState("");
   const [addedIds, setAddedIds] = useState<Set<number>>(new Set());
@@ -95,20 +90,29 @@ export default function AddContactPage() {
   const nameInputRef = useRef<HTMLInputElement>(null);
   const dropdownRef = useRef<HTMLDivElement>(null);
 
-  // ─── Load contacts hiện có khi mount ─────────────────────────────────────
+  // ─── Load categories và contacts hiện có khi mount ───────────────────────
   useEffect(() => {
-    const loadExisting = async () => {
+    const loadData = async () => {
       try {
-        const data = await ContactService.getContacts(0, 500); // lấy tất cả
-        const ids = new Set(data.content.map((c: Contact) => c.profileId));
+        const [contactData, categoryData] = await Promise.all([
+          ContactService.getContacts(0, 500),
+          CategoriesService.getCategories(0, 100)
+        ]);
+        const ids = new Set(contactData.content.map((c: Contact) => c.profileId));
         setExistingProfileIds(ids);
+        
+        setCategories(categoryData.content || []);
+        if (categoryData.content && categoryData.content.length > 0) {
+          setCategoryId(categoryData.content[0].id);
+        }
       } catch {
         // Bỏ qua lỗi, không cản trở UX
       } finally {
         setIsLoadingExisting(false);
+        setIsLoadingCategories(false);
       }
     };
-    loadExisting();
+    loadData();
   }, []);
 
   // ─── Đóng dropdown khi click ngoài ───────────────────────────────────────
@@ -189,7 +193,9 @@ export default function AddContactPage() {
   const handleSelectProfile = (profile: ProfilesResponse) => {
     setSelectedProfile(profile);
     setPreferenceName(profile.fullname);
-    setCategoryId(1);
+    if (categories.length > 0) {
+      setCategoryId(categories[0].id);
+    }
     setAddError("");
     setTimeout(() => {
       document.getElementById("add-form")?.scrollIntoView({ behavior: "smooth", block: "start" });
@@ -635,22 +641,28 @@ export default function AddContactPage() {
             {/* Nhóm quan hệ */}
             <div className="space-y-3">
               <label className="text-lg font-bold text-gray-700 block">{t("contacts.add.relationshipLabel")}</label>
-              <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
-                {RELATIONSHIP_GROUPS.map(group => (
-                  <button
-                    key={group.id}
-                    type="button"
-                    onClick={() => setCategoryId(group.id)}
-                    className={`flex items-center gap-3 px-4 py-3 min-h-[56px] rounded-xl border-2 font-bold text-lg transition-all ${categoryId === group.id
-                        ? "border-emerald-500 bg-emerald-50 text-emerald-900"
-                        : "border-gray-200 bg-white text-gray-700 hover:border-emerald-300 hover:bg-emerald-50"
-                      }`}
-                  >
-                    <span className="text-2xl">{group.icon}</span>
-                    <span>{group.name}</span>
-                  </button>
-                ))}
-              </div>
+              {isLoadingCategories ? (
+                <div className="flex justify-center p-4"><Loader2 className="w-8 h-8 animate-spin text-emerald-600" /></div>
+              ) : categories.length === 0 ? (
+                <p className="text-gray-500 italic">Chưa có nhóm quan hệ nào.</p>
+              ) : (
+                <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
+                  {categories.map(group => (
+                    <button
+                      key={group.id}
+                      type="button"
+                      onClick={() => setCategoryId(group.id)}
+                      className={`flex items-center gap-3 px-4 py-3 min-h-[56px] rounded-xl border-2 font-bold text-lg transition-all ${categoryId === group.id
+                          ? "border-emerald-500 bg-emerald-50 text-emerald-900"
+                          : "border-gray-200 bg-white text-gray-700 hover:border-emerald-300 hover:bg-emerald-50"
+                        }`}
+                    >
+                      <span className="text-2xl">{group.icon || "💬"}</span>
+                      <span>{group.name}</span>
+                    </button>
+                  ))}
+                </div>
+              )}
             </div>
 
             {/* Lỗi */}

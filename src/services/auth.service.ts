@@ -38,14 +38,17 @@ export const authService = {
 
     /**
      * 2.5 Lấy thông tin Profile cơ bản sau khi login
-     * API: GET /api/v1/profiles/me
+     * API: POST /api/v1/profiles/search (Tạm thay thế profiles/me)
      */
-    getCurrentProfile: async (): Promise<any> => {
-        const response = await apiClient.get('/ph-story-mvp-service/api/v1/profiles/me');
-        return response.data;
+    getCurrentProfile: async (userId: number): Promise<any> => {
+        const response = await apiClient.post('ph-story-mvp-service/api/v1/profiles/search', {
+            filters: [{ field: "userId", operator: "EQUAL", value: userId }],
+            pagination: { page: 0, size: 1 }
+        });
+        return response.data?.content?.[0] || null;
     },
 
-    /**
+     /**
      * 3. Đăng ký Tài khoản mới
      * API: POST /api/v1/users
      */
@@ -139,7 +142,9 @@ export const authService = {
 
             let profile = null;
             try {
-                profile = await authService.getCurrentProfile();
+                if (user?.id) {
+                    profile = await authService.getCurrentProfile(user.id);
+                }
             } catch (err) {
                 console.warn("Người dùng chưa có profile", err);
             }

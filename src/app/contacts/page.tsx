@@ -141,7 +141,11 @@ export default function ContactsPage() {
                         </h2>
                         {contact.name && (
                           <span className="inline-flex items-center gap-2 text-lg text-emerald-800 font-bold bg-emerald-50 border border-emerald-100 px-3 py-1 rounded-xl w-fit mt-2 shadow-sm">
-                            <Tag className="w-5 h-5" aria-hidden="true" />
+                            {contact.icon ? (
+                              <span className="text-xl leading-none" aria-hidden="true">{contact.icon}</span>
+                            ) : (
+                              <Tag className="w-5 h-5" aria-hidden="true" />
+                            )}
                             {contact.name}
                           </span>
                         )}

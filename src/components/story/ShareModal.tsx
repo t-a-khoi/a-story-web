@@ -188,16 +188,14 @@ export default function ShareModal({ storyId, storyTitle, isOpen, onClose }: Sha
                   return (
                     <label
                       key={contact.id}
-                      className={`flex items-center gap-4 p-4 border-2 rounded-2xl cursor-pointer transition-all select-none ${
-                        isSelected
+                      className={`flex items-center gap-4 p-4 border-2 rounded-2xl cursor-pointer transition-all select-none ${isSelected
                           ? 'border-emerald-500 bg-emerald-50 shadow-sm'
                           : 'border-gray-200 bg-white hover:border-emerald-300 hover:bg-emerald-50/30'
-                      }`}
+                        }`}
                     >
                       {/* Avatar chữ cái đầu */}
-                      <div className={`w-12 h-12 rounded-full flex items-center justify-center text-xl font-extrabold flex-shrink-0 transition-colors ${
-                        isSelected ? 'bg-emerald-600 text-white' : 'bg-gray-100 text-gray-700'
-                      }`}>
+                      <div className={`w-12 h-12 rounded-full flex items-center justify-center text-xl font-extrabold flex-shrink-0 transition-colors ${isSelected ? 'bg-emerald-600 text-white' : 'bg-gray-100 text-gray-700'
+                        }`}>
                         {displayName.charAt(0).toUpperCase()}
                       </div>
 
@@ -218,11 +216,10 @@ export default function ShareModal({ storyId, storyTitle, isOpen, onClose }: Sha
                         onChange={() => toggleContact(contact.id)}
                       />
                       {/* Custom checkmark */}
-                      <div className={`w-7 h-7 rounded-full border-2 flex items-center justify-center flex-shrink-0 transition-all ${
-                        isSelected
+                      <div className={`w-7 h-7 rounded-full border-2 flex items-center justify-center flex-shrink-0 transition-all ${isSelected
                           ? 'bg-emerald-600 border-emerald-600'
                           : 'border-gray-300 bg-white'
-                      }`}>
+                        }`}>
                         {isSelected && (
                           <svg className="w-4 h-4 text-white" fill="none" stroke="currentColor" strokeWidth={3} viewBox="0 0 24 24">
                             <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />

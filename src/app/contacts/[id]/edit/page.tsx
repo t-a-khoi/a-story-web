@@ -18,15 +18,11 @@ import {
   UserCog,
 } from "lucide-react";
 import { ContactService } from "@/services/contact.service";
+import { CategoriesService } from "@/services/categories.service";
 import { Contact } from "@/types/contact";
+import { Category } from "@/types/story";
 
-const RELATIONSHIP_GROUPS = [
-  { id: 1, name: "Gia đình", icon: "👨‍👩‍👧" },
-  { id: 2, name: "Bạn bè", icon: "👫" },
-  { id: 3, name: "Đồng nghiệp", icon: "🤝" },
-  { id: 4, name: "Hàng xóm", icon: "🏘️" },
-  { id: 5, name: "Khác", icon: "💬" },
-];
+
 
 export default function EditContactPage({ params }: { params: Promise<{ id: string }> }) {
   const router = useRouter();
@@ -38,7 +34,10 @@ export default function EditContactPage({ params }: { params: Promise<{ id: stri
   const [loadError, setLoadError] = useState("");
 
   const [preferenceName, setPreferenceName] = useState("");
-  const [categoryId, setCategoryId] = useState<number>(1);
+  const [categoryId, setCategoryId] = useState<number>(0);
+
+  const [categories, setCategories] = useState<Category[]>([]);
+  const [isLoadingCategories, setIsLoadingCategories] = useState(true);
 
   const [isSaving, setIsSaving] = useState(false);
   const [saveError, setSaveError] = useState("");
@@ -48,20 +47,33 @@ export default function EditContactPage({ params }: { params: Promise<{ id: stri
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
 
   useEffect(() => {
-    const fetchContact = async () => {
+    const fetchData = async () => {
       setIsLoading(true);
       try {
-        const data = await ContactService.getContactById(contactId);
+        const [data, categoryData] = await Promise.all([
+          ContactService.getContactById(contactId),
+          CategoriesService.getCategories(0, 100)
+        ]);
         setContact(data);
         setPreferenceName(data.preferenceName || data.fullname || "");
-        setCategoryId(data.categoryId || 1);
+        
+        setCategories(categoryData.content || []);
+        
+        if (data.categoryId) {
+          setCategoryId(data.categoryId);
+        } else if (categoryData.content && categoryData.content.length > 0) {
+          setCategoryId(categoryData.content[0].id);
+        } else {
+          setCategoryId(0);
+        }
       } catch {
         setLoadError("Không thể tải thông tin liên hệ. Vui lòng thử lại.");
       } finally {
         setIsLoading(false);
+        setIsLoadingCategories(false);
       }
     };
-    if (contactId) fetchContact();
+    if (contactId) fetchData();
   }, [contactId]);
 
   const handleSave = async () => {
@@ -243,8 +255,13 @@ export default function EditContactPage({ params }: { params: Promise<{ id: stri
             <label className="text-lg font-bold text-gray-700 block">
               Nhóm quan hệ
             </label>
+            {isLoadingCategories ? (
+               <div className="flex justify-center p-4"><Loader2 className="w-8 h-8 animate-spin text-emerald-600" /></div>
+            ) : categories.length === 0 ? (
+               <p className="text-gray-500 italic">Chưa có nhóm quan hệ nào.</p>
+            ) : (
             <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
-              {RELATIONSHIP_GROUPS.map(group => (
+              {categories.map(group => (
                 <button
                   key={group.id}
                   type="button"
@@ -255,11 +272,12 @@ export default function EditContactPage({ params }: { params: Promise<{ id: stri
                       : "border-gray-200 bg-white text-gray-700 hover:border-emerald-300 hover:bg-emerald-50"
                     }`}
                 >
-                  <span className="text-2xl">{group.icon}</span>
+                  <span className="text-2xl">{group.icon || "💬"}</span>
                   <span>{group.name}</span>
                 </button>
               ))}
             </div>
+            )}
           </div>
 
           {/* Nút Lưu */}
