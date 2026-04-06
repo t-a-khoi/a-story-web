@@ -8,6 +8,7 @@ interface AuthState {
     expiresAt: number | null;
     user: User | null;
     profile: Profile | null;
+    _hasHydrated: boolean;
 
     setToken: (token: string) => void;
     setUser: (user: User) => void;
@@ -15,6 +16,7 @@ interface AuthState {
     /** Lưu toàn bộ thông tin token (access + refresh + expiry) */
     setTokens: (accessToken: string, refreshToken: string | null, expiresIn: number) => void;
     setAuth: (token: string, user: User, profile?: Profile | null) => void;
+    setHasHydrated: (state: boolean) => void;
     logout: () => void;
 }
 
@@ -26,12 +28,15 @@ export const useAuthStore = create<AuthState>()(
             expiresAt: null,
             user: null,
             profile: null,
+            _hasHydrated: false,
 
             setToken: (token) => set({ accessToken: token }),
 
             setUser: (user) => set({ user }),
 
             setProfile: (profile) => set({ profile }),
+
+            setHasHydrated: (state) => set({ _hasHydrated: state }),
 
             setTokens: (accessToken, refreshToken, expiresIn) =>
                 set({
@@ -49,6 +54,9 @@ export const useAuthStore = create<AuthState>()(
         }),
         {
             name: 'a-story-auth-storage',
+            onRehydrateStorage: () => (state) => {
+                state?.setHasHydrated(true);
+            },
         }
     )
-);
+);

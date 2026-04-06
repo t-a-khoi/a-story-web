@@ -8,6 +8,7 @@ import { useRouter } from "next/navigation";
 import { useAuthStore } from "@/store/useAuthStore";
 import { motion, AnimatePresence, Variants } from "framer-motion";
 import { generateCodeVerifier, generateCodeChallenge } from "@/lib/pkce";
+import Link from "next/link"; // <-- Thêm dòng này
 
 // Sample FAQ data
 const FAQS = [
@@ -73,7 +74,7 @@ export default function LandingPage() {
       sessionStorage.setItem("pkce_code_verifier", codeVerifier);
 
       // 2. Redirect to Auth Server
-      const authServerUrl = process.env.NEXT_PUBLIC_AUTH_SERVER_URL || "http://localhost:9084";
+      const authServerUrl = process.env.NEXT_PUBLIC_AUTH_URL || "http://localhost:9084";
       const clientId = "spa-client";
       const redirectUri = process.env.NEXT_PUBLIC_REDIRECT_URI || "http://localhost:3000/callback";
 
@@ -115,20 +116,29 @@ export default function LandingPage() {
           </div>
 
           {/* Action Buttons */}
-          <div className="flex items-center gap-4">
+          <div className="flex items-center gap-3 md:gap-4">
+            {/* Nút Đăng nhập (gọi OAuth2) */}
             <button
               onClick={handleStartJourney}
-              className="min-h-[44px] px-6 bg-emerald-800 text-white rounded-full text-md font-medium hover:bg-emerald-900 shadow-sm transition-all hover:shadow-md"
+              disabled={isRedirecting}
+              className="hidden md:block font-medium text-stone-600 hover:text-emerald-800 transition-colors"
             >
-              Start now
+              Log in
             </button>
+
+            {/* Nút Đăng ký (chuyển sang trang /register) */}
+            <Link
+              href="/register"
+              className="min-h-[44px] px-6 bg-emerald-800 text-white rounded-full text-md font-medium hover:bg-emerald-900 shadow-sm transition-all hover:shadow-md flex items-center justify-center"
+            >
+              Sign up
+            </Link>
 
             {/* Mobile Hamburger Button */}
             <button className="lg:hidden p-2 text-stone-600 hover:text-emerald-800">
               <Menu className="w-6 h-6" />
             </button>
           </div>
-
         </div>
       </header>
 
@@ -169,10 +179,11 @@ export default function LandingPage() {
               className="relative h-[400px] md:h-[550px] rounded-2xl overflow-hidden shadow-2xl transform transition-transform hover:scale-[1.01] duration-700"
             >
               <Image
-                src="https://images.unsplash.com/photo-1529070538774-1843cb3265df?q=80&w=1200&auto=format&fit=crop"
+                src="/photo1.avif"
                 alt="Two generations sharing a story"
                 fill
                 className="object-cover"
+                placeholder="empty"
                 priority
               />
               <div className="absolute inset-0 bg-gradient-to-t from-stone-900/40 to-transparent" />
@@ -241,7 +252,7 @@ export default function LandingPage() {
                 </p>
                 <div className="mt-8 flex items-center gap-4 pt-6 border-t border-stone-100">
                   <div className="w-14 h-14 bg-stone-300 rounded-full overflow-hidden relative shrink-0">
-                    <Image src="https://images.unsplash.com/photo-1544005313-94ddf0286df2?q=80&w=200&auto=format&fit=crop" alt="Avatar Ms. Ngoc Lan" fill className="object-cover" />
+                    <Image src="/photo2.avif" alt="Avatar Ms. Ngoc Lan" fill className="object-cover" />
                   </div>
                   <div>
                     <div className="text-lg font-bold text-stone-900">Ms. Ngoc Lan</div>
@@ -258,7 +269,7 @@ export default function LandingPage() {
                 </p>
                 <div className="mt-8 flex items-center gap-4 pt-6 border-t border-stone-100">
                   <div className="w-14 h-14 bg-stone-300 rounded-full overflow-hidden relative shrink-0">
-                    <Image src="https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?q=80&w=200&auto=format&fit=crop" alt="Avatar Mr. Hoang Minh" fill className="object-cover" />
+                    <Image src="/photo3.avif" alt="Avatar Mr. Hoang Minh" fill className="object-cover" />
                   </div>
                   <div>
                     <div className="text-lg font-bold text-stone-900">Mr. Hoang Minh</div>

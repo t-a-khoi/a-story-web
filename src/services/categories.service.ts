@@ -33,5 +33,21 @@ export const CategoriesService = {
 
   deleteCategory: async (id: number): Promise<void> => {
     await apiClient.delete(`/ph-story-mvp-service/api/v1/categoriess/${id}`);
+  },
+
+  getCategoriesByUser: async (userId: number, page = 0, size = 100): Promise<PageResponse<Category>> => {
+    const body: QueryRequest = {
+      filters: [
+        {
+          field: "userId",
+          operator: "EQUAL",
+          value: userId
+        }
+      ],
+      pagination: { page, size },
+      sorts: [{ field: "createdDate", direction: "DESC" }]
+    };
+    const response = await apiClient.post<PageResponse<Category>>('/ph-story-mvp-service/api/v1/categoriess/search', body);
+    return response.data;
   }
 };

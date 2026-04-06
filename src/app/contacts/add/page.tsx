@@ -26,33 +26,33 @@ import { useTranslation } from "@/store/useLanguageStore";
 
 // ─── Dữ liệu quốc gia ────────────────────────────────────────────────────────
 const COUNTRIES = [
-  { code: "VN", name: "Việt Nam",      dial: "+84",  flag: "🇻🇳" },
-  { code: "US", name: "Mỹ",           dial: "+1",   flag: "🇺🇸" },
-  { code: "GB", name: "Anh",          dial: "+44",  flag: "🇬🇧" },
-  { code: "JP", name: "Nhật Bản",     dial: "+81",  flag: "🇯🇵" },
-  { code: "KR", name: "Hàn Quốc",     dial: "+82",  flag: "🇰🇷" },
-  { code: "CN", name: "Trung Quốc",   dial: "+86",  flag: "🇨🇳" },
-  { code: "SG", name: "Singapore",    dial: "+65",  flag: "🇸🇬" },
-  { code: "AU", name: "Úc",           dial: "+61",  flag: "🇦🇺" },
-  { code: "DE", name: "Đức",          dial: "+49",  flag: "🇩🇪" },
-  { code: "FR", name: "Pháp",         dial: "+33",  flag: "🇫🇷" },
-  { code: "CA", name: "Canada",       dial: "+1",   flag: "🇨🇦" },
-  { code: "TH", name: "Thái Lan",     dial: "+66",  flag: "🇹🇭" },
-  { code: "MY", name: "Malaysia",     dial: "+60",  flag: "🇲🇾" },
-  { code: "ID", name: "Indonesia",    dial: "+62",  flag: "🇮🇩" },
-  { code: "PH", name: "Philippines",  dial: "+63",  flag: "🇵🇭" },
-  { code: "IN", name: "Ấn Độ",        dial: "+91",  flag: "🇮🇳" },
-  { code: "KH", name: "Campuchia",    dial: "+855", flag: "🇰🇭" },
-  { code: "LA", name: "Lào",          dial: "+856", flag: "🇱🇦" },
+  { code: "VN", name: "Việt Nam", dial: "+84", flag: "🇻🇳" },
+  { code: "US", name: "Mỹ", dial: "+1", flag: "🇺🇸" },
+  { code: "GB", name: "Anh", dial: "+44", flag: "🇬🇧" },
+  { code: "JP", name: "Nhật Bản", dial: "+81", flag: "🇯🇵" },
+  { code: "KR", name: "Hàn Quốc", dial: "+82", flag: "🇰🇷" },
+  { code: "CN", name: "Trung Quốc", dial: "+86", flag: "🇨🇳" },
+  { code: "SG", name: "Singapore", dial: "+65", flag: "🇸🇬" },
+  { code: "AU", name: "Úc", dial: "+61", flag: "🇦🇺" },
+  { code: "DE", name: "Đức", dial: "+49", flag: "🇩🇪" },
+  { code: "FR", name: "Pháp", dial: "+33", flag: "🇫🇷" },
+  { code: "CA", name: "Canada", dial: "+1", flag: "🇨🇦" },
+  { code: "TH", name: "Thái Lan", dial: "+66", flag: "🇹🇭" },
+  { code: "MY", name: "Malaysia", dial: "+60", flag: "🇲🇾" },
+  { code: "ID", name: "Indonesia", dial: "+62", flag: "🇮🇩" },
+  { code: "PH", name: "Philippines", dial: "+63", flag: "🇵🇭" },
+  { code: "IN", name: "Ấn Độ", dial: "+91", flag: "🇮🇳" },
+  { code: "KH", name: "Campuchia", dial: "+855", flag: "🇰🇭" },
+  { code: "LA", name: "Lào", dial: "+856", flag: "🇱🇦" },
 ];
 
 // ─── Nhóm quan hệ ────────────────────────────────────────────────────────────
 const RELATIONSHIP_GROUPS = [
-  { id: 1, name: "Gia đình",    icon: "👨‍👩‍👧" },
-  { id: 2, name: "Bạn bè",      icon: "👫" },
+  { id: 1, name: "Gia đình", icon: "👨‍👩‍👧" },
+  { id: 2, name: "Bạn bè", icon: "👫" },
   { id: 3, name: "Đồng nghiệp", icon: "🤝" },
-  { id: 4, name: "Hàng xóm",    icon: "🏘️" },
-  { id: 5, name: "Khác",        icon: "💬" },
+  { id: 4, name: "Hàng xóm", icon: "🏘️" },
+  { id: 5, name: "Khác", icon: "💬" },
 ];
 
 type SearchTab = "name" | "phone";
@@ -73,27 +73,27 @@ export default function AddContactPage() {
 
   // ─── Tìm theo SĐT ────────────────────────────────────────────────────────
   const [selectedCountry, setSelectedCountry] = useState(COUNTRIES[0]); // Mặc định +84 VN
-  const [phoneNumber, setPhoneNumber]         = useState("");
+  const [phoneNumber, setPhoneNumber] = useState("");
   const [showCountryDropdown, setShowCountryDropdown] = useState(false);
-  const [countrySearch, setCountrySearch]     = useState("");
+  const [countrySearch, setCountrySearch] = useState("");
 
   // ─── Kết quả tìm kiếm ────────────────────────────────────────────────────
-  const [results,      setResults]      = useState<ProfilesResponse[]>([]);
-  const [isSearching,  setIsSearching]  = useState(false);
-  const [hasSearched,  setHasSearched]  = useState(false);
-  const [searchError,  setSearchError]  = useState("");
+  const [results, setResults] = useState<ProfilesResponse[]>([]);
+  const [isSearching, setIsSearching] = useState(false);
+  const [hasSearched, setHasSearched] = useState(false);
+  const [searchError, setSearchError] = useState("");
 
   // ─── Form thêm contact ───────────────────────────────────────────────────
   const [selectedProfile, setSelectedProfile] = useState<ProfilesResponse | null>(null);
-  const [preferenceName,  setPreferenceName]  = useState("");
-  const [categoryId,      setCategoryId]      = useState<number>(1);
-  const [isAdding,        setIsAdding]        = useState(false);
-  const [addError,        setAddError]        = useState("");
-  const [addedIds,        setAddedIds]        = useState<Set<number>>(new Set());
+  const [preferenceName, setPreferenceName] = useState("");
+  const [categoryId, setCategoryId] = useState<number>(1);
+  const [isAdding, setIsAdding] = useState(false);
+  const [addError, setAddError] = useState("");
+  const [addedIds, setAddedIds] = useState<Set<number>>(new Set());
 
-  const phoneInputRef   = useRef<HTMLInputElement>(null);
-  const nameInputRef    = useRef<HTMLInputElement>(null);
-  const dropdownRef     = useRef<HTMLDivElement>(null);
+  const phoneInputRef = useRef<HTMLInputElement>(null);
+  const nameInputRef = useRef<HTMLInputElement>(null);
+  const dropdownRef = useRef<HTMLDivElement>(null);
 
   // ─── Load contacts hiện có khi mount ─────────────────────────────────────
   useEffect(() => {
@@ -203,8 +203,8 @@ export default function AddContactPage() {
     setAddError("");
     try {
       await ContactService.createContact({
-        userId:         selectedProfile.userId,
-        profileId:      selectedProfile.id,
+        userId: selectedProfile.userId,
+        profileId: selectedProfile.id,
         categoryId,
         preferenceName: preferenceName.trim() || selectedProfile.fullname,
       });
@@ -233,7 +233,7 @@ export default function AddContactPage() {
   );
 
   const canSearchPhone = phoneNumber.trim().replace(/\D/g, "").length >= 6;
-  const canSearchName  = nameKeyword.trim().length >= 1;
+  const canSearchName = nameKeyword.trim().length >= 1;
 
   // ─── JSX ─────────────────────────────────────────────────────────────────
   return (
@@ -268,14 +268,14 @@ export default function AddContactPage() {
             <CheckCircle2 className="w-8 h-8 text-emerald-700 flex-shrink-0" />
             <div>
               <p className="text-lg font-bold text-emerald-800">
-              {t("contacts.add.addedSuccess")} {addedIds.size} {t("contacts.add.addedSuccessSuffix")}
-            </p>
-            <button
-              onClick={() => router.push("/contacts")}
-              className="text-emerald-700 hover:text-emerald-900 font-bold underline text-base mt-0.5"
-            >
-              {t("contacts.add.viewContacts")}
-            </button>
+                {t("contacts.add.addedSuccess")} {addedIds.size} {t("contacts.add.addedSuccessSuffix")}
+              </p>
+              <button
+                onClick={() => router.push("/contacts")}
+                className="text-emerald-700 hover:text-emerald-900 font-bold underline text-base mt-0.5"
+              >
+                {t("contacts.add.viewContacts")}
+              </button>
             </div>
           </div>
         )}
@@ -287,22 +287,20 @@ export default function AddContactPage() {
           <div className="flex gap-1 bg-gray-100 p-1 rounded-2xl">
             <button
               onClick={() => switchTab("phone")}
-              className={`flex-1 flex items-center justify-center gap-2 py-3 rounded-xl font-bold text-lg transition-all ${
-                activeTab === "phone"
+              className={`flex-1 flex items-center justify-center gap-2 py-3 rounded-xl font-bold text-lg transition-all ${activeTab === "phone"
                   ? "bg-white text-emerald-800 shadow-sm"
                   : "text-gray-500 hover:text-gray-700"
-              }`}
+                }`}
             >
               <Phone className="w-5 h-5" />
               <span>{t("contacts.add.tabPhone")}</span>
             </button>
             <button
               onClick={() => switchTab("name")}
-              className={`flex-1 flex items-center justify-center gap-2 py-3 rounded-xl font-bold text-lg transition-all ${
-                activeTab === "name"
+              className={`flex-1 flex items-center justify-center gap-2 py-3 rounded-xl font-bold text-lg transition-all ${activeTab === "name"
                   ? "bg-white text-emerald-800 shadow-sm"
                   : "text-gray-500 hover:text-gray-700"
-              }`}
+                }`}
             >
               <User className="w-5 h-5" />
               <span>{t("contacts.add.tabName")}</span>
@@ -362,9 +360,8 @@ export default function AddContactPage() {
                               setCountrySearch("");
                               phoneInputRef.current?.focus();
                             }}
-                            className={`w-full flex items-center gap-3 px-4 py-3 hover:bg-emerald-50 transition-colors text-left ${
-                              selectedCountry.code === country.code ? "bg-emerald-50 text-emerald-800" : "text-gray-800"
-                            }`}
+                            className={`w-full flex items-center gap-3 px-4 py-3 hover:bg-emerald-50 transition-colors text-left ${selectedCountry.code === country.code ? "bg-emerald-50 text-emerald-800" : "text-gray-800"
+                              }`}
                           >
                             <span className="text-2xl flex-shrink-0">{country.flag}</span>
                             <span className="flex-1 font-medium text-base">{country.name}</span>
@@ -503,28 +500,26 @@ export default function AddContactPage() {
                   <div className="flex flex-col gap-4">
                     {results.map(profile => {
                       const alreadyContact = existingProfileIds.has(profile.id);
-                      const justAdded      = addedIds.has(profile.id);
-                      const isSelected     = selectedProfile?.id === profile.id;
-                      const isBlocked      = alreadyContact || justAdded;
+                      const justAdded = addedIds.has(profile.id);
+                      const isSelected = selectedProfile?.id === profile.id;
+                      const isBlocked = alreadyContact || justAdded;
 
                       return (
                         <div
                           key={profile.id}
-                          className={`bg-white rounded-2xl border-2 p-5 transition-all ${
-                            isSelected
+                          className={`bg-white rounded-2xl border-2 p-5 transition-all ${isSelected
                               ? "border-emerald-400 shadow-md"
                               : isBlocked
-                              ? "border-gray-100 bg-gray-50"
-                              : "border-gray-200 hover:border-emerald-200 hover:shadow-sm"
-                          }`}
+                                ? "border-gray-100 bg-gray-50"
+                                : "border-gray-200 hover:border-emerald-200 hover:shadow-sm"
+                            }`}
                         >
                           <div className="flex items-center gap-4">
                             {/* Avatar */}
-                            <div className={`w-14 h-14 rounded-2xl flex items-center justify-center text-2xl font-extrabold flex-shrink-0 ${
-                              isBlocked  ? "bg-gray-100 text-gray-400"
-                              : isSelected ? "bg-emerald-700 text-white"
-                              : "bg-emerald-50 text-emerald-700"
-                            }`}>
+                            <div className={`w-14 h-14 rounded-2xl flex items-center justify-center text-2xl font-extrabold flex-shrink-0 ${isBlocked ? "bg-gray-100 text-gray-400"
+                                : isSelected ? "bg-emerald-700 text-white"
+                                  : "bg-emerald-50 text-emerald-700"
+                              }`}>
                               {profile.fullname?.charAt(0).toUpperCase() || "?"}
                             </div>
 
@@ -564,11 +559,10 @@ export default function AddContactPage() {
                             ) : (
                               <button
                                 onClick={() => handleSelectProfile(profile)}
-                                className={`flex items-center gap-2 min-h-[48px] px-5 rounded-xl font-bold text-base transition-all flex-shrink-0 border-2 ${
-                                  isSelected
+                                className={`flex items-center gap-2 min-h-[48px] px-5 rounded-xl font-bold text-base transition-all flex-shrink-0 border-2 ${isSelected
                                     ? "bg-emerald-700 text-white border-emerald-700"
                                     : "bg-white hover:bg-emerald-50 text-emerald-800 border-emerald-200 hover:border-emerald-400"
-                                }`}
+                                  }`}
                               >
                                 <UserPlus className="w-5 h-5" />
                                 {isSelected ? t("contacts.add.selectedButton") : t("contacts.add.selectButton")}
@@ -647,11 +641,10 @@ export default function AddContactPage() {
                     key={group.id}
                     type="button"
                     onClick={() => setCategoryId(group.id)}
-                    className={`flex items-center gap-3 px-4 py-3 min-h-[56px] rounded-xl border-2 font-bold text-lg transition-all ${
-                      categoryId === group.id
+                    className={`flex items-center gap-3 px-4 py-3 min-h-[56px] rounded-xl border-2 font-bold text-lg transition-all ${categoryId === group.id
                         ? "border-emerald-500 bg-emerald-50 text-emerald-900"
                         : "border-gray-200 bg-white text-gray-700 hover:border-emerald-300 hover:bg-emerald-50"
-                    }`}
+                      }`}
                   >
                     <span className="text-2xl">{group.icon}</span>
                     <span>{group.name}</span>

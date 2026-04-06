@@ -253,7 +253,7 @@ export default function EditContactPage({ params }: { params: Promise<{ id: stri
                     categoryId === group.id
                       ? "border-emerald-500 bg-emerald-50 text-emerald-900"
                       : "border-gray-200 bg-white text-gray-700 hover:border-emerald-300 hover:bg-emerald-50"
-                  }`}
+                    }`}
                 >
                   <span className="text-2xl">{group.icon}</span>
                   <span>{group.name}</span>
@@ -266,11 +266,10 @@ export default function EditContactPage({ params }: { params: Promise<{ id: stri
           <button
             onClick={handleSave}
             disabled={isSaving || saveSuccess}
-            className={`w-full flex items-center justify-center gap-3 min-h-[60px] px-8 py-3 rounded-xl text-xl font-bold transition-all shadow-md ${
-              saveSuccess
+            className={`w-full flex items-center justify-center gap-3 min-h-[60px] px-8 py-3 rounded-xl text-xl font-bold transition-all shadow-md ${saveSuccess
                 ? "bg-emerald-100 text-emerald-800 border-2 border-emerald-300"
                 : "bg-emerald-800 hover:bg-emerald-900 text-white disabled:opacity-50 disabled:cursor-not-allowed"
-            }`}
+              }`}
           >
             {saveSuccess ? (
               <><CheckCircle2 className="w-6 h-6" /><span>Đã lưu xong!</span></>

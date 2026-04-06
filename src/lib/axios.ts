@@ -2,7 +2,8 @@ import axios, { AxiosRequestConfig } from 'axios';
 import { useAuthStore } from '@/store/useAuthStore';
 import { authService } from '@/services/auth.service';
 
-const BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:9082';
+// Proxy path: browser → localhost:3000/api/gateway → (server-side) → backend
+const BASE_URL = '/api/gateway';
 
 export const apiClient = axios.create({
     baseURL: BASE_URL,
@@ -14,7 +15,6 @@ export const apiClient = axios.create({
 
 // ─── Token Refresh Queue ─────────────────────────────────────────────────────
 // Đảm bảo chỉ có 1 request refresh chạy tại 1 thời điểm.
-// Các request lỗi 401 khác sẽ đợi trong queue và được retry sau khi refresh xong.
 let isRefreshing = false;
 let failedQueue: Array<{
     resolve: (value?: any) => void;

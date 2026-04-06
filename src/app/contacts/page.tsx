@@ -42,7 +42,7 @@ export default function ContactsPage() {
 
   const handleDelete = async (id: number, displayName: string) => {
     if (!window.confirm(`${t("contacts.deleteConfirm")} "${displayName}" ${t("contacts.deleteConfirmSuffix")}`)) return;
-    
+
     setDeletingId(id);
     try {
       await ContactService.deleteContact(id);
@@ -62,11 +62,10 @@ export default function ContactsPage() {
 
         {/* TOAST NOTIFICATION */}
         {toast && (
-          <div className={`fixed top-4 right-4 z-50 px-5 py-3 rounded-xl shadow-lg border-2 font-bold text-base flex items-center gap-3 animate-in fade-in slide-in-from-top-4 duration-300 ${
-            toast.type === 'success'
+          <div className={`fixed top-4 right-4 z-50 px-5 py-3 rounded-xl shadow-lg border-2 font-bold text-base flex items-center gap-3 animate-in fade-in slide-in-from-top-4 duration-300 ${toast.type === 'success'
               ? 'bg-emerald-50 text-emerald-800 border-emerald-200'
               : 'bg-red-50 text-red-800 border-red-200'
-          }`}>
+            }`}>
             {toast.type === 'success'
               ? <CheckCircle2 className="w-5 h-5" />
               : <AlertCircle className="w-5 h-5" />}

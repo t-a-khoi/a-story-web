@@ -17,22 +17,22 @@ export default function HomePage() {
   const { t } = useTranslation();
 
   // 1. Context & State
-  const { accessToken, user } = useAuthStore();
+  const { accessToken, user, _hasHydrated } = useAuthStore();
   const [isInitializing, setIsInitializing] = useState(true);
   const [isLoadingStories, setIsLoadingStories] = useState(false);
-  
+
   // Dữ liệu danh sách câu chuyện (cộng dồn cho Infinite Scroll)
   const [stories, setStories] = useState<Story[]>([]);
   const [page, setPage] = useState(0);
   const [hasMore, setHasMore] = useState(true);
-  
+
   const observerTarget = useRef<HTMLDivElement>(null);
   const pageSize = 10;
-  
+
   // 2. Data Fetching
   const fetchMyStories = useCallback(async (currentPage: number) => {
     if (!user?.id) return;
-    
+
     setIsLoadingStories(true);
     try {
       const response = await StoryService.getStories({
@@ -41,13 +41,13 @@ export default function HomePage() {
         sort: "createdDate,desc"
       });
       console.log("response", response);
-      
+
       if (currentPage === 0) {
         setStories(response.content);
       } else {
         setStories(prev => [...prev, ...response.content]);
       }
-      
+
       setHasMore(response.number < response.totalPages - 1 && !response.empty);
     } catch (error) {
       console.error("Lỗi khi tải danh sách kỷ niệm:", error);
@@ -58,12 +58,14 @@ export default function HomePage() {
 
   // 3. Effects
   useEffect(() => {
+    if (!_hasHydrated) return; // Chờ Zustand hydrate xong từ localStorage
     if (!accessToken) {
       router.replace("/");
       return;
     }
+    // Token hợp lệ → hiển thị trang (dù user chưa load xong)
     setIsInitializing(false);
-  }, [accessToken, router]);
+  }, [_hasHydrated, accessToken, router]);
 
   useEffect(() => {
     if (!isInitializing && user?.id) {
@@ -130,7 +132,7 @@ export default function HomePage() {
 
   const displayName = user?.fullName || user?.username || "Bạn";
   const hasNoStories = stories.length === 0;
-  
+
   return (
     <MainLayout>
       <div className="max-w-3xl mx-auto space-y-8 pb-20">
@@ -138,7 +140,7 @@ export default function HomePage() {
         {/* --- BANNER CHÀO MỪNG --- */}
         <div className="bg-emerald-50 border border-emerald-100 rounded-3xl p-6 md:p-8 shadow-sm flex flex-col sm:flex-row sm:items-center justify-between gap-6 relative overflow-hidden">
           <div className="absolute top-0 right-0 p-4 opacity-10 pointer-events-none">
-             <BookOpen className="w-32 h-32 text-emerald-800" aria-hidden="true" />
+            <BookOpen className="w-32 h-32 text-emerald-800" aria-hidden="true" />
           </div>
 
           <div className="relative z-10 space-y-2">
@@ -179,10 +181,10 @@ export default function HomePage() {
           ) : (
             <div className="space-y-6 md:space-y-8">
               {stories.map((story) => (
-                <StoryCard 
-                  key={story.id} 
-                  story={story} 
-                  onDelete={openDeleteModal} 
+                <StoryCard
+                  key={story.id}
+                  story={story}
+                  onDelete={openDeleteModal}
                 />
               ))}
             </div>
@@ -215,7 +217,7 @@ export default function HomePage() {
               </div>
               <h2 className="text-2xl font-extrabold text-red-900">{t("home.deleteConfirmTitle")}</h2>
             </div>
-            
+
             <div className="p-6">
               <p className="text-lg text-stone-600 font-medium mb-2">
                 {t("home.deleteConfirmMessage")} <strong className="text-stone-900">"{storyToDelete.title}"</strong> {t("home.deleteConfirmSuffix")}
@@ -224,7 +226,7 @@ export default function HomePage() {
                 {t("common.confirmDeleteIrreversible")}
               </p>
             </div>
-            
+
             <div className="p-4 bg-stone-50 border-t border-stone-100 flex items-center justify-end gap-3 flex-wrap">
               <button
                 onClick={() => setStoryToDelete(null)}

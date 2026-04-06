@@ -3,7 +3,7 @@ import { apiClient } from '@/lib/axios';
 import { TokenResponse, User, UserCreateRequest } from '@/types/auth';
 import { useAuthStore } from '@/store/useAuthStore';
 
-const AUTH_TOKEN_URL = process.env.NEXT_PUBLIC_AUTH_URL || 'http://localhost:9084/oauth2/token';
+const AUTH_TOKEN_URL = process.env.NEXT_PUBLIC_AUTH_URL + '/oauth2/token';
 
 export const authService = {
     /**
@@ -14,9 +14,9 @@ export const authService = {
     exchangeToken: async (code: string, codeVerifier: string): Promise<TokenResponse> => {
         const params = new URLSearchParams();
         params.append('grant_type', 'authorization_code');
-        params.append('client_id', 'spa-client');
+        params.append('client_id', process.env.NEXT_PUBLIC_CLIENT_ID || 'spa-client');
         params.append('code', code);
-        params.append('redirect_uri', 'http://localhost:3000/callback');
+        params.append('redirect_uri', process.env.NEXT_PUBLIC_REDIRECT_URI || 'http://localhost:3000/callback');
         params.append('code_verifier', codeVerifier);
 
         const response = await axios.post<TokenResponse>(AUTH_TOKEN_URL, params, {
@@ -41,7 +41,7 @@ export const authService = {
      * API: GET /api/v1/profiles/me
      */
     getCurrentProfile: async (): Promise<any> => {
-        const response = await apiClient.get('ph-story-mvp-service/api/v1/profiles/me');
+        const response = await apiClient.get('/ph-story-mvp-service/api/v1/profiles/me');
         return response.data;
     },
 
@@ -50,14 +50,14 @@ export const authService = {
      * API: POST /api/v1/users
      */
     register: async (data: UserCreateRequest): Promise<User> => {
-        const response = await apiClient.post<User>('ph-story-users-service/api/v1/users', data);
+        const response = await apiClient.post<User>('ph-story-users-service/api/v1/users/register', data);
         return response.data;
     },
 
     getLoginUrl: (codeChallenge: string) => {
-        const authServerUrl = 'http://localhost:9084/oauth2/authorize';
-        const clientId = 'spa-client';
-        const redirectUri = encodeURIComponent('http://localhost:3000/callback');
+        const authServerUrl = `${process.env.NEXT_PUBLIC_AUTH_SERVER_URL || 'http://localhost:9094'}/oauth2/authorize`;
+        const clientId = process.env.NEXT_PUBLIC_CLIENT_ID || 'spa-client';
+        const redirectUri = encodeURIComponent(process.env.NEXT_PUBLIC_REDIRECT_URI || 'http://localhost:3000/callback');
         const scope = encodeURIComponent('openid profile');
 
         return `${authServerUrl}?response_type=code&client_id=${clientId}&redirect_uri=${redirectUri}&scope=${scope}&code_challenge=${codeChallenge}&code_challenge_method=S256&prompt=login`;
@@ -66,41 +66,89 @@ export const authService = {
     /**
      * Xử lý callback sau khi đăng nhập thành công từ Auth Server
      */
+    // handleCallback: async (code: string): Promise<void> => {
+    //     const codeVerifier = sessionStorage.getItem("pkce_code_verifier");
+
+    //     if (!codeVerifier) {
+    //         throw new Error("Không tìm thấy mã xác thực. Vui lòng đăng nhập lại.");
+    //     }
+
+    //     try {
+    //         // 1. Phục hồi access token từ code
+    //         const tokenResponse = await authService.exchangeToken(code, codeVerifier);
+
+    //         console.log("TOKEN RESPONSE:", tokenResponse);
+
+    //         // 2. Lưu tokens vào store (access + refresh + expiry)
+    //         const authStore = useAuthStore.getState();
+    //         authStore.setTokens(
+    //             tokenResponse.access_token,
+    //             tokenResponse.refresh_token ?? null,
+    //             tokenResponse.expires_in,
+    //         );
+
+    //         // 3. Lấy thông tin User hiện tại
+    //         const user = await authService.getCurrentUser();
+
+    //         // 3.5 Lấy thông tin Profile (nếu có)
+    //         let profile = null;
+    //         try {
+    //             profile = await authService.getCurrentProfile();
+    //         } catch (err) {
+    //             console.warn("Người dùng này chưa có profile", err);
+    //         }
+
+    //         // 4. Lưu thông tin User/Profile vào store
+    //         authStore.setAuth(authStore.accessToken!, user, profile);
+
+    //         // 5. Dọn dẹp session sau khi hoàn thành
+    //         sessionStorage.removeItem("pkce_code_verifier");
+    //     } catch (error) {
+    //         useAuthStore.getState().logout();
+    //         throw error;
+    //     }
+    // },
+
     handleCallback: async (code: string): Promise<void> => {
         const codeVerifier = sessionStorage.getItem("pkce_code_verifier");
-        
+
         if (!codeVerifier) {
             throw new Error("Không tìm thấy mã xác thực. Vui lòng đăng nhập lại.");
         }
 
         try {
-            // 1. Phục hồi access token từ code
             const tokenResponse = await authService.exchangeToken(code, codeVerifier);
 
-            // 2. Lưu tokens vào store (access + refresh + expiry)
-            const authStore = useAuthStore.getState();
-            authStore.setTokens(
-                tokenResponse.access_token,
-                tokenResponse.refresh_token ?? null,
-                tokenResponse.expires_in,
-            );
+            console.log("TOKEN RESPONSE:", tokenResponse);
 
-            // 3. Lấy thông tin User hiện tại
+            const accessToken = tokenResponse.access_token;
+            const refreshToken = tokenResponse.refresh_token ?? null;
+            const expiresIn = tokenResponse.expires_in;
+
+            if (!accessToken) {
+                throw new Error("Không nhận được access_token");
+            }
+
+            const authStore = useAuthStore.getState();
+
+            // 1. Lưu token
+            authStore.setTokens(accessToken, refreshToken, expiresIn);
+
+            // 2. Lấy user
             const user = await authService.getCurrentUser();
 
-            // 3.5 Lấy thông tin Profile (nếu có)
             let profile = null;
             try {
                 profile = await authService.getCurrentProfile();
             } catch (err) {
-                console.warn("Người dùng này chưa có profile", err);
+                console.warn("Người dùng chưa có profile", err);
             }
 
-            // 4. Lưu thông tin User/Profile vào store
-            authStore.setAuth(authStore.accessToken!, user, profile);
+            // KHÔNG dùng lại store
+            authStore.setAuth(accessToken, user, profile);
 
-            // 5. Dọn dẹp session sau khi hoàn thành
             sessionStorage.removeItem("pkce_code_verifier");
+
         } catch (error) {
             useAuthStore.getState().logout();
             throw error;
@@ -123,7 +171,7 @@ export const authService = {
         try {
             const params = new URLSearchParams();
             params.append('grant_type', 'refresh_token');
-            params.append('client_id', 'spa-client');
+            params.append('client_id', process.env.NEXT_PUBLIC_CLIENT_ID || 'spa-client');
             params.append('refresh_token', refreshToken);
 
             const response = await axios.post<TokenResponse>(AUTH_TOKEN_URL, params, {
@@ -159,7 +207,7 @@ export const authService = {
         localStorage.removeItem("accessToken");
         localStorage.removeItem("a-story-auth-storage");
         sessionStorage.clear();
-        
+
         // 3. Hard Redirect về trang chủ
         window.location.href = "/";
     }
