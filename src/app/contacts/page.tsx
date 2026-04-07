@@ -8,9 +8,11 @@ import { Users, Trash2, Edit, AlertCircle, Loader2, UserPlus, Phone, Mail, Tag, 
 import { ContactService } from "@/services/contact.service";
 import { Contact } from "@/types/contact";
 import { useTranslation } from "@/store/useLanguageStore";
+import { useAuthStore } from "@/store/useAuthStore";
 
 export default function ContactsPage() {
   const { t } = useTranslation();
+  const { user } = useAuthStore();
   const [contacts, setContacts] = useState<Contact[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState("");
@@ -18,8 +20,10 @@ export default function ContactsPage() {
   const [toast, setToast] = useState<{ type: "success" | "error"; text: string } | null>(null);
 
   useEffect(() => {
-    fetchContacts();
-  }, []);
+    if (user?.id) {
+      fetchContacts();
+    }
+  }, [user?.id]);
 
   const showToast = (type: "success" | "error", text: string) => {
     setToast({ type, text });
@@ -27,10 +31,15 @@ export default function ContactsPage() {
   };
 
   const fetchContacts = async () => {
+    if (!user?.id) return;
     setIsLoading(true);
     setError("");
     try {
-      const data = await ContactService.getContacts();
+      const data = await ContactService.searchContacts({
+        filters: [{ field: "user.id", operator: "EQUAL", value: user.id }],
+        pagination: { page: 0, size: 500 },
+        sorts: [{ field: "preferenceName", direction: "ASC" }]
+      });
       setContacts(data.content || []);
     } catch (err) {
       console.error("Lỗi lấy danh bạ:", err);
@@ -63,8 +72,8 @@ export default function ContactsPage() {
         {/* TOAST NOTIFICATION */}
         {toast && (
           <div className={`fixed top-4 right-4 z-50 px-5 py-3 rounded-xl shadow-lg border-2 font-bold text-base flex items-center gap-3 animate-in fade-in slide-in-from-top-4 duration-300 ${toast.type === 'success'
-              ? 'bg-emerald-50 text-emerald-800 border-emerald-200'
-              : 'bg-red-50 text-red-800 border-red-200'
+            ? 'bg-emerald-50 text-emerald-800 border-emerald-200'
+            : 'bg-red-50 text-red-800 border-red-200'
             }`}>
             {toast.type === 'success'
               ? <CheckCircle2 className="w-5 h-5" />
@@ -160,14 +169,7 @@ export default function ContactsPage() {
                           </div>
                         ) : null}
 
-                        {contact.email ? (
-                          <div className="flex items-center gap-3">
-                            <Mail className="w-6 h-6 text-gray-400" aria-hidden="true" />
-                            <span className="truncate" title={contact.email}>{contact.email}</span>
-                          </div>
-                        ) : null}
-
-                        {(!contact.phoneNumber && !contact.email) && (
+                        {(!contact.phoneNumber) && (
                           <p className="italic text-gray-500">{t("contacts.noContactInfo")}</p>
                         )}
                       </div>

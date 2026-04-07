@@ -86,14 +86,13 @@ export default function RegisterPage() {
             if (value.length > 0 && value.length < 8) {
                 errorMsg = 'Mật khẩu phải có ít nhất 8 ký tự.';
             }
-            // Bỏ comment đoạn dưới nếu Backend của bạn yêu cầu mật khẩu phải có chữ hoa, số và ký tự đặc biệt
-            /* else if (value.length > 0 && !/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/.test(value)) {
+            else if (value.length > 0 && !/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/.test(value)) {
                 errorMsg = 'Mật khẩu phải chứa ít nhất 1 chữ hoa, 1 số và 1 ký tự đặc biệt.';
-            } */
+            }
         }
 
         setFieldErrors(prev => ({ ...prev, [name]: errorMsg }));
-        return errorMsg === ''; // Trả về true nếu không có lỗi
+        return errorMsg === ''; 
     };
 
     const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
@@ -122,6 +121,50 @@ export default function RegisterPage() {
     const isPasswordValid = validateField('password', formData.password);
 
     if (!isUsernameValid || !isEmailValid || !isPasswordValid) {
+        const validationErrors = {
+            username: !isUsernameValid
+                ? (formData.username.length === 0
+                    ? 'Chưa nhập tên đăng nhập'
+                    : formData.username.length < 8
+                        ? `Quá ngắn (${formData.username.length}/8 ký tự)`
+                        : formData.username.length > 50
+                            ? `Quá dài (${formData.username.length}/50 ký tự)`
+                            : 'Chứa ký tự không hợp lệ (chỉ cho phép a-z, A-Z, 0-9, _)')
+                : '✓ Hợp lệ',
+            email: !isEmailValid
+                ? (formData.email.length === 0
+                    ? 'Chưa nhập email'
+                    : 'Sai định dạng email')
+                : '✓ Hợp lệ',
+            password: !isPasswordValid
+                ? (formData.password.length === 0
+                    ? 'Chưa nhập mật khẩu'
+                    : formData.password.length < 8
+                        ? `Quá ngắn (${formData.password.length}/8 ký tự)`
+                        : 'Thiếu chữ hoa, chữ số hoặc ký tự đặc biệt (@$!%*?&)')
+                : '✓ Hợp lệ',
+        };
+
+        console.group('%c[Register] ❌ Submit thất bại — Dữ liệu người dùng nhập', 'color: #ef4444; font-weight: bold;');
+        console.log('%cDữ liệu form hiện tại:', 'color: #f59e0b; font-weight: bold;', {
+            username:    formData.username    || '(trống)',
+            email:       formData.email       || '(trống)',
+            password:    formData.password    ? `${'*'.repeat(formData.password.length)} (${formData.password.length} ký tự)` : '(trống)',
+            fullname:    formData.fullname    || '(trống)',
+            phoneNumber: formData.phoneNumber || '(trống)',
+            address:     formData.address     || '(trống)',
+            gender:      formData.gender,
+            userType:    formData.userType,
+            dateOfBirth: formData.dateOfBirth || '(chưa chọn)',
+        });
+        console.log('%cChi tiết lỗi validation:', 'color: #ef4444; font-weight: bold;', validationErrors);
+        console.log('%cHướng dẫn điền đúng:', 'color: #10b981; font-weight: bold;', {
+            username: 'Từ 8–50 ký tự, chỉ dùng chữ cái (a-z, A-Z), chữ số (0-9) và dấu gạch dưới (_)',
+            email:    'Định dạng hợp lệ: you@example.com',
+            password: 'Tối thiểu 8 ký tự, phải có: 1 chữ hoa (A-Z), 1 chữ số (0-9), 1 ký tự đặc biệt (@$!%*?&)',
+        });
+        console.groupEnd();
+
         setGlobalError('Vui lòng sửa các lỗi hiển thị trên form trước khi tiếp tục.');
         return;
     }

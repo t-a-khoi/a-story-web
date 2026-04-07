@@ -84,7 +84,6 @@ export default function EditContactPage({ params }: { params: Promise<{ id: stri
     try {
       await ContactService.updateContact(contactId, {
         preferenceName: preferenceName.trim() || contact.fullname,
-        categoryId,
       });
       setSaveSuccess(true);
       setTimeout(() => router.push("/contacts"), 1800);
@@ -250,7 +249,8 @@ export default function EditContactPage({ params }: { params: Promise<{ id: stri
             <p className="text-base text-gray-400 text-right font-medium">{preferenceName.length}/100</p>
           </div>
 
-          {/* Nhóm quan hệ */}
+          {/* Nhóm quan hệ - Tạm thời ẩn đi để tách biệt với danh bạ */}
+          {/*
           <div className="space-y-3">
             <label className="text-lg font-bold text-gray-700 block">
               Nhóm quan hệ
@@ -279,6 +279,7 @@ export default function EditContactPage({ params }: { params: Promise<{ id: stri
             </div>
             )}
           </div>
+          */}
 
           {/* Nút Lưu */}
           <button

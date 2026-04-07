@@ -92,7 +92,7 @@ apiClient.interceptors.response.use(
         // Không có refresh token → logout ngay
         if (!state.refreshToken) {
             state.logout();
-            window.location.href = '/';
+            window.location.href = '/?expired=1';
             return Promise.reject(error);
         }
 

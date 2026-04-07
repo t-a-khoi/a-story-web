@@ -25,6 +25,7 @@ import { ProfilesResponse } from "@/types/profile";
 import { Contact } from "@/types/contact";
 import { Category } from "@/types/story";
 import { useTranslation } from "@/store/useLanguageStore";
+import { useAuthStore } from "@/store/useAuthStore";
 
 // ─── Dữ liệu quốc gia ────────────────────────────────────────────────────────
 const COUNTRIES = [
@@ -53,6 +54,7 @@ type SearchTab = "name" | "phone";
 export default function AddContactPage() {
   const router = useRouter();
   const { t } = useTranslation();
+  const { user } = useAuthStore();
 
   // ─── Tab tìm kiếm ────────────────────────────────────────────────────────
   const [activeTab, setActiveTab] = useState<SearchTab>("phone");
@@ -177,7 +179,7 @@ export default function AddContactPage() {
 
     try {
       const data = await ProfileService.searchProfiles({
-        filters: [{ field: "phoneNumber", operator: "LIKE", value: fullPhone }],
+        filters: [{ field: "phoneNumber", operator: "EQUAL", value: fullPhone }],
         pagination: { page: 0, size: 20 },
       });
       setResults(data.content || []);
@@ -209,9 +211,8 @@ export default function AddContactPage() {
     setAddError("");
     try {
       await ContactService.createContact({
-        userId: selectedProfile.userId,
-        profileId: selectedProfile.id,
-        categoryId,
+        userId: user?.id, // ID của người đang thêm (người lưu danh bạ)
+        profileId: selectedProfile.id, // ID của profile được thêm
         preferenceName: preferenceName.trim() || selectedProfile.fullname,
       });
       setAddedIds(prev => new Set(prev).add(selectedProfile.id));
@@ -238,7 +239,8 @@ export default function AddContactPage() {
     c.dial.includes(countrySearch)
   );
 
-  const canSearchPhone = phoneNumber.trim().replace(/\D/g, "").length >= 6;
+  // SĐT tối thiểu 9 chữ số 
+  const canSearchPhone = phoneNumber.trim().replace(/\D/g, "").length >= 9;
   const canSearchName = nameKeyword.trim().length >= 1;
 
   // ─── JSX ─────────────────────────────────────────────────────────────────
@@ -638,7 +640,8 @@ export default function AddContactPage() {
               <p className="text-base text-gray-400 text-right font-medium">{preferenceName.length}/100</p>
             </div>
 
-            {/* Nhóm quan hệ */}
+            {/* Nhóm quan hệ - Tạm thời ẩn đi theo yêu cầu để tránh lỗi FK */}
+            {/* 
             <div className="space-y-3">
               <label className="text-lg font-bold text-gray-700 block">{t("contacts.add.relationshipLabel")}</label>
               {isLoadingCategories ? (
@@ -664,6 +667,7 @@ export default function AddContactPage() {
                 </div>
               )}
             </div>
+            */}
 
             {/* Lỗi */}
             {addError && (

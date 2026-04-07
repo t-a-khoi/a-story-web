@@ -46,10 +46,20 @@ export default function LandingPage() {
   const [isRedirecting, setIsRedirecting] = useState(false);
   const [openFaq, setOpenFaq] = useState<number | null>(0);
   const [scrolled, setScrolled] = useState(false);
+  const [expiredMsg, setExpiredMsg] = useState(false);
 
   const router = useRouter();
   const accessToken = useAuthStore(state => state.accessToken);
   console.log("accessToken", accessToken);
+
+  // Check for expired session parameter
+  useEffect(() => {
+    if (typeof window !== "undefined" && window.location.search.includes("expired=1")) {
+      setExpiredMsg(true);
+      // Remove query param from URL so it doesn't persist on refresh
+      window.history.replaceState({}, document.title, window.location.pathname);
+    }
+  }, []);
 
   // Header scroll effect
   useEffect(() => {
@@ -143,6 +153,35 @@ export default function LandingPage() {
       </header>
 
       <main>
+        {/* EXPIRED SESSION ALERT */}
+        <AnimatePresence>
+          {expiredMsg && (
+            <motion.div 
+              initial={{ opacity: 0, y: -50 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -50 }}
+              className="fixed top-24 pt-4 left-1/2 -translate-x-1/2 z-[60] w-full max-w-sm px-6"
+            >
+              <div className="bg-red-50 text-red-800 px-5 py-4 rounded-2xl shadow-xl border-2 border-red-200 flex items-start gap-3">
+                <div className="mt-0.5">
+                  <ShieldCheck className="w-6 h-6 text-red-600" />
+                </div>
+                <div className="flex-1">
+                  <p className="font-bold text-base leading-tight">Phiên đăng nhập đã hết hạn.</p>
+                  <p className="text-sm mt-1 text-red-700">Vui lòng đăng nhập lại để tiếp tục sử dụng.</p>
+                </div>
+                <button 
+                  onClick={() => setExpiredMsg(false)} 
+                  className="text-red-400 hover:text-red-600 transition-colors p-1"
+                >
+                  <span className="sr-only">Đóng</span>
+                  <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M6 18L18 6M6 6l12 12" /></svg>
+                </button>
+              </div>
+            </motion.div>
+          )}
+        </AnimatePresence>
+
         {/* 1. HERO SECTION */}
         <section className="relative pt-32 pb-20 md:pt-40 md:pb-32 px-6 overflow-hidden">
           <div className="max-w-6xl mx-auto grid md:grid-cols-2 gap-12 items-center">

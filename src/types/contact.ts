@@ -20,7 +20,7 @@ export interface Contact {
 
 export interface ContactCreateRequest {
     preferenceName?: string;
-    userId: number;
+    userId?: number;      // Có thể optional vì BE sẽ tự lấy từ JWT
     profileId: number;
     categoryId?: number;
 }

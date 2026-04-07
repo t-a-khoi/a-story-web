@@ -40,7 +40,7 @@ export default function MainLayout({ children }: { children: ReactNode }) {
         <div className="min-h-screen flex flex-col bg-slate-50 font-sans">
             {/* HEADER CHUNG */}
             <header className="bg-white border-b-2 border-gray-200 sticky top-0 z-40 shadow-sm">
-                <div className="max-w-6xl mx-auto px-4 sm:px-6 h-16 md:h-20 flex items-center justify-between">
+                <div className="w-full px-4 sm:px-6 h-16 md:h-20 flex items-center justify-between">
 
                     {/* Logo */}
                     <Link href="/home" className="flex items-center gap-2 md:gap-3 p-1 md:p-2 rounded-lg hover:bg-gray-50 transition">
@@ -87,7 +87,7 @@ export default function MainLayout({ children }: { children: ReactNode }) {
             </header>
 
             {/* VÙNG NỘI DUNG CHÍNH */}
-            <main className="flex-grow max-w-4xl w-full mx-auto p-4 sm:p-6 md:py-10 pb-24 md:pb-10">
+            <main className="flex-grow w-full p-4 sm:p-6 lg:px-8 md:py-10 pb-24 md:pb-10">
                 {children}
             </main>
 

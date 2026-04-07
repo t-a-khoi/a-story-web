@@ -18,15 +18,23 @@ export function TokenRefreshProvider({ children }: { children: React.ReactNode }
 
     useEffect(() => {
         const checkAndRefresh = async () => {
-            const { accessToken, refreshToken, expiresAt } = useAuthStore.getState();
+            const { accessToken, refreshToken, expiresAt, logout } = useAuthStore.getState();
 
-            // Không có gì để refresh
-            if (!accessToken || !refreshToken || !expiresAt) return;
+            // Nếu chưa đăng nhập thì không cần làm gì
+            if (!accessToken || !expiresAt) return;
 
             const timeUntilExpiry = expiresAt - Date.now();
 
-            // Đã hết hạn hoặc sắp hết hạn trong vòng ngưỡng
+            // 1. Đã hết hạn hoặc sắp hết hạn trong vòng ngưỡng
             if (timeUntilExpiry <= REFRESH_THRESHOLD_MS) {
+                // Nếu không có refresh token -> Không thể gia hạn -> Đẩy ra trang chủ
+                if (!refreshToken) {
+                    console.warn('[TokenRefreshProvider] Token hết hạn và không có refresh token -> Logout');
+                    logout();
+                    window.location.href = '/?expired=1';
+                    return;
+                }
+
                 if (isRefreshingRef.current) return;
                 isRefreshingRef.current = true;
 
