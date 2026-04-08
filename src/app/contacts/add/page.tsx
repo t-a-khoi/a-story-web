@@ -97,7 +97,11 @@ export default function AddContactPage() {
     const loadData = async () => {
       try {
         const [contactData, categoryData] = await Promise.all([
-          ContactService.getContacts(0, 500),
+          ContactService.searchContacts({
+            filters: [{ field: "deleted", operator: "EQUAL", value: false }],
+            pagination: { page: 0, size: 500 },
+            sorts: [{ field: "preferenceName", direction: "ASC" }]
+          }),
           CategoriesService.getCategories(0, 100)
         ]);
         const ids = new Set(contactData.content.map((c: Contact) => c.profileId));

@@ -36,7 +36,10 @@ export default function ContactsPage() {
     setError("");
     try {
       const data = await ContactService.searchContacts({
-        filters: [{ field: "user.id", operator: "EQUAL", value: user.id }],
+        filters: [
+          { field: "user.id", operator: "EQUAL", value: user.id },
+          { field: "deleted", operator: "EQUAL", value: false },
+        ],
         pagination: { page: 0, size: 500 },
         sorts: [{ field: "preferenceName", direction: "ASC" }]
       });
