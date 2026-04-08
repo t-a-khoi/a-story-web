@@ -322,13 +322,13 @@ export default function EditStoryPage({ params }: { params: Promise<{ id: string
 
                     {/* Tiêu đề */}
                     <div className="space-y-1.5">
-                        <label htmlFor="story-title" className="text-sm font-semibold text-stone-500 ml-1">Tiêu đề kỷ niệm</label>
+                        <label htmlFor="story-title" className="text-sm font-semibold text-stone-500 ml-1">Commemorative title</label>
                         <input
                             id="story-title"
                             type="text"
                             value={title}
                             onChange={(e) => setTitle(e.target.value)}
-                            placeholder="Viết tiêu đề ngắn gọn (ví dụ: Tết năm 1975)..."
+                            placeholder="Write a short title (e.g., Tet 1975)..."
                             className="w-full text-2xl md:text-3xl font-extrabold text-gray-900 placeholder-gray-400 bg-transparent border-none focus:ring-0 focus:outline-none p-0"
                         />
                     </div>
@@ -336,7 +336,7 @@ export default function EditStoryPage({ params }: { params: Promise<{ id: string
                     <hr className="border-gray-100" />
 
                     {/* ═══ CATEGORY DROPDOWN (Styled — có màu + icon) ══════════ */}
-                    <div className="space-y-3">
+                    {/* <div className="space-y-3">
                         <label className="text-lg font-bold text-gray-700 block">
                             Đây là câu chuyện về chủ đề gì?
                         </label>
@@ -349,7 +349,7 @@ export default function EditStoryPage({ params }: { params: Promise<{ id: string
                         ) : (
                             <div className="relative" ref={catDropdownRef}>
                                 {/* Trigger Button */}
-                                <button
+                                {/* <button
                                     type="button"
                                     onClick={() => setIsCatDropdownOpen(prev => !prev)}
                                     className="w-full flex items-center justify-between gap-3 border-2 border-gray-200 hover:border-emerald-300 focus:border-emerald-500 focus:ring-4 focus:ring-emerald-100 rounded-xl px-4 py-3 min-h-[56px] outline-none transition-colors bg-white"
@@ -370,14 +370,14 @@ export default function EditStoryPage({ params }: { params: Promise<{ id: string
                                         </span>
                                     )}
                                     <ChevronDown className={`w-5 h-5 text-gray-400 transition-transform shrink-0 ${isCatDropdownOpen ? 'rotate-180' : ''}`} />
-                                </button>
+                                </button> */}
 
                                 {/* Dropdown List */}
-                                {isCatDropdownOpen && (
+                                {/* {isCatDropdownOpen && (
                                     <div className="absolute z-30 top-full mt-2 left-0 right-0 bg-white border border-gray-200 rounded-2xl shadow-xl overflow-hidden">
                                         <div className="max-h-64 overflow-y-auto py-2">
                                             {/* Option: Không chọn */}
-                                            <button
+                                            {/* <button
                                                 type="button"
                                                 onClick={() => { setSelectedCatId(0); setIsCatDropdownOpen(false); }}
                                                 className={`w-full flex items-center gap-3 px-4 py-3 hover:bg-emerald-50 transition-colors text-left ${selectedCatId === 0 ? 'bg-emerald-50' : ''}`}
@@ -411,19 +411,19 @@ export default function EditStoryPage({ params }: { params: Promise<{ id: string
                                 )}
                             </div>
                         )}
-                    </div>
+                    </div> */}
 
                     <hr className="border-gray-100" />
 
                     {/* Nội dung */}
                     <div className="space-y-1.5">
-                        <label htmlFor="story-content" className="text-sm font-semibold text-stone-500 ml-1">Nội dung câu chuyện</label>
+                        <label htmlFor="story-content" className="text-sm font-semibold text-stone-500 ml-1">Story content</label>
                         <textarea
                             id="story-content"
                             ref={textareaRef}
                             value={content}
                             onChange={(e) => setContent(e.target.value)}
-                            placeholder="Nhớ lại và kể lại câu chuyện tại đây nhé..."
+                            placeholder="Remember and tell the story here..."
                             className="w-full text-xl md:text-2xl text-gray-800 leading-[1.9] placeholder-gray-400 bg-transparent border-none focus:ring-0 focus:outline-none p-0 min-h-[280px] resize-none overflow-hidden font-medium tracking-wide"
                         />
                     </div>
@@ -438,7 +438,7 @@ export default function EditStoryPage({ params }: { params: Promise<{ id: string
                                         <button
                                             onClick={() => handleRemoveMedia(index)}
                                             className="absolute top-2 right-2 p-1.5 bg-red-100/90 text-red-600 rounded-full hover:bg-red-200 transition-colors opacity-0 group-hover:opacity-100 shadow-sm"
-                                            title="Xoá ảnh"
+                                            title="Delete image"
                                         >
                                             <XCircle className="w-5 h-5" />
                                         </button>
@@ -462,10 +462,10 @@ export default function EditStoryPage({ params }: { params: Promise<{ id: string
                             className={`flex items-center gap-3 min-h-[64px] px-6 py-4 bg-gray-50 hover:bg-emerald-50 text-gray-700 hover:text-emerald-800 border-2 border-dashed border-gray-300 hover:border-emerald-300 rounded-2xl text-lg font-bold transition-colors w-full sm:w-auto justify-center shadow-sm ${isUploading ? 'opacity-50 cursor-not-allowed' : ''}`}
                         >
                             {isUploading ? <Loader2 className="w-8 h-8 animate-spin" /> : <ImageIcon className="w-8 h-8" />}
-                            <span>{isUploading ? 'Đang tải ảnh...' : 'Thêm hoặc thay đổi hình ảnh (Không bắt buộc)'}</span>
+                            <span>{isUploading ? 'Uploading images...' : 'Add or change images (Optional)'}</span>
                         </button>
                         <p className="mt-4 text-lg text-gray-500 font-medium">
-                            * Ảnh giúp câu chuyện của bạn thêm sinh động.
+                            * Images help make your story more vivid.
                         </p>
                     </div>
                 </div>
@@ -476,9 +476,9 @@ export default function EditStoryPage({ params }: { params: Promise<{ id: string
                         <Lightbulb className="w-8 h-8 md:w-10 md:h-10 text-amber-700" />
                     </div>
                     <div className="flex-1">
-                        <h3 className="text-xl md:text-2xl font-bold text-amber-900 mb-3">Góc gợi ý kỷ niệm</h3>
+                        <h3 className="text-xl md:text-2xl font-bold text-amber-900 mb-3">Memory suggestion corner</h3>
                         <p className="text-base text-amber-800 font-medium mb-4">
-                            Nếu bạn chưa nhớ ra nên viết gì, hãy thử nhớ về:
+                            If you haven't remembered what to write, try remembering:
                         </p>
                         <ul className="space-y-3">
                             {writingPrompts.map((prompt, index) => (
@@ -490,7 +490,7 @@ export default function EditStoryPage({ params }: { params: Promise<{ id: string
                         </ul>
                         {selectedCategory && (
                             <p className="mt-4 text-sm text-amber-700 font-semibold">
-                                Gợi ý theo chủ đề: <span style={{ color: selectedCategory.color || "#064e3b" }}>{selectedCategory.icon} {selectedCategory.name}</span>
+                                Category suggestions: <span style={{ color: selectedCategory.color || "#064e3b" }}>{selectedCategory.icon} {selectedCategory.name}</span>
                             </p>
                         )}
                     </div>

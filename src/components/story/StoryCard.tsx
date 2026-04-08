@@ -68,7 +68,7 @@ export default function StoryCard({ story, onDelete }: StoryCardProps) {
             <span
               className="inline-flex items-center justify-center px-4 py-1.5 rounded-xl text-sm font-bold whitespace-nowrap shrink-0 shadow-sm border bg-emerald-50 text-emerald-800 border-emerald-200"
             >
-              Chủ đề #{story.catId}
+              Topic #{story.catId}
             </span>
           )}
         </div>
@@ -76,7 +76,7 @@ export default function StoryCard({ story, onDelete }: StoryCardProps) {
         <div className="flex flex-wrap items-center gap-2 text-base font-medium text-gray-500">
           {story.profileId && (
             <>
-              <span className="text-gray-700 font-bold">Tác giả #{story.profileId}</span>
+              <span className="text-gray-700 font-bold">Author #{story.profileId}</span>
               <span className="w-1.5 h-1.5 rounded-full bg-gray-300" />
             </>
           )}
@@ -101,7 +101,7 @@ export default function StoryCard({ story, onDelete }: StoryCardProps) {
           aria-label={`Đọc bài viết: ${story.title}`}
         >
           <BookOpen className="w-5 h-5" aria-hidden="true" />
-          <span className="text-base">Đọc bài</span>
+          <span className="text-base">Read story</span>
         </Link>
 
         {/* Nút Chia sẻ */}
@@ -116,7 +116,7 @@ export default function StoryCard({ story, onDelete }: StoryCardProps) {
           className="flex flex-1 sm:flex-none items-center justify-center gap-2 px-6 min-h-[48px] bg-gray-50 hover:bg-gray-100 text-gray-700 font-bold rounded-xl transition-colors border border-gray-200"
         >
           <Pencil className="w-4 h-4" aria-hidden="true" />
-          <span className="text-base">Sửa</span>
+          <span className="text-base">Edit</span>
         </Link>
 
         {/* Nút Xóa */}
@@ -126,7 +126,7 @@ export default function StoryCard({ story, onDelete }: StoryCardProps) {
             className="flex flex-1 sm:flex-none items-center justify-center gap-2 px-6 min-h-[48px] bg-red-50 hover:bg-red-100 text-red-600 font-bold rounded-xl transition-colors ml-auto sm:ml-0 border border-red-100 hover:border-red-200"
           >
             <Trash2 className="w-4 h-4" aria-hidden="true" />
-            <span className="text-base">Xóa</span>
+            <span className="text-base">Delete</span>
           </button>
         )}
       </div>

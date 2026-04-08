@@ -113,7 +113,7 @@ export default function ShareModal({ storyId, storyTitle, isOpen, onClose }: Sha
             </div>
             <div>
               <h2 id="share-modal-title" className="text-xl font-extrabold text-gray-900">
-                Gửi cho người thân
+                Send to relatives
               </h2>
               <p className="text-sm text-gray-500 font-medium mt-0.5 line-clamp-1">
                 "{storyTitle}"
@@ -123,7 +123,7 @@ export default function ShareModal({ storyId, storyTitle, isOpen, onClose }: Sha
           <button
             onClick={onClose}
             className="flex items-center justify-center w-10 h-10 hover:bg-gray-200 rounded-full transition-colors"
-            aria-label="Đóng cửa sổ"
+            aria-label="Close window"
             disabled={isSending}
           >
             <X className="w-6 h-6 text-gray-600" aria-hidden="true" />
@@ -152,7 +152,7 @@ export default function ShareModal({ storyId, storyTitle, isOpen, onClose }: Sha
           {isLoading ? (
             <div className="flex flex-col items-center justify-center py-12 gap-4 text-emerald-700">
               <Loader2 className="w-12 h-12 animate-spin" />
-              <p className="text-lg font-bold">Đang tải danh bạ...</p>
+              <p className="text-lg font-bold">Loading contacts...</p>
             </div>
           ) : contacts.length === 0 ? (
             <div className="flex flex-col items-center text-center py-10 bg-gray-50 rounded-2xl border border-dashed border-gray-200 gap-4 px-6">
@@ -160,9 +160,9 @@ export default function ShareModal({ storyId, storyTitle, isOpen, onClose }: Sha
                 <Users className="w-8 h-8 text-emerald-600" />
               </div>
               <div>
-                <p className="text-lg font-bold text-gray-800 mb-1">Danh bạ chưa có ai</p>
+                <p className="text-lg font-bold text-gray-800 mb-1">No contacts yet</p>
                 <p className="text-base text-gray-500 font-medium">
-                  Hãy thêm người thân vào danh bạ để chia sẻ những câu chuyện đặc biệt.
+                  Add relatives to the contact list to share special stories.
                 </p>
               </div>
               <Link
@@ -171,26 +171,26 @@ export default function ShareModal({ storyId, storyTitle, isOpen, onClose }: Sha
                 className="inline-flex items-center gap-2 px-5 py-2.5 bg-emerald-700 hover:bg-emerald-800 text-white rounded-xl font-bold text-base transition-colors"
               >
                 <UserPlus className="w-5 h-5" />
-                Thêm người thân ngay
+                Add relatives now
               </Link>
             </div>
           ) : (
             <>
               <p className="text-base text-gray-600 font-medium">
-                Chọn người thân muốn gửi câu chuyện này:
+                Select relatives to send this story to:
               </p>
               <div className="flex flex-col gap-3">
                 {contacts.map((contact) => {
                   const isSelected = selectedContactIds.includes(contact.id);
                   const displayName = contact.preferenceName || contact.fullname;
-                  const subText = contact.name || contact.phoneNumber || contact.email || 'Người thân';
+                  const subText = contact.name || contact.phoneNumber || contact.email || 'Relative';
 
                   return (
                     <label
                       key={contact.id}
                       className={`flex items-center gap-4 p-4 border-2 rounded-2xl cursor-pointer transition-all select-none ${isSelected
-                          ? 'border-emerald-500 bg-emerald-50 shadow-sm'
-                          : 'border-gray-200 bg-white hover:border-emerald-300 hover:bg-emerald-50/30'
+                        ? 'border-emerald-500 bg-emerald-50 shadow-sm'
+                        : 'border-gray-200 bg-white hover:border-emerald-300 hover:bg-emerald-50/30'
                         }`}
                     >
                       {/* Avatar chữ cái đầu */}
@@ -217,8 +217,8 @@ export default function ShareModal({ storyId, storyTitle, isOpen, onClose }: Sha
                       />
                       {/* Custom checkmark */}
                       <div className={`w-7 h-7 rounded-full border-2 flex items-center justify-center flex-shrink-0 transition-all ${isSelected
-                          ? 'bg-emerald-600 border-emerald-600'
-                          : 'border-gray-300 bg-white'
+                        ? 'bg-emerald-600 border-emerald-600'
+                        : 'border-gray-300 bg-white'
                         }`}>
                         {isSelected && (
                           <svg className="w-4 h-4 text-white" fill="none" stroke="currentColor" strokeWidth={3} viewBox="0 0 24 24">
@@ -242,7 +242,7 @@ export default function ShareModal({ storyId, storyTitle, isOpen, onClose }: Sha
               disabled={isSending}
               className="flex items-center justify-center min-h-[48px] px-6 py-2.5 bg-white border-2 border-gray-200 hover:bg-gray-100 text-gray-800 rounded-xl font-bold text-base transition-colors disabled:opacity-50"
             >
-              Hủy bỏ
+              Cancel
             </button>
             <button
               onClick={handleShare}
@@ -252,13 +252,13 @@ export default function ShareModal({ storyId, storyTitle, isOpen, onClose }: Sha
               {isSending ? (
                 <>
                   <Loader2 className="w-5 h-5 animate-spin" />
-                  <span>Đang gửi...</span>
+                  <span>Sending...</span>
                 </>
               ) : (
                 <>
                   <Send className="w-5 h-5" aria-hidden="true" />
                   <span>
-                    Gửi đi
+                    Send
                     {selectedContactIds.length > 0 && (
                       <span className="ml-1.5 bg-white/20 px-2 py-0.5 rounded-full text-sm">
                         {selectedContactIds.length}

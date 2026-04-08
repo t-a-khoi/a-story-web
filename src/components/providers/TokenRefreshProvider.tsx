@@ -21,7 +21,7 @@ export function TokenRefreshProvider({ children }: { children: React.ReactNode }
             const { accessToken, refreshToken, expiresAt, logout } = useAuthStore.getState();
 
             // Nếu chưa đăng nhập thì không cần làm gì
-            if (!accessToken || !expiresAt) return;
+            if (!accessToken || !refreshToken || !expiresAt) return;
 
             const timeUntilExpiry = expiresAt - Date.now();
 

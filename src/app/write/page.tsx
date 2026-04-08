@@ -248,7 +248,7 @@ export default function WritePage() {
                     <hr className="border-gray-100" />
 
                     {/* Chọn Chủ đề */}
-                    <div className="space-y-3">
+                    {/* <div className="space-y-3">
                         <label className="text-lg font-bold text-gray-700 block">
                             {t("write.categoryLabel")}
                         </label>
@@ -261,7 +261,7 @@ export default function WritePage() {
                         ) : (
                             <div className="relative" ref={catDropdownRef}>
                                 {/* Trigger Button */}
-                                <button
+                    {/* <button
                                     type="button"
                                     onClick={() => setIsCatDropdownOpen(prev => !prev)}
                                     className="w-full flex items-center justify-between gap-3 border-2 border-gray-200 hover:border-emerald-300 focus:border-emerald-500 focus:ring-4 focus:ring-emerald-100 rounded-xl px-4 py-3 min-h-[56px] outline-none transition-colors bg-white"
@@ -285,14 +285,14 @@ export default function WritePage() {
                                         ) : null;
                                     })()}
                                     <ChevronDown className={`w-5 h-5 text-gray-400 transition-transform shrink-0 ${isCatDropdownOpen ? 'rotate-180' : ''}`} />
-                                </button>
+                                </button> */}
 
-                                {/* Dropdown List */}
-                                {isCatDropdownOpen && (
+                    {/* Dropdown List */}
+                    {/* {isCatDropdownOpen && (
                                     <div className="absolute z-30 top-full mt-2 left-0 right-0 bg-white border border-gray-200 rounded-2xl shadow-xl overflow-hidden">
                                         <div className="max-h-64 overflow-y-auto py-2">
                                             {/* Option: Không chọn */}
-                                            <button
+                    {/* <button
                                                 type="button"
                                                 onClick={() => { setSelectedCatId(0); setIsCatDropdownOpen(false); }}
                                                 className={`w-full flex items-center gap-3 px-4 py-3 hover:bg-emerald-50 transition-colors text-left ${
@@ -330,7 +330,7 @@ export default function WritePage() {
                                 )}
                             </div>
                         )}
-                    </div>
+                    </div> */}
 
                     <hr className="border-gray-100" />
 
@@ -351,7 +351,7 @@ export default function WritePage() {
                                 {attachedMedia.map((m, index) => (
                                     <div key={index} className="relative group rounded-xl overflow-hidden border border-gray-200 shadow-sm aspect-square bg-gray-50">
                                         <img src={m.blobUrl} alt="preview" className="w-full h-full object-cover" />
-                                        <button 
+                                        <button
                                             onClick={() => handleRemoveMedia(index)}
                                             className="absolute top-2 right-2 p-1.5 bg-red-100/90 text-red-600 rounded-full hover:bg-red-200 transition-colors opacity-0 group-hover:opacity-100 shadow-sm"
                                         >
@@ -362,16 +362,16 @@ export default function WritePage() {
                             </div>
                         )}
 
-                        <input 
-                            type="file" 
-                            accept="image/*" 
+                        <input
+                            type="file"
+                            accept="image/*"
                             multiple
                             ref={fileInputRef}
                             className="hidden"
                             onChange={handleFileChange}
                         />
 
-                        <button 
+                        <button
                             onClick={() => fileInputRef.current?.click()}
                             disabled={isUploading}
                             className={`flex items-center gap-3 min-h-[64px] px-6 py-4 bg-gray-50 hover:bg-emerald-50 text-gray-700 hover:text-emerald-800 border-2 border-dashed border-gray-300 hover:border-emerald-300 rounded-2xl text-lg font-bold transition-colors w-full sm:w-auto justify-center shadow-sm ${isUploading ? 'opacity-50 cursor-not-allowed' : ''}`}

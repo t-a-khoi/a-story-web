@@ -31,7 +31,7 @@ export default function MainLayout({ children }: { children: ReactNode }) {
     const navItems = [
         { name: t("nav.home"), href: "/home", icon: Home },
         { name: t("nav.library"), href: "/library", icon: ImageIcon },
-        { name: t("nav.categories"), href: "/categories", icon: Tags },
+        // { name: t("nav.categories"), href: "/categories", icon: Tags },
         { name: t("nav.contacts"), href: "/contacts", icon: Users },
         { name: t("nav.settings"), href: "/settings", icon: Settings },
     ];

@@ -15,7 +15,7 @@ export default function ShareStoryButton({ storyId, onClick }: ShareStoryButtonP
       aria-label={`Gửi câu chuyện cho người thân`}
     >
       <Send className="w-5 h-5" aria-hidden="true" />
-      <span className="text-base">Gửi đi</span>
+      <span className="text-base">Share</span>
     </button>
   );
 }
