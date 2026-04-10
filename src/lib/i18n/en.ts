@@ -365,6 +365,7 @@ export const en = {
     submitting: "Processing...",
     successMessage: "Account created successfully! Please log in.",
     errorValidation: "Please fix the errors on the form before continuing.",
+    serverError: "Registration failed. Please check your information and try again.",
     footer: "Crafted with passion for sharing."
   },
 };

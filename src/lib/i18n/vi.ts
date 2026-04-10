@@ -365,6 +365,7 @@ export const vi = {
     submitting: "Đang xử lý...",
     successMessage: "Đăng ký tài khoản thành công! Vui lòng đăng nhập.",
     errorValidation: "Vui lòng sửa các lỗi hiển thị trên form trước khi tiếp tục.",
+    serverError: "Đăng ký thất bại. Vui lòng kiểm tra lại thông tin và thử lại.",
     footer: "Crafter with passion for sharing."
   },
 };

@@ -1,4 +1,4 @@
-// src/components/story/StoryCard.tsx
+// src/features/story/components/StoryCard.tsx
 "use client";
 
 import { useState, useEffect } from 'react';
@@ -6,8 +6,8 @@ import Link from 'next/link';
 import { BookOpen, Pencil, Trash2 } from 'lucide-react';
 import { Story } from '@/types/story';
 import { formatDate } from '@/lib/utils';
-import ShareModal from '@/components/story/ShareModal';
-import ShareStoryButton from '@/components/story/ShareStoryButton';
+import ShareModal from '@/features/story/components/ShareModal';
+import ShareStoryButton from '@/features/story/components/ShareStoryButton';
 import { StoryMediaService } from '@/services/storyMedia.service';
 import { MediaFilesService } from '@/services/mediaFiles.service';
 import { FileUploadService } from '@/services/fileUpload.service';
@@ -46,38 +46,37 @@ export default function StoryCard({ story, onDelete }: StoryCardProps) {
     return () => { active = false; };
   }, [story.id]);
 
-
   return (
-    <article className="bg-white rounded-3xl p-6 md:p-8 flex flex-col gap-5 shadow-sm border border-gray-200 hover:shadow-md transition-all duration-300">
+    <article className="bg-pearl-50 rounded-3xl p-6 md:p-8 flex flex-col gap-5 shadow-sm border border-pearl-200 hover:shadow-md transition-all duration-300">
 
       {/* 0. Ảnh Bìa (nếu có) */}
       {coverImageUrl && (
-        <div className="w-full h-56 sm:h-72 rounded-2xl overflow-hidden mb-2 relative group bg-gray-50 border border-gray-100">
+        <div className="w-full h-56 sm:h-72 rounded-2xl overflow-hidden mb-2 relative group bg-pearl-100 border border-pearl-200">
           <img src={coverImageUrl} alt="Story cover" className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
         </div>
       )}
 
       {/* 1. Header */}
-      <div className="flex flex-col gap-2 border-b border-gray-100 pb-4">
+      <div className="flex flex-col gap-2 border-b border-pearl-200 pb-4">
         <div className="flex items-start justify-between gap-4">
-          <h2 className="text-2xl font-bold text-gray-900 leading-snug line-clamp-2">
+          <h2 className="text-2xl font-bold text-charcoal-900 leading-snug line-clamp-2">
             {story.title}
           </h2>
           {/* Cấp độ Badge thể loại dùng tạm catId */}
           {story.catId && (
             <span
-              className="inline-flex items-center justify-center px-4 py-1.5 rounded-xl text-sm font-bold whitespace-nowrap shrink-0 shadow-sm border bg-emerald-50 text-emerald-800 border-emerald-200"
+              className="inline-flex items-center justify-center px-4 py-1.5 rounded-xl text-sm font-bold whitespace-nowrap shrink-0 shadow-sm border bg-navy-50 text-navy-700 border-navy-100"
             >
               Topic #{story.catId}
             </span>
           )}
         </div>
 
-        <div className="flex flex-wrap items-center gap-2 text-base font-medium text-gray-500">
+        <div className="flex flex-wrap items-center gap-2 text-base font-medium text-charcoal-700">
           {story.profileId && (
             <>
-              <span className="text-gray-700 font-bold">Author #{story.profileId}</span>
-              <span className="w-1.5 h-1.5 rounded-full bg-gray-300" />
+              <span className="text-charcoal-900 font-bold">Author #{story.profileId}</span>
+              <span className="w-1.5 h-1.5 rounded-full bg-pearl-200" />
             </>
           )}
           <time dateTime={story.createdDate}>
@@ -87,17 +86,17 @@ export default function StoryCard({ story, onDelete }: StoryCardProps) {
       </div>
 
       {/* 2. Nội dung */}
-      <div className="text-lg text-gray-700 leading-relaxed line-clamp-3">
+      <div className="text-lg text-charcoal-900 leading-relaxed line-clamp-3">
         <div dangerouslySetInnerHTML={{ __html: story.content }} />
       </div>
 
       {/* 3. Hành động */}
-      <div className="flex flex-wrap items-center gap-3 pt-4 border-t border-gray-100 mt-auto">
+      <div className="flex flex-wrap items-center gap-3 pt-4 border-t border-pearl-200 mt-auto">
 
         {/* Nút Đọc bài */}
         <Link
           href={`/story/${story.id}`}
-          className="flex flex-1 sm:flex-none items-center justify-center gap-2 px-6 min-h-[48px] bg-emerald-50 hover:bg-emerald-100 text-emerald-800 font-bold rounded-xl transition-colors border border-emerald-100 hover:border-emerald-200"
+          className="flex flex-1 sm:flex-none items-center justify-center gap-2 px-6 min-h-[48px] bg-white hover:bg-navy-50 text-navy-700 font-bold rounded-xl transition-colors border-2 border-navy-500 shadow-sm"
           aria-label={`Đọc bài viết: ${story.title}`}
         >
           <BookOpen className="w-5 h-5" aria-hidden="true" />
@@ -113,7 +112,7 @@ export default function StoryCard({ story, onDelete }: StoryCardProps) {
         {/* Nút Sửa */}
         <Link
           href={`/story/${story.id}/edit`}
-          className="flex flex-1 sm:flex-none items-center justify-center gap-2 px-6 min-h-[48px] bg-gray-50 hover:bg-gray-100 text-gray-700 font-bold rounded-xl transition-colors border border-gray-200"
+          className="flex flex-1 sm:flex-none items-center justify-center gap-2 px-6 min-h-[48px] bg-pearl-100 hover:bg-pearl-200 text-charcoal-900 font-bold rounded-xl transition-colors border border-pearl-200"
         >
           <Pencil className="w-4 h-4" aria-hidden="true" />
           <span className="text-base">Edit</span>

@@ -41,11 +41,16 @@ export const authService = {
      * API: POST /api/v1/profiles/search (Tạm thay thế profiles/me)
      */
     getCurrentProfile: async (userId: number): Promise<any> => {
-        const response = await apiClient.post('ph-story-mvp-service/api/v1/profiles/search', {
-            filters: [{ field: "userId", operator: "EQUAL", value: userId }],
-            pagination: { page: 0, size: 1 }
-        });
-        return response.data?.content?.[0] || null;
+        try {
+            const response = await apiClient.post('ph-story-mvp-service/api/v1/profiles/search', {
+                filters: [{ field: "userId", operator: "EQUAL", value: userId }],
+                pagination: { page: 0, size: 1 }
+            });
+            return response.data?.content?.[0] || null;
+        } catch (error) {
+            console.warn("Failed to get current profile", error);
+            return null; // An toàn trả về null thay vì crash luồng Callback
+        }
     },
 
      /**
@@ -137,16 +142,40 @@ export const authService = {
             // 1. Lưu token
             authStore.setTokens(accessToken, refreshToken, expiresIn);
 
-            // 2. Lấy user
             const user = await authService.getCurrentUser();
 
             let profile = null;
             try {
                 if (user?.id) {
                     profile = await authService.getCurrentProfile(user.id);
+
+                    // TH 1: Người dùng mới đăng ký (Có pendingProfile nhưng chưa có Profile)
+                    if (!profile) {
+                        const pendingInfoStr = sessionStorage.getItem('pendingProfile');
+                        if (pendingInfoStr) {
+                            try {
+                                const pendingInfo = JSON.parse(pendingInfoStr);
+                                const { ProfileService } = await import('@/services/profile.service');
+                                profile = await ProfileService.createProfile({
+                                    userId: user.id,
+                                    fullname: pendingInfo.fullName,
+                                    gender: pendingInfo.gender || 'MALE',
+                                    dateOfBirth: pendingInfo.dateOfBirth,
+                                    phoneNumber: pendingInfo.phoneNumber,
+                                    address: pendingInfo.address,
+                                    isDeceased: false,
+                                });
+                                console.log("[AuthFlow] Tự động tạo Profile thành công từ session bộ nhớ tạm!");
+                            } catch (createErr) {
+                                console.warn("[AuthFlow] Lỗi khi tạo auto profile", createErr);
+                            } finally {
+                                sessionStorage.removeItem('pendingProfile');
+                            }
+                        }
+                    }
                 }
             } catch (err) {
-                console.warn("Người dùng chưa có profile", err);
+                console.warn("Lỗi tiến trình Profile", err);
             }
 
             // KHÔNG dùng lại store

@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { Inter } from "next/font/google";
 import "./globals.css";
 import { TokenRefreshProvider } from "@/components/providers/TokenRefreshProvider";
+import { TanstackProvider } from "@/components/providers/TanstackProvider";
 
 const inter = Inter({ subsets: ["latin", "vietnamese"] });
 
@@ -17,10 +18,12 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en-US" className="scroll-smooth">
-      <body className={`${inter.className} bg-slate-50 text-gray-900 text-lg md:text-xl font-medium antialiased`}>
-        <TokenRefreshProvider>
-          {children}
-        </TokenRefreshProvider>
+      <body className={`${inter.className} bg-background text-foreground text-lg md:text-xl font-medium antialiased`}>
+        <TanstackProvider>
+          <TokenRefreshProvider>
+            {children}
+          </TokenRefreshProvider>
+        </TanstackProvider>
       </body>
     </html>
   );
