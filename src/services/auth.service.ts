@@ -62,6 +62,15 @@ export const authService = {
         return response.data;
     },
 
+    /**
+     * 5. Đổi mật khẩu (yêu cầu đăng nhập)
+     * API: PUT /api/v1/users/reset-password
+     */
+    resetPassword: async (oldPassword: string, newPassword: string): Promise<void> => {
+        await apiClient.put('ph-story-users-service/api/v1/users/reset-password', { oldPassword, newPassword });
+    },
+
+
     getLoginUrl: (codeChallenge: string) => {
         const authServerUrl = `${process.env.NEXT_PUBLIC_AUTH_SERVER_URL || 'http://localhost:9094'}/oauth2/authorize`;
         const clientId = process.env.NEXT_PUBLIC_CLIENT_ID || 'spa-client';

@@ -61,7 +61,8 @@ export const vi = {
     tabs: {
       general: "Cài đặt chung",
       profilePrivacy: "Quyền riêng tư",
-      story: "Câu chuyện"
+      story: "Câu chuyện",
+      security: "Bảo mật"
     },
     general: {
       theme: {
@@ -103,6 +104,22 @@ export const vi = {
         title: "Tự động phát Video",
         subtitle: "Video và nhạc nền trong Story sẽ tự động phát khi bạn cuộn qua."
       }
+    },
+    security: {
+      title: "Đổi mật khẩu",
+      subtitle: "Thay đổi mật khẩu đăng nhập của bạn. Cần nhập đúng mật khẩu cũ.",
+      oldPasswordLabel: "Mật khẩu hiện tại",
+      oldPasswordPlaceholder: "Nhập mật khẩu hiện tại...",
+      newPasswordLabel: "Mật khẩu mới",
+      newPasswordPlaceholder: "Tối thiểu 8 ký tự...",
+      confirmPasswordLabel: "Xác nhận mật khẩu mới",
+      confirmPasswordPlaceholder: "Nhập lại mật khẩu mới...",
+      changeButton: "Đổi mật khẩu",
+      changing: "Đang xử lý...",
+      successMsg: "Đổi mật khẩu thành công!",
+      errorValidation: "Mật khẩu mới và xác nhận không khớp.",
+      errorEmpty: "Vui lòng điền đầy đủ các trường.",
+      errorServer: "Đổi mật khẩu thất bại. Mật khẩu cũ có thể không đúng."
     },
     logout: {
       title: "Đăng xuất",
@@ -276,6 +293,7 @@ export const vi = {
     nameRequired: "Vui lòng nhập họ và tên.",
     serverError: "Đã có lỗi kết nối máy chủ khi lưu hồ sơ.",
     defaultImage: "Hình minh họa kỉ niệm (chưa được thay thế)",
+    notUpdated: "Chưa cập nhật",
   },
 
   // ─── Library ──────────────────────────────────────────────────────────────

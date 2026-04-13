@@ -7,14 +7,14 @@ import { ContactService } from '@/services/contact.service';
 import { StoryShareService } from '@/services/storyShare.service';
 import { Contact } from '@/types/contact';
 
-interface ShareModalProps {
+interface ShareModelProps {
   storyId: number;
   storyTitle: string;
   isOpen: boolean;
   onClose: () => void;
 }
 
-export default function ShareModal({ storyId, storyTitle, isOpen, onClose }: ShareModalProps) {
+export default function ShareModel({ storyId, storyTitle, isOpen, onClose }: ShareModelProps) {
   const [contacts, setContacts] = useState<Contact[]>([]);
   const [selectedContactIds, setSelectedContactIds] = useState<number[]>([]);
   const [isLoading, setIsLoading] = useState(true);

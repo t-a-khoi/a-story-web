@@ -61,7 +61,8 @@ export const en = {
     tabs: {
       general: "General Settings",
       profilePrivacy: "Privacy",
-      story: "Story"
+      story: "Story",
+      security: "Security"
     },
     general: {
       theme: {
@@ -103,6 +104,22 @@ export const en = {
         title: "Auto-play Videos",
         subtitle: "Videos and background music in Stories will play automatically when scrolling."
       }
+    },
+    security: {
+      title: "Change Password",
+      subtitle: "Update your login password. You must enter your current password to proceed.",
+      oldPasswordLabel: "Current password",
+      oldPasswordPlaceholder: "Enter your current password...",
+      newPasswordLabel: "New password",
+      newPasswordPlaceholder: "Minimum 8 characters...",
+      confirmPasswordLabel: "Confirm new password",
+      confirmPasswordPlaceholder: "Re-enter new password...",
+      changeButton: "Change password",
+      changing: "Processing...",
+      successMsg: "Password changed successfully!",
+      errorValidation: "New password and confirmation do not match.",
+      errorEmpty: "Please fill in all fields.",
+      errorServer: "Failed to change password. Your current password may be incorrect."
     },
     logout: {
       title: "Log out",
@@ -276,6 +293,7 @@ export const en = {
     nameRequired: "Please enter a full name.",
     serverError: "A server connection error occurred while saving.",
     defaultImage: "Memorial illustration (not yet replaced)",
+    notUpdated: "Not updated",
   },
 
   // ─── Library ──────────────────────────────────────────────────────────────

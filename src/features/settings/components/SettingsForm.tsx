@@ -4,14 +4,14 @@ import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import {
     User, Bell, Shield, LogOut, CheckCircle2, Moon,
-    Globe, Smartphone, Save, Loader2, BookOpen, AlertCircle
+    Globe, Smartphone, Save, Loader2, BookOpen, AlertCircle, Lock, Eye, EyeOff, KeyRound
 } from "lucide-react";
 import { useAuthStore } from "@/store/useAuthStore";
 import { useTranslation, useLanguageStore } from "@/store/useLanguageStore";
 import { authService } from "@/services/auth.service";
-import { useMySettings, useSaveSettings } from "@/hooks/queries/useSettings";
+import { useMySettings, useSaveSettings, useResetPassword } from "@/hooks/queries/useSettings";
 
-type TabType = "general" | "profile" | "story";
+type TabType = "general" | "profile" | "story" | "security";
 
 export default function SettingsForm() {
     const router = useRouter();
@@ -24,10 +24,12 @@ export default function SettingsForm() {
 
     const { data: remoteSettings, isLoading } = useMySettings();
     const { mutate: saveSettings, isPending: isSaving } = useSaveSettings();
+    const { mutate: resetPassword, isPending: isChangingPassword } = useResetPassword();
 
     const [toastMsg, setToastMsg] = useState<{ type: 'success' | 'error', text: string } | null>(null);
     const [activeTab, setActiveTab] = useState<TabType>("general");
 
+    // ─── Settings state ───────────────────────────────────────────────────────
     const [settingsData, setSettingsData] = useState({
         general: { theme: "light", language: "vi", notifications: true },
         profile: { contactsOnlyView: true, contactsOnlyMessage: true },
@@ -35,6 +37,14 @@ export default function SettingsForm() {
         mediaFile: { compressImage: true }
     });
 
+    // ─── Password state ───────────────────────────────────────────────────────
+    const [pwdForm, setPwdForm] = useState({ oldPassword: "", newPassword: "", confirmPassword: "" });
+    const [showOldPwd, setShowOldPwd] = useState(false);
+    const [showNewPwd, setShowNewPwd] = useState(false);
+    const [showConfirmPwd, setShowConfirmPwd] = useState(false);
+    const [pwdError, setPwdError] = useState("");
+
+    // ─── Sync remote settings ─────────────────────────────────────────────────
     useEffect(() => {
         if (remoteSettings) {
             setSettingsData(prev => ({
@@ -47,53 +57,103 @@ export default function SettingsForm() {
     }, [remoteSettings]);
 
     useEffect(() => {
-        setSettingsData(prev => ({
-            ...prev,
-            general: { ...prev.general, language: currentLang }
-        }));
+        setSettingsData(prev => ({ ...prev, general: { ...prev.general, language: currentLang } }));
     }, [currentLang]);
 
-    const handleSave = () => {
-        if (!authUser?.id) {
-            showToast("error", t("settings.loading.error"));
-            return;
-        }
-
-        saveSettings({
-            settingId: remoteSettings?.id || null,
-            payload: {
-                userId: authUser.id,
-                general: settingsData.general,
-                profile: settingsData.profile,
-                story: settingsData.story,
-                mediaFile: settingsData.mediaFile,
-            }
-        }, {
-            onSuccess: () => showToast("success", t("settings.buttons.savedSuccess")),
-            onError: () => showToast("error", t("settings.buttons.savedError")),
-        });
-    };
-
+    // ─── Handlers ─────────────────────────────────────────────────────────────
     const showToast = (type: 'success' | 'error', text: string) => {
         setToastMsg({ type, text });
-        setTimeout(() => setToastMsg(null), 3000);
+        setTimeout(() => setToastMsg(null), 3500);
+    };
+
+    const handleSave = () => {
+        if (!authUser?.id) { showToast("error", t("settings.loading.error")); return; }
+        saveSettings(
+            { settingId: remoteSettings?.id || null, payload: { userId: authUser.id, ...settingsData } },
+            {
+                onSuccess: () => showToast("success", t("settings.buttons.savedSuccess")),
+                onError: () => showToast("error", t("settings.buttons.savedError")),
+            }
+        );
     };
 
     const handleLogout = () => {
-        if (window.confirm(t("settings.logout.confirm"))) {
-            authService.logout();
-        }
+        if (window.confirm(t("settings.logout.confirm"))) authService.logout();
     };
 
-    const updateSetting = (section: TabType, key: string, value: any) => {
+    const updateSetting = (section: Exclude<TabType, "security">, key: string, value: any) => {
         if (section === "general" && key === "language") setGlobalLanguage(value as any);
         setSettingsData(prev => ({ ...prev, [section]: { ...prev[section], [key]: value } }));
     };
 
+    const handleChangePassword = () => {
+        const { oldPassword, newPassword, confirmPassword } = pwdForm;
+        setPwdError("");
+
+        if (!oldPassword || !newPassword || !confirmPassword) {
+            setPwdError(t("settings.security.errorEmpty"));
+            return;
+        }
+        if (newPassword !== confirmPassword) {
+            setPwdError(t("settings.security.errorValidation"));
+            return;
+        }
+
+        resetPassword(
+            { oldPassword, newPassword },
+            {
+                onSuccess: () => {
+                    showToast("success", t("settings.security.successMsg"));
+                    setPwdForm({ oldPassword: "", newPassword: "", confirmPassword: "" });
+                },
+                onError: () => setPwdError(t("settings.security.errorServer")),
+            }
+        );
+    };
+
     const userName = authProfile?.fullname || authUser?.fullName || authUser?.username || "—";
+
+    // ─── Common toggle component ──────────────────────────────────────────────
+    const Toggle = ({ checked, onChange }: { checked: boolean; onChange: (v: boolean) => void }) => (
+        <label className="relative inline-flex items-center cursor-pointer shrink-0">
+            <input type="checkbox" checked={checked} onChange={(e) => onChange(e.target.checked)} className="sr-only peer" />
+            <div className="w-14 h-7 bg-pearl-300 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-0.5 after:start-[4px] after:bg-white after:border-pearl-300 after:border after:rounded-full after:h-6 after:w-6 after:transition-all peer-checked:bg-navy-600"></div>
+        </label>
+    );
+
+    // ─── Password field component ─────────────────────────────────────────────
+    const PasswordField = ({
+        id, label, placeholder, value, showPwd, onToggle, onChange
+    }: {
+        id: string; label: string; placeholder: string; value: string;
+        showPwd: boolean; onToggle: () => void; onChange: (v: string) => void;
+    }) => (
+        <div className="space-y-1.5">
+            <label htmlFor={id} className="text-sm font-semibold text-charcoal-600">{label}</label>
+            <div className="relative">
+                <input
+                    id={id}
+                    type={showPwd ? "text" : "password"}
+                    value={value}
+                    onChange={(e) => onChange(e.target.value)}
+                    placeholder={placeholder}
+                    className="w-full min-h-[52px] px-4 pr-12 border-2 border-pearl-300 rounded-xl text-base font-medium text-charcoal-900 focus:border-navy-500 focus:ring-4 focus:ring-navy-100 outline-none transition-colors bg-white"
+                />
+                <button
+                    type="button"
+                    onClick={onToggle}
+                    className="absolute right-3 top-1/2 -translate-y-1/2 text-charcoal-400 hover:text-charcoal-700 transition-colors p-1"
+                >
+                    {showPwd ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
+                </button>
+            </div>
+        </div>
+    );
 
     return (
         <div className="max-w-3xl mx-auto space-y-8 pb-20 relative">
+
+            {/* TOAST */}
             {toastMsg && (
                 <div className={`fixed top-4 right-4 z-50 px-5 py-3 rounded-xl shadow-lg border-2 font-bold text-base flex items-center gap-3 animate-in fade-in slide-in-from-top-4 ${toastMsg.type === 'success' ? 'bg-navy-50 text-navy-800 border-navy-200' : 'bg-red-50 text-red-800 border-red-200'}`}>
                     {toastMsg.type === 'success' ? <CheckCircle2 className="w-5 h-5" /> : <AlertCircle className="w-5 h-5" />}
@@ -110,14 +170,16 @@ export default function SettingsForm() {
                     <h1 className="text-2xl md:text-3xl font-extrabold text-navy-900 tracking-tight">{t("settings.header.title")}</h1>
                     <p className="text-navy-800 text-base md:text-lg font-medium">{t("settings.header.subtitle")}</p>
                 </div>
-                <button
-                    onClick={handleSave}
-                    disabled={isSaving || isLoading}
-                    className="relative z-10 flex items-center justify-center gap-2 min-h-[56px] px-8 py-3 bg-white hover:bg-navy-50 text-navy-700 border-2 border-navy-500 rounded-xl shadow-sm transition-all font-bold text-lg shrink-0 disabled:opacity-50"
-                >
-                    {isSaving ? <Loader2 className="w-5 h-5 animate-spin" /> : <Save className="w-5 h-5" />}
-                    {isSaving ? t("settings.buttons.saving") : t("settings.buttons.save")}
-                </button>
+                {activeTab !== "security" && (
+                    <button
+                        onClick={handleSave}
+                        disabled={isSaving || isLoading}
+                        className="relative z-10 flex items-center justify-center gap-2 min-h-[56px] px-8 py-3 bg-white hover:bg-navy-50 text-navy-700 border-2 border-navy-500 rounded-xl shadow-sm transition-all font-bold text-lg shrink-0 disabled:opacity-50"
+                    >
+                        {isSaving ? <Loader2 className="w-5 h-5 animate-spin" /> : <Save className="w-5 h-5" />}
+                        {isSaving ? t("settings.buttons.saving") : t("settings.buttons.save")}
+                    </button>
+                )}
             </div>
 
             {/* QUICK LINK TO PROFILE */}
@@ -148,25 +210,31 @@ export default function SettingsForm() {
             {/* SETTINGS TABS */}
             <div className="bg-white rounded-2xl shadow-sm border border-pearl-200 overflow-hidden">
                 <div className="flex overflow-x-auto border-b border-pearl-200 bg-pearl-50 hide-scrollbar">
-                    <button onClick={() => setActiveTab('general')} className={`flex items-center gap-2 px-5 py-3.5 font-bold text-base whitespace-nowrap transition-colors border-b-2 ${activeTab === 'general' ? 'border-navy-600 text-navy-800 bg-white' : 'border-transparent text-charcoal-500 hover:text-charcoal-700'}`}>
-                        <Globe className="w-5 h-5" /> {t("settings.tabs.general")}
-                    </button>
-                    <button onClick={() => setActiveTab('profile')} className={`flex items-center gap-2 px-5 py-3.5 font-bold text-base whitespace-nowrap transition-colors border-b-2 ${activeTab === 'profile' ? 'border-navy-600 text-navy-800 bg-white' : 'border-transparent text-charcoal-500 hover:text-charcoal-700'}`}>
-                        <Shield className="w-5 h-5" /> {t("settings.tabs.profilePrivacy")}
-                    </button>
-                    <button onClick={() => setActiveTab('story')} className={`flex items-center gap-2 px-5 py-3.5 font-bold text-base whitespace-nowrap transition-colors border-b-2 ${activeTab === 'story' ? 'border-navy-600 text-navy-800 bg-white' : 'border-transparent text-charcoal-500 hover:text-charcoal-700'}`}>
-                        <BookOpen className="w-5 h-5" /> {t("settings.tabs.story")}
-                    </button>
+                    {([
+                        { key: "general", icon: Globe, label: t("settings.tabs.general") },
+                        { key: "profile", icon: Shield, label: t("settings.tabs.profilePrivacy") },
+                        { key: "story", icon: BookOpen, label: t("settings.tabs.story") },
+                        { key: "security", icon: KeyRound, label: t("settings.tabs.security") },
+                    ] as const).map(({ key, icon: Icon, label }) => (
+                        <button
+                            key={key}
+                            onClick={() => setActiveTab(key)}
+                            className={`flex items-center gap-2 px-5 py-3.5 font-bold text-base whitespace-nowrap transition-colors border-b-2 ${activeTab === key ? 'border-navy-600 text-navy-800 bg-white' : 'border-transparent text-charcoal-500 hover:text-charcoal-700'}`}
+                        >
+                            <Icon className="w-5 h-5" /> {label}
+                        </button>
+                    ))}
                 </div>
 
                 <div className="p-5 md:p-6 min-h-[400px]">
-                    {isLoading ? (
+                    {isLoading && activeTab !== "security" ? (
                         <div className="flex flex-col items-center justify-center h-full py-20 text-navy-800 gap-3">
                             <Loader2 className="w-8 h-8 animate-spin" />
                             <p className="font-bold text-lg">{t("settings.loading.config")}</p>
                         </div>
                     ) : (
                         <div className="space-y-5 animate-in fade-in zoom-in-95 duration-200">
+
                             {/* TAB: GENERAL */}
                             {activeTab === 'general' && (
                                 <>
@@ -196,13 +264,11 @@ export default function SettingsForm() {
                                             <p className="text-lg font-bold text-charcoal-900 flex items-center gap-2"><Bell className="w-5 h-5 text-amber-500" /> {t("settings.general.notifications.title")}</p>
                                             <p className="text-sm text-charcoal-500 font-medium pt-1">{t("settings.general.notifications.subtitle")}</p>
                                         </div>
-                                        <label className="relative inline-flex items-center cursor-pointer shrink-0">
-                                            <input type="checkbox" checked={settingsData.general.notifications} onChange={(e) => updateSetting("general", "notifications", e.target.checked)} className="sr-only peer" />
-                                            <div className="w-14 h-7 bg-pearl-300 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-0.5 after:start-[4px] after:bg-white after:border-pearl-300 after:border after:rounded-full after:h-6 after:w-6 after:transition-all peer-checked:bg-navy-600"></div>
-                                        </label>
+                                        <Toggle checked={settingsData.general.notifications} onChange={(v) => updateSetting("general", "notifications", v)} />
                                     </div>
                                 </>
                             )}
+
                             {/* TAB: PROFILE PRIVACY */}
                             {activeTab === 'profile' && (
                                 <>
@@ -211,23 +277,18 @@ export default function SettingsForm() {
                                             <p className="text-lg font-bold text-charcoal-900 flex items-center gap-2"><Shield className="w-5 h-5 text-navy-600" /> {t("settings.profilePrivacy.contactsOnlyView.title")}</p>
                                             <p className="text-sm text-charcoal-500 font-medium pt-1">{t("settings.profilePrivacy.contactsOnlyView.subtitle")}</p>
                                         </div>
-                                        <label className="relative inline-flex items-center cursor-pointer shrink-0">
-                                            <input type="checkbox" checked={settingsData.profile.contactsOnlyView} onChange={(e) => updateSetting("profile", "contactsOnlyView", e.target.checked)} className="sr-only peer" />
-                                            <div className="w-14 h-7 bg-pearl-300 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-0.5 after:start-[4px] after:bg-white after:border-pearl-300 after:border after:rounded-full after:h-6 after:w-6 after:transition-all peer-checked:bg-navy-600"></div>
-                                        </label>
+                                        <Toggle checked={settingsData.profile.contactsOnlyView} onChange={(v) => updateSetting("profile", "contactsOnlyView", v)} />
                                     </div>
                                     <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 p-4 bg-pearl-50 rounded-xl border border-pearl-200">
                                         <div className="pr-4">
                                             <p className="text-lg font-bold text-charcoal-900 flex items-center gap-2"><Globe className="w-5 h-5 text-charcoal-400" /> {t("settings.profilePrivacy.contactsOnlyMessage.title")}</p>
                                             <p className="text-sm text-charcoal-500 font-medium pt-1">{t("settings.profilePrivacy.contactsOnlyMessage.subtitle")}</p>
                                         </div>
-                                        <label className="relative inline-flex items-center cursor-pointer shrink-0">
-                                            <input type="checkbox" checked={settingsData.profile.contactsOnlyMessage} onChange={(e) => updateSetting("profile", "contactsOnlyMessage", e.target.checked)} className="sr-only peer" />
-                                            <div className="w-14 h-7 bg-pearl-300 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-0.5 after:start-[4px] after:bg-white after:border-pearl-300 after:border after:rounded-full after:h-6 after:w-6 after:transition-all peer-checked:bg-navy-600"></div>
-                                        </label>
+                                        <Toggle checked={settingsData.profile.contactsOnlyMessage} onChange={(v) => updateSetting("profile", "contactsOnlyMessage", v)} />
                                     </div>
                                 </>
                             )}
+
                             {/* TAB: STORY */}
                             {activeTab === 'story' && (
                                 <>
@@ -246,12 +307,75 @@ export default function SettingsForm() {
                                             <p className="text-lg font-bold text-charcoal-900 flex items-center gap-2"><Smartphone className="w-5 h-5 text-charcoal-500" /> {t("settings.story.autoplay.title")}</p>
                                             <p className="text-sm text-charcoal-500 font-medium pt-1">{t("settings.story.autoplay.subtitle")}</p>
                                         </div>
-                                        <label className="relative inline-flex items-center cursor-pointer shrink-0">
-                                            <input type="checkbox" checked={settingsData.story.autoplay} onChange={(e) => updateSetting("story", "autoplay", e.target.checked)} className="sr-only peer" />
-                                            <div className="w-14 h-7 bg-pearl-300 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-0.5 after:start-[4px] after:bg-white after:border-pearl-300 after:border after:rounded-full after:h-6 after:w-6 after:transition-all peer-checked:bg-navy-600"></div>
-                                        </label>
+                                        <Toggle checked={settingsData.story.autoplay} onChange={(v) => updateSetting("story", "autoplay", v)} />
                                     </div>
                                 </>
+                            )}
+
+                            {/* TAB: SECURITY — ĐỔI MẬT KHẨU */}
+                            {activeTab === 'security' && (
+                                <div className="space-y-6 max-w-lg">
+                                    {/* Header */}
+                                    <div className="flex items-center gap-3 pb-2">
+                                        <div className="w-10 h-10 bg-navy-100 rounded-full flex items-center justify-center shrink-0">
+                                            <Lock className="w-5 h-5 text-navy-700" />
+                                        </div>
+                                        <div>
+                                            <h3 className="text-lg font-bold text-charcoal-900">{t("settings.security.title")}</h3>
+                                            <p className="text-sm text-charcoal-500 font-medium">{t("settings.security.subtitle")}</p>
+                                        </div>
+                                    </div>
+
+                                    {/* Error message */}
+                                    {pwdError && (
+                                        <div className="flex items-center gap-3 bg-red-50 text-red-800 border border-red-200 rounded-xl p-4">
+                                            <AlertCircle className="w-5 h-5 shrink-0" />
+                                            <p className="text-sm font-semibold">{pwdError}</p>
+                                        </div>
+                                    )}
+
+                                    {/* Form fields */}
+                                    <PasswordField
+                                        id="old-password"
+                                        label={t("settings.security.oldPasswordLabel")}
+                                        placeholder={t("settings.security.oldPasswordPlaceholder")}
+                                        value={pwdForm.oldPassword}
+                                        showPwd={showOldPwd}
+                                        onToggle={() => setShowOldPwd(p => !p)}
+                                        onChange={(v) => setPwdForm(f => ({ ...f, oldPassword: v }))}
+                                    />
+                                    <PasswordField
+                                        id="new-password"
+                                        label={t("settings.security.newPasswordLabel")}
+                                        placeholder={t("settings.security.newPasswordPlaceholder")}
+                                        value={pwdForm.newPassword}
+                                        showPwd={showNewPwd}
+                                        onToggle={() => setShowNewPwd(p => !p)}
+                                        onChange={(v) => setPwdForm(f => ({ ...f, newPassword: v }))}
+                                    />
+                                    <PasswordField
+                                        id="confirm-password"
+                                        label={t("settings.security.confirmPasswordLabel")}
+                                        placeholder={t("settings.security.confirmPasswordPlaceholder")}
+                                        value={pwdForm.confirmPassword}
+                                        showPwd={showConfirmPwd}
+                                        onToggle={() => setShowConfirmPwd(p => !p)}
+                                        onChange={(v) => setPwdForm(f => ({ ...f, confirmPassword: v }))}
+                                    />
+
+                                    {/* Submit button */}
+                                    <button
+                                        onClick={handleChangePassword}
+                                        disabled={isChangingPassword}
+                                        className="flex items-center justify-center gap-2 min-h-[52px] px-6 py-3 bg-navy-700 hover:bg-navy-800 text-white rounded-xl font-bold text-base transition-all shadow-sm disabled:opacity-50 disabled:cursor-not-allowed w-full sm:w-auto"
+                                    >
+                                        {isChangingPassword ? (
+                                            <><Loader2 className="w-5 h-5 animate-spin" />{t("settings.security.changing")}</>
+                                        ) : (
+                                            <><KeyRound className="w-5 h-5" />{t("settings.security.changeButton")}</>
+                                        )}
+                                    </button>
+                                </div>
                             )}
                         </div>
                     )}

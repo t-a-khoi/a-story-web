@@ -1,5 +1,6 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { SettingsService } from "@/services/settings.service";
+import { authService } from "@/services/auth.service";
 import { useAuthStore } from "@/store/useAuthStore";
 import { useLanguageStore } from "@/store/useLanguageStore";
 
@@ -52,5 +53,16 @@ export const useSaveSettings = () => {
                 queryClient.invalidateQueries({ queryKey: settingsKeys.mySettings(user.id) });
             }
         }
+    });
+};
+
+/**
+ * Hook đổi mật khẩu người dùng hiện tại.
+ * Gọi API: PUT /ph-story-users-service/api/v1/users/reset-password
+ */
+export const useResetPassword = () => {
+    return useMutation({
+        mutationFn: ({ oldPassword, newPassword }: { oldPassword: string; newPassword: string }) =>
+            authService.resetPassword(oldPassword, newPassword),
     });
 };

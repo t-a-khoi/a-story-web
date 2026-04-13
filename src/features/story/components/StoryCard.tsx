@@ -6,7 +6,7 @@ import Link from 'next/link';
 import { BookOpen, Pencil, Trash2 } from 'lucide-react';
 import { Story } from '@/types/story';
 import { formatDate } from '@/lib/utils';
-import ShareModal from '@/features/story/components/ShareModal';
+import ShareModel from '@/features/story/components/ShareModel';
 import ShareStoryButton from '@/features/story/components/ShareStoryButton';
 import { StoryMediaService } from '@/services/storyMedia.service';
 import { MediaFilesService } from '@/services/mediaFiles.service';
@@ -18,7 +18,7 @@ interface StoryCardProps {
 }
 
 export default function StoryCard({ story, onDelete }: StoryCardProps) {
-  const [isShareModalOpen, setIsShareModalOpen] = useState(false);
+  const [isShareModelOpen, setIsShareModelOpen] = useState(false);
   const [coverImageUrl, setCoverImageUrl] = useState<string>('');
 
   useEffect(() => {
@@ -106,7 +106,7 @@ export default function StoryCard({ story, onDelete }: StoryCardProps) {
         {/* Nút Chia sẻ */}
         <ShareStoryButton
           storyId={story.id}
-          onClick={() => setIsShareModalOpen(true)}
+          onClick={() => setIsShareModelOpen(true)}
         />
 
         {/* Nút Sửa */}
@@ -130,11 +130,11 @@ export default function StoryCard({ story, onDelete }: StoryCardProps) {
         )}
       </div>
 
-      <ShareModal
+      <ShareModel
         storyId={story.id}
         storyTitle={story.title}
-        isOpen={isShareModalOpen}
-        onClose={() => setIsShareModalOpen(false)}
+        isOpen={isShareModelOpen}
+        onClose={() => setIsShareModelOpen(false)}
       />
     </article>
   );

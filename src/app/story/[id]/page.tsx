@@ -1,14 +1,11 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { useParams, useRouter } from "next/navigation";
 import MainLayout from "@/components/layout/MainLayout";
 import { ArrowLeft, Calendar, Edit3, Share2, Clock, Trash2, Loader2, AlertTriangle, CheckCircle2 } from "lucide-react";
-import ShareModal from "@/features/story/components/ShareModal";
-import { useStoryById, useDeleteStory } from "@/hooks/queries/useStories";
-import { StoryMediaService } from "@/services/storyMedia.service";
-import { MediaFilesService } from "@/services/mediaFiles.service";
-import { FileUploadService } from "@/services/fileUpload.service";
+import ShareModel from "@/features/story/components/ShareModel";
+import { useStoryById, useDeleteStory, useStoryMedia } from "@/hooks/queries/useStories";
 import { useTranslation } from "@/store/useLanguageStore";
 
 export default function StoryDetailPage() {
@@ -17,66 +14,35 @@ export default function StoryDetailPage() {
   const { t } = useTranslation();
 
   const storyId = Number(params.id);
-  
-  // Tanstack Query Hook
+
+  // ─── Data fetching với TanStack Query ────────────────────────────────────
   const { data: story, isLoading, isError } = useStoryById(storyId);
+  const { data: attachedMedia = [] } = useStoryMedia(storyId);
   const deleteStoryMutation = useDeleteStory();
-  
-  const [isShareModalOpen, setIsShareModalOpen] = useState(false);
+
+  // ─── Local UI state ───────────────────────────────────────────────────────
+  const [isShareModelOpen, setIsShareModelOpen] = useState(false);
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
-  
   const [toastMsg, setToastMsg] = useState<{ type: 'success' | 'error', text: string } | null>(null);
-  const [attachedMediaUrls, setAttachedMediaUrls] = useState<string[]>([]);
 
   const showToast = (type: 'success' | 'error', text: string) => {
     setToastMsg({ type, text });
     setTimeout(() => setToastMsg(null), 3500);
   };
 
-  // Vẫn fetch Media bằng tay tạm thời (Có thể refactor thành hook useStoryMedia sau)
-  useEffect(() => {
-    if (story) {
-      const fetchMedia = async () => {
-        try {
-          const storyMediaList = await StoryMediaService.getStoryMediaByStoryId(story.id);
-          if (storyMediaList && storyMediaList.length > 0) {
-              const urls = await Promise.all(storyMediaList.map(async (sm) => {
-                  try {
-                      const fileObj = await MediaFilesService.getMediaFileById(sm.mediaId);
-                      return await FileUploadService.fetchImageBlobUrl(fileObj.urlPath);
-                  } catch {
-                      return "";
-                  }
-              }));
-              setAttachedMediaUrls(urls.filter(url => url !== ""));
-          }
-        } catch (mediaErr) {
-          console.warn("Lỗi tải ảnh đính kèm:", mediaErr);
-        }
-      };
-      // Chỉ fetch 1 lần khi load ra story
-      if (attachedMediaUrls.length === 0) {
-         fetchMedia();
-      }
-    }
-  }, [story]); // Chỉ phụ thuộc vào story
-
-  const handleDeleteStory = async () => {
+  const handleDeleteStory = () => {
     if (!story) return;
     deleteStoryMutation.mutate(story.id, {
       onSuccess: () => {
         setIsDeleteModalOpen(false);
         showToast("success", t("story.deleteSuccess"));
-        setTimeout(() => {
-          router.push("/home");
-        }, 1500);
+        setTimeout(() => router.push("/home"), 1500);
       },
-      onError: () => {
-        showToast("error", t("story.deleteError"));
-      }
+      onError: () => showToast("error", t("story.deleteError")),
     });
   };
 
+  // ─── Loading / Error states ───────────────────────────────────────────────
   if (isLoading) {
     return (
       <MainLayout>
@@ -95,7 +61,7 @@ export default function StoryDetailPage() {
           <AlertTriangle className="w-16 h-16 text-pearl-200" />
           <h2 className="text-2xl font-bold text-charcoal-900">{t("story.notFoundTitle")}</h2>
           <p className="text-lg">{t("story.notFoundMessage")}</p>
-          <button 
+          <button
             onClick={() => router.push("/home")}
             className="mt-4 px-6 py-2.5 bg-white hover:bg-navy-50 text-navy-700 border-2 border-navy-500 rounded-xl font-bold transition-colors"
           >
@@ -106,10 +72,10 @@ export default function StoryDetailPage() {
     );
   }
 
+  // ─── Helpers ──────────────────────────────────────────────────────────────
   const formatDate = (isoString?: string) => {
     if (!isoString) return t("story.unknownDate");
-    const date = new Date(isoString);
-    return date.toLocaleDateString("vi-VN", {
+    return new Date(isoString).toLocaleDateString("vi-VN", {
       day: "numeric",
       month: "long",
       year: "numeric",
@@ -119,15 +85,14 @@ export default function StoryDetailPage() {
   const calculateReadTime = (text: string) => {
     if (!text) return `1 ${t("story.readTimeUnit")}`;
     const words = text.split(/\s+/).length;
-    const readingTime = Math.ceil(words / 200);
-    return `${t("story.readTimeApprox")} ${readingTime} ${t("story.readTimeUnit")}`;
+    return `${t("story.readTimeApprox")} ${Math.ceil(words / 200)} ${t("story.readTimeUnit")}`;
   };
 
   return (
     <MainLayout>
       <div className="max-w-3xl mx-auto pb-20 relative">
 
-        {/* Thông báo Toast Popup */}
+        {/* Toast Popup */}
         {toastMsg && (
           <div className={`fixed top-4 right-4 z-50 px-5 py-3 rounded-xl shadow-lg border-2 font-bold text-base flex items-center gap-3 animate-in fade-in slide-in-from-top-4 ${toastMsg.type === 'success' ? 'bg-navy-50 text-navy-700 border-navy-100' : 'bg-red-50 text-red-800 border-red-200'}`}>
             {toastMsg.type === 'success' ? <CheckCircle2 className="w-5 h-5" /> : <AlertTriangle className="w-5 h-5" />}
@@ -136,7 +101,7 @@ export default function StoryDetailPage() {
         )}
 
         <article className="bg-pearl-50 rounded-3xl shadow-sm border border-pearl-200 overflow-hidden pb-16">
-          
+
           {/* THANH ĐIỀU HƯỚNG */}
           <div className="flex flex-wrap items-center justify-between p-6 border-b border-pearl-200 bg-pearl-100 gap-4">
             <button
@@ -167,7 +132,7 @@ export default function StoryDetailPage() {
               </button>
 
               <button
-                onClick={() => setIsShareModalOpen(true)}
+                onClick={() => setIsShareModelOpen(true)}
                 className="flex items-center gap-2 min-h-[44px] px-4 bg-navy-50 text-navy-900 hover:bg-navy-100 rounded-xl text-base font-bold transition-colors border-2 border-navy-100"
               >
                 <Share2 className="w-5 h-5" />
@@ -195,16 +160,16 @@ export default function StoryDetailPage() {
           </div>
 
           {/* HIỂN THỊ HÌNH ẢNH ĐÍNH KÈM */}
-          {attachedMediaUrls.length > 0 && (
+          {attachedMedia.length > 0 && (
             <div className="px-6 md:px-12 pb-10 space-y-6">
-              {attachedMediaUrls.map((url, idx) => (
-                  <div key={idx} className="relative w-full rounded-2xl overflow-hidden shadow-md border border-pearl-200 bg-pearl-100 flex justify-center max-h-[600px]">
-                    <img
-                      src={url}
-                      alt={`${t("story.imageAlt")} ${idx + 1}`}
-                      className="w-full h-full object-contain max-h-[600px] bg-pearl-100"
-                    />
-                  </div>
+              {attachedMedia.map((media, idx) => (
+                <div key={media.id ?? idx} className="relative w-full rounded-2xl overflow-hidden shadow-md border border-pearl-200 bg-pearl-100 flex justify-center max-h-[600px]">
+                  <img
+                    src={media.blobUrl}
+                    alt={`${t("story.imageAlt")} ${idx + 1}`}
+                    className="w-full h-full object-contain max-h-[600px] bg-pearl-100"
+                  />
+                </div>
               ))}
             </div>
           )}
@@ -241,7 +206,7 @@ export default function StoryDetailPage() {
               </div>
               <h2 className="text-2xl font-extrabold text-red-900">{t("story.deleteModalTitle")}</h2>
             </div>
-            
+
             <div className="p-6">
               <p className="text-lg text-charcoal-700 font-medium mb-2">
                 {t("story.deleteConfirmMessage")} <strong className="text-charcoal-900">"{story.title}"</strong> {t("story.deleteConfirmSuffix")}
@@ -250,7 +215,7 @@ export default function StoryDetailPage() {
                 {t("story.deleteIrreversible")}
               </p>
             </div>
-            
+
             <div className="p-4 bg-pearl-100 border-t border-pearl-200 flex items-center justify-end gap-3 flex-wrap">
               <button
                 onClick={() => setIsDeleteModalOpen(false)}
@@ -272,9 +237,9 @@ export default function StoryDetailPage() {
       )}
 
       {/* MODAL CHIA SẺ */}
-      <ShareModal
-        isOpen={isShareModalOpen}
-        onClose={() => setIsShareModalOpen(false)}
+      <ShareModel
+        isOpen={isShareModelOpen}
+        onClose={() => setIsShareModelOpen(false)}
         storyId={story.id}
         storyTitle={story.title}
       />

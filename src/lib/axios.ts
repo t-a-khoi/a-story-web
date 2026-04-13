@@ -4,16 +4,14 @@ import { authService } from '@/services/auth.service';
 import { handleServerError } from './errors/serverErrors';
 import { handleClientError } from './errors/clientErrors';
 
-// Proxy path: browser → localhost:3000/api/gateway → (server-side) → backend
-const BASE_URL = '/api/gateway';
+const BASE_URL = process.env.NEXT_PUBLIC_API_URL;
 
 export const apiClient = axios.create({
     baseURL: BASE_URL,
     headers: {
         'Content-Type': 'application/json',
     },
-    // Chặn Timeout 15s tránh treo user ở màn hình loading
-    timeout: 15000, 
+    timeout: 10000,
 });
 
 // ─── Token Refresh Queue ─────────────────────────────────────────────────────

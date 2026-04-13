@@ -1,5 +1,8 @@
 import { useQuery, useMutation, useQueryClient, useInfiniteQuery } from '@tanstack/react-query';
 import { StoryService } from '@/services/stories.service';
+import { StoryMediaService } from '@/services/storyMedia.service';
+import { MediaFilesService } from '@/services/mediaFiles.service';
+import { FileUploadService } from '@/services/fileUpload.service';
 import { StoryCreateRequest, StoryUpdateRequest, StoryQueryParams } from '@/types/story';
 
 // ─── QUERY KEYS ──────────────────────────────────────────────────────────────
@@ -45,6 +48,47 @@ export const useStoryById = (id: number) => {
     enabled: !!id, // Chỉ fetch nếu id tồn tại hợp lệ
   });
 };
+
+// ─── STORY MEDIA KEYS ────────────────────────────────────────────────────────
+export const STORY_MEDIA_KEYS = {
+  all: ['storyMedia'] as const,
+  byStory: (storyId: number) => [...STORY_MEDIA_KEYS.all, storyId] as const,
+};
+
+/**
+ * Fetch toàn bộ ảnh đính kèm của 1 Story (bao gồm blob URL để hiển thị)
+ */
+export const useStoryMedia = (storyId: number) => {
+  return useQuery({
+    queryKey: STORY_MEDIA_KEYS.byStory(storyId),
+    queryFn: async () => {
+      const storyMediaList = await StoryMediaService.getStoryMediaByStoryId(storyId);
+      if (!storyMediaList || storyMediaList.length === 0) return [];
+
+      const results = await Promise.all(
+        storyMediaList.map(async (sm) => {
+          try {
+            const fileObj = await MediaFilesService.getMediaFileById(sm.mediaId);
+            const blobUrl = await FileUploadService.fetchImageBlobUrl(fileObj.urlPath);
+            return {
+              id: sm.id,
+              mediaFileId: sm.mediaId,
+              fileKey: fileObj.urlPath,
+              blobUrl,
+              isNew: false as const,
+            };
+          } catch {
+            return null;
+          }
+        })
+      );
+      return results.filter(Boolean) as Array<{ id: number; mediaFileId: number; fileKey: string; blobUrl: string; isNew: false }>;
+    },
+    enabled: !!storyId,
+    staleTime: 2 * 60 * 1000,
+  });
+};
+
 
 // ─── MUTATIONS ───────────────────────────────────────────────────────────────
 
