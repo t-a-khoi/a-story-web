@@ -149,32 +149,32 @@ export default function LibraryManager() {
     return (
         <div className="max-w-5xl mx-auto space-y-8 pb-20 relative">
             {toast && (
-                <div className={`fixed bottom-6 left-1/2 -translate-x-1/2 z-[60] px-5 py-3 rounded-2xl shadow-lg font-bold text-base flex items-center gap-3 animate-in fade-in slide-in-from-bottom-5 ${toast.type === 'success' ? 'bg-navy-50 text-navy-800 border border-navy-200' : 'bg-red-500 text-white'}`}>
+                <div className={`fixed bottom-6 left-1/2 -translate-x-1/2 z-[60] px-5 py-3 rounded-2xl shadow-lg font-bold text-base flex items-center gap-3 animate-in fade-in slide-in-from-bottom-5 ${toast.type === 'success' ? 'bg-teal-50 text-teal-800 border border-teal-200' : 'bg-red-500 text-white'}`}>
                     {toast.message}
                 </div>
             )}
 
             {/* BANNER */}
-            <div className="bg-navy-50 border border-navy-100 rounded-3xl p-6 md:p-8 shadow-sm flex flex-col sm:flex-row sm:items-center justify-between gap-6 relative overflow-hidden">
+            <div className="bg-teal-50 border border-teal-100 rounded-3xl p-6 md:p-8 shadow-sm flex flex-col sm:flex-row sm:items-center justify-between gap-6 relative overflow-hidden">
                 <div className="absolute top-0 right-0 p-4 opacity-10 pointer-events-none">
-                    <ImageIcon className="w-32 h-32 text-navy-800" aria-hidden="true" />
+                    <ImageIcon className="w-32 h-32 text-teal-800" aria-hidden="true" />
                 </div>
                 <div className="relative z-10 space-y-2">
-                    <h1 className="text-2xl md:text-3xl font-extrabold text-navy-900 tracking-tight">
+                    <h1 className="text-2xl md:text-3xl font-extrabold text-teal-900 tracking-tight">
                         {t("library.headerTitle")}
                     </h1>
-                    <p className="text-navy-800 text-lg font-medium">
+                    <p className="text-teal-800 text-lg font-medium">
                         {t("library.headerSubtitle")}
                     </p>
                     {!isLoading && mediaItems.length > 0 && (
-                        <p className="text-navy-600 text-sm font-bold">
+                        <p className="text-teal-600 text-sm font-bold">
                             {t("library.totalImages")}: <span>{mediaItems.length}</span> {t("library.imageCount")}
                         </p>
                     )}
                 </div>
                 <button
                     onClick={openUploadModal}
-                    className="relative z-10 flex items-center gap-2 px-6 py-3 bg-white hover:bg-navy-50 active:scale-95 text-navy-700 border-2 border-navy-500 text-base font-bold rounded-xl shadow-sm transition-all duration-200 shrink-0"
+                    className="relative z-10 flex items-center gap-2 px-6 py-3 bg-white hover:bg-teal-50 active:scale-95 text-teal-700 border-2 border-teal-500 text-base font-bold rounded-xl shadow-sm transition-all duration-200 shrink-0"
                 >
                     <Plus className="w-5 h-5" />
                     {t("library.uploadButton")}
@@ -185,7 +185,7 @@ export default function LibraryManager() {
             <div className="bg-pearl-50 rounded-3xl p-6 md:p-8 shadow-sm border border-pearl-200 min-h-[400px]">
                 {isLoading ? (
                     <div className="flex flex-col items-center justify-center py-20 space-y-4">
-                        <Loader2 className="w-10 h-10 animate-spin text-navy-500" />
+                        <Loader2 className="w-10 h-10 animate-spin text-teal-500" />
                         <p className="text-charcoal-500 font-bold text-lg">{t("library.loading")}</p>
                     </div>
                 ) : mediaItems.length === 0 ? (
@@ -195,7 +195,7 @@ export default function LibraryManager() {
                         <p className="text-charcoal-500 max-w-md mb-6">{t("library.emptySubtitle")}</p>
                         <button
                             onClick={openUploadModal}
-                            className="flex items-center gap-2 px-6 py-3 bg-white hover:bg-navy-50 text-navy-700 border-2 border-navy-500 text-base font-bold rounded-xl shadow-sm transition-all duration-200"
+                            className="flex items-center gap-2 px-6 py-3 bg-white hover:bg-teal-50 text-teal-700 border-2 border-teal-500 text-base font-bold rounded-xl shadow-sm transition-all duration-200"
                         >
                             <Upload className="w-4 h-4" />
                             {t("library.uploadButton")}
@@ -305,7 +305,7 @@ export default function LibraryManager() {
                                 onDrop={handleDrop}
                                 onClick={() => fileInputRef.current?.click()}
                                 className={`relative rounded-2xl border-2 border-dashed transition-all duration-200 cursor-pointer overflow-hidden flex flex-col items-center justify-center text-center
-                                    ${isDragging ? 'border-navy-400 bg-navy-50' : 'border-pearl-300 hover:border-navy-300 hover:bg-pearl-50'}
+                                    ${isDragging ? 'border-teal-400 bg-teal-50' : 'border-pearl-300 hover:border-teal-300 hover:bg-pearl-50'}
                                     ${uploadPreviewUrl ? 'h-56' : 'h-40'}`}
                             >
                                 {uploadPreviewUrl ? (
@@ -313,7 +313,7 @@ export default function LibraryManager() {
                                 ) : (
                                     <div className="flex flex-col items-center gap-3 text-charcoal-400 p-4">
                                         <div className="w-12 h-12 rounded-full bg-pearl-100 flex items-center justify-center">
-                                            <Upload className="w-6 h-6 text-navy-600" />
+                                            <Upload className="w-6 h-6 text-teal-600" />
                                         </div>
                                         <div>
                                             <p className="text-sm font-bold text-charcoal-700">{t("library.uploadDragHint")}</p>
@@ -342,7 +342,7 @@ export default function LibraryManager() {
                                     value={uploadTitle}
                                     onChange={(e) => setUploadTitle(e.target.value)}
                                     placeholder={t("library.uploadTitlePlaceholder")}
-                                    className="w-full px-4 py-3.5 rounded-xl border-2 border-pearl-200 focus:border-navy-400 focus:ring-4 focus:ring-navy-100 text-charcoal-900 text-base font-medium placeholder-charcoal-400 outline-none transition-all"
+                                    className="w-full px-4 py-3.5 rounded-xl border-2 border-pearl-200 focus:border-teal-400 focus:ring-4 focus:ring-teal-100 text-charcoal-900 text-base font-medium placeholder-charcoal-400 outline-none transition-all"
                                 />
                             </div>
                             {uploadError && <p className="text-red-500 text-sm font-bold flex items-center gap-1.5"><AlertCircle className="w-4 h-4"/> {uploadError}</p>}
@@ -352,7 +352,7 @@ export default function LibraryManager() {
                             <button onClick={() => setModalMode('none')} className="flex-1 py-3 rounded-xl border-2 border-pearl-200 text-charcoal-600 text-sm font-bold hover:bg-pearl-50 transition-colors">
                                 {t("common.cancel")}
                             </button>
-                            <button onClick={handleUploadSubmit} disabled={!uploadFile || isUploading} className="flex-1 py-3 rounded-xl bg-white hover:bg-navy-50 disabled:opacity-50 text-navy-700 border-2 border-navy-500 text-sm font-bold transition-colors flex items-center justify-center gap-2 shadow-sm">
+                            <button onClick={handleUploadSubmit} disabled={!uploadFile || isUploading} className="flex-1 py-3 rounded-xl bg-white hover:bg-teal-50 disabled:opacity-50 text-teal-700 border-2 border-teal-500 text-sm font-bold transition-colors flex items-center justify-center gap-2 shadow-sm">
                                 {isUploading ? <><Loader2 className="w-4 h-4 animate-spin" /> {t("library.uploadingPhoto")}</> : <><Upload className="w-4 h-4" /> {t("library.uploadButton")}</>}
                             </button>
                         </div>
@@ -373,7 +373,7 @@ export default function LibraryManager() {
                                 <Trash2 className="w-6 h-6 text-red-500" />
                             </div>
                             <h3 className="text-xl font-bold text-charcoal-900">{t("library.deleteConfirmTitle")}</h3>
-                            {itemToDelete.title && <p className="text-navy-700 font-bold text-base px-2 truncate">"{itemToDelete.title}"</p>}
+                            {itemToDelete.title && <p className="text-teal-700 font-bold text-base px-2 truncate">"{itemToDelete.title}"</p>}
                             <p className="text-charcoal-500 text-sm">{t("library.deleteConfirmMessage")}</p>
                             <div className="flex gap-3 pt-4">
                                 <button onClick={() => { setModalMode('none'); setItemToDelete(null); }} className="flex-1 py-3 rounded-xl border-2 border-pearl-200 text-charcoal-600 text-sm font-bold hover:bg-pearl-50 transition-colors">

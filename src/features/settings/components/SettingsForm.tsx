@@ -117,7 +117,7 @@ export default function SettingsForm() {
     const Toggle = ({ checked, onChange }: { checked: boolean; onChange: (v: boolean) => void }) => (
         <label className="relative inline-flex items-center cursor-pointer shrink-0">
             <input type="checkbox" checked={checked} onChange={(e) => onChange(e.target.checked)} className="sr-only peer" />
-            <div className="w-14 h-7 bg-pearl-300 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-0.5 after:start-[4px] after:bg-white after:border-pearl-300 after:border after:rounded-full after:h-6 after:w-6 after:transition-all peer-checked:bg-navy-600"></div>
+            <div className="w-14 h-7 bg-pearl-300 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-0.5 after:start-[4px] after:bg-white after:border-pearl-300 after:border after:rounded-full after:h-6 after:w-6 after:transition-all peer-checked:bg-teal-600"></div>
         </label>
     );
 
@@ -137,7 +137,7 @@ export default function SettingsForm() {
                     value={value}
                     onChange={(e) => onChange(e.target.value)}
                     placeholder={placeholder}
-                    className="w-full min-h-[52px] px-4 pr-12 border-2 border-pearl-300 rounded-xl text-base font-medium text-charcoal-900 focus:border-navy-500 focus:ring-4 focus:ring-navy-100 outline-none transition-colors bg-white"
+                    className="w-full min-h-[52px] px-4 pr-12 border-2 border-pearl-300 rounded-xl text-base font-medium text-charcoal-900 focus:border-teal-500 focus:ring-4 focus:ring-teal-100 outline-none transition-colors bg-white"
                 />
                 <button
                     type="button"
@@ -155,26 +155,26 @@ export default function SettingsForm() {
 
             {/* TOAST */}
             {toastMsg && (
-                <div className={`fixed top-4 right-4 z-50 px-5 py-3 rounded-xl shadow-lg border-2 font-bold text-base flex items-center gap-3 animate-in fade-in slide-in-from-top-4 ${toastMsg.type === 'success' ? 'bg-navy-50 text-navy-800 border-navy-200' : 'bg-red-50 text-red-800 border-red-200'}`}>
+                <div className={`fixed top-4 right-4 z-50 px-5 py-3 rounded-xl shadow-lg border-2 font-bold text-base flex items-center gap-3 animate-in fade-in slide-in-from-top-4 ${toastMsg.type === 'success' ? 'bg-teal-50 text-teal-800 border-teal-200' : 'bg-red-50 text-red-800 border-red-200'}`}>
                     {toastMsg.type === 'success' ? <CheckCircle2 className="w-5 h-5" /> : <AlertCircle className="w-5 h-5" />}
                     {toastMsg.text}
                 </div>
             )}
 
             {/* HEADER BANNER */}
-            <div className="bg-navy-50 border border-navy-100 rounded-3xl p-6 md:p-8 shadow-sm flex flex-col sm:flex-row sm:items-center justify-between gap-6 relative overflow-hidden">
+            <div className="bg-teal-50 border border-teal-100 rounded-3xl p-6 md:p-8 shadow-sm flex flex-col sm:flex-row sm:items-center justify-between gap-6 relative overflow-hidden">
                 <div className="absolute top-0 right-0 p-4 opacity-10 pointer-events-none">
-                    <Globe className="w-32 h-32 text-navy-800" />
+                    <Globe className="w-32 h-32 text-teal-800" />
                 </div>
                 <div className="relative z-10 space-y-2">
-                    <h1 className="text-2xl md:text-3xl font-extrabold text-navy-900 tracking-tight">{t("settings.header.title")}</h1>
-                    <p className="text-navy-800 text-base md:text-lg font-medium">{t("settings.header.subtitle")}</p>
+                    <h1 className="text-2xl md:text-3xl font-extrabold text-teal-900 tracking-tight">{t("settings.header.title")}</h1>
+                    <p className="text-teal-800 text-base md:text-lg font-medium">{t("settings.header.subtitle")}</p>
                 </div>
                 {activeTab !== "security" && (
                     <button
                         onClick={handleSave}
                         disabled={isSaving || isLoading}
-                        className="relative z-10 flex items-center justify-center gap-2 min-h-[56px] px-8 py-3 bg-white hover:bg-navy-50 text-navy-700 border-2 border-navy-500 rounded-xl shadow-sm transition-all font-bold text-lg shrink-0 disabled:opacity-50"
+                        className="relative z-10 flex items-center justify-center gap-2 min-h-[56px] px-8 py-3 bg-white hover:bg-teal-50 text-teal-700 border-2 border-teal-500 rounded-xl shadow-sm transition-all font-bold text-lg shrink-0 disabled:opacity-50"
                     >
                         {isSaving ? <Loader2 className="w-5 h-5 animate-spin" /> : <Save className="w-5 h-5" />}
                         {isSaving ? t("settings.buttons.saving") : t("settings.buttons.save")}
@@ -184,10 +184,10 @@ export default function SettingsForm() {
 
             {/* QUICK LINK TO PROFILE */}
             <section className="bg-pearl-50 rounded-2xl shadow-sm border border-pearl-200 overflow-hidden">
-                <div className="bg-navy-50/50 px-5 py-4 flex flex-col sm:flex-row sm:justify-between sm:items-center gap-4">
+                <div className="bg-teal-50/50 px-5 py-4 flex flex-col sm:flex-row sm:justify-between sm:items-center gap-4">
                     <div className="flex items-center gap-4">
-                        <div className="w-10 h-10 bg-navy-100 rounded-full flex items-center justify-center shrink-0">
-                            <User className="w-5 h-5 text-navy-700" />
+                        <div className="w-10 h-10 bg-teal-100 rounded-full flex items-center justify-center shrink-0">
+                            <User className="w-5 h-5 text-teal-700" />
                         </div>
                         <div>
                             {isLoading ? (
@@ -200,7 +200,7 @@ export default function SettingsForm() {
                     </div>
                     <button
                         onClick={() => router.push('/profile')}
-                        className="bg-white hover:bg-navy-50 text-navy-800 border-2 border-navy-200 px-5 py-2 rounded-xl text-base font-bold transition-all shadow-sm w-fit shrink-0 min-h-[48px]"
+                        className="bg-white hover:bg-teal-50 text-teal-800 border-2 border-teal-200 px-5 py-2 rounded-xl text-base font-bold transition-all shadow-sm w-fit shrink-0 min-h-[48px]"
                     >
                         {t("settings.buttons.editProfile")}
                     </button>
@@ -219,7 +219,7 @@ export default function SettingsForm() {
                         <button
                             key={key}
                             onClick={() => setActiveTab(key)}
-                            className={`flex items-center gap-2 px-5 py-3.5 font-bold text-base whitespace-nowrap transition-colors border-b-2 ${activeTab === key ? 'border-navy-600 text-navy-800 bg-white' : 'border-transparent text-charcoal-500 hover:text-charcoal-700'}`}
+                            className={`flex items-center gap-2 px-5 py-3.5 font-bold text-base whitespace-nowrap transition-colors border-b-2 ${activeTab === key ? 'border-teal-600 text-teal-800 bg-white' : 'border-transparent text-charcoal-500 hover:text-charcoal-700'}`}
                         >
                             <Icon className="w-5 h-5" /> {label}
                         </button>
@@ -228,7 +228,7 @@ export default function SettingsForm() {
 
                 <div className="p-5 md:p-6 min-h-[400px]">
                     {isLoading && activeTab !== "security" ? (
-                        <div className="flex flex-col items-center justify-center h-full py-20 text-navy-800 gap-3">
+                        <div className="flex flex-col items-center justify-center h-full py-20 text-teal-800 gap-3">
                             <Loader2 className="w-8 h-8 animate-spin" />
                             <p className="font-bold text-lg">{t("settings.loading.config")}</p>
                         </div>
@@ -243,7 +243,7 @@ export default function SettingsForm() {
                                             <p className="text-lg font-bold text-charcoal-900 flex items-center gap-2"><Moon className="w-5 h-5 text-indigo-500" /> {t("settings.general.theme.title")}</p>
                                             <p className="text-sm text-charcoal-500 font-medium pt-1">{t("settings.general.theme.subtitle")}</p>
                                         </div>
-                                        <select value={settingsData.general.theme} onChange={(e) => updateSetting("general", "theme", e.target.value)} className="min-h-[48px] px-3 py-2 border-2 border-pearl-300 rounded-lg text-base font-bold text-charcoal-900 focus:ring-navy-200 focus:border-navy-500 outline-none w-full sm:w-auto bg-white">
+                                        <select value={settingsData.general.theme} onChange={(e) => updateSetting("general", "theme", e.target.value)} className="min-h-[48px] px-3 py-2 border-2 border-pearl-300 rounded-lg text-base font-bold text-charcoal-900 focus:ring-teal-200 focus:border-teal-500 outline-none w-full sm:w-auto bg-white">
                                             <option value="light">{t("settings.general.theme.light")}</option>
                                             <option value="dark">{t("settings.general.theme.dark")}</option>
                                             <option value="system">{t("settings.general.theme.system")}</option>
@@ -254,7 +254,7 @@ export default function SettingsForm() {
                                             <p className="text-lg font-bold text-charcoal-900 flex items-center gap-2"><Globe className="w-5 h-5 text-blue-500" /> {t("settings.general.language.title")}</p>
                                             <p className="text-sm text-charcoal-500 font-medium pt-1">{t("settings.general.language.subtitle")}</p>
                                         </div>
-                                        <select value={settingsData.general.language} onChange={(e) => updateSetting("general", "language", e.target.value)} className="min-h-[48px] px-3 py-2 border-2 border-pearl-300 rounded-lg text-base font-bold text-charcoal-900 focus:ring-navy-200 focus:border-navy-500 outline-none w-full sm:w-auto bg-white">
+                                        <select value={settingsData.general.language} onChange={(e) => updateSetting("general", "language", e.target.value)} className="min-h-[48px] px-3 py-2 border-2 border-pearl-300 rounded-lg text-base font-bold text-charcoal-900 focus:ring-teal-200 focus:border-teal-500 outline-none w-full sm:w-auto bg-white">
                                             <option value="vi">{t("settings.general.language.vi")}</option>
                                             <option value="en">{t("settings.general.language.en")}</option>
                                         </select>
@@ -274,7 +274,7 @@ export default function SettingsForm() {
                                 <>
                                     <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 p-4 bg-pearl-50 rounded-xl border border-pearl-200">
                                         <div className="pr-4">
-                                            <p className="text-lg font-bold text-charcoal-900 flex items-center gap-2"><Shield className="w-5 h-5 text-navy-600" /> {t("settings.profilePrivacy.contactsOnlyView.title")}</p>
+                                            <p className="text-lg font-bold text-charcoal-900 flex items-center gap-2"><Shield className="w-5 h-5 text-teal-600" /> {t("settings.profilePrivacy.contactsOnlyView.title")}</p>
                                             <p className="text-sm text-charcoal-500 font-medium pt-1">{t("settings.profilePrivacy.contactsOnlyView.subtitle")}</p>
                                         </div>
                                         <Toggle checked={settingsData.profile.contactsOnlyView} onChange={(v) => updateSetting("profile", "contactsOnlyView", v)} />
@@ -297,7 +297,7 @@ export default function SettingsForm() {
                                             <p className="text-lg font-bold text-charcoal-900 flex items-center gap-2"><Shield className="w-5 h-5 text-indigo-500" /> {t("settings.story.defaultPrivacy.title")}</p>
                                             <p className="text-sm text-charcoal-500 font-medium pt-1">{t("settings.story.defaultPrivacy.subtitle")}</p>
                                         </div>
-                                        <select value={settingsData.story.defaultPrivacy} onChange={(e) => updateSetting("story", "defaultPrivacy", e.target.value)} className="min-h-[48px] px-3 py-2 border-2 border-pearl-300 rounded-lg text-base font-bold text-charcoal-900 focus:ring-navy-200 focus:border-navy-500 outline-none w-full sm:w-auto bg-white">
+                                        <select value={settingsData.story.defaultPrivacy} onChange={(e) => updateSetting("story", "defaultPrivacy", e.target.value)} className="min-h-[48px] px-3 py-2 border-2 border-pearl-300 rounded-lg text-base font-bold text-charcoal-900 focus:ring-teal-200 focus:border-teal-500 outline-none w-full sm:w-auto bg-white">
                                             <option value="CONTACTS">{t("settings.story.defaultPrivacy.contacts")}</option>
                                             <option value="PRIVATE">{t("settings.story.defaultPrivacy.private")}</option>
                                         </select>
@@ -317,8 +317,8 @@ export default function SettingsForm() {
                                 <div className="space-y-6 max-w-lg">
                                     {/* Header */}
                                     <div className="flex items-center gap-3 pb-2">
-                                        <div className="w-10 h-10 bg-navy-100 rounded-full flex items-center justify-center shrink-0">
-                                            <Lock className="w-5 h-5 text-navy-700" />
+                                        <div className="w-10 h-10 bg-teal-100 rounded-full flex items-center justify-center shrink-0">
+                                            <Lock className="w-5 h-5 text-teal-700" />
                                         </div>
                                         <div>
                                             <h3 className="text-lg font-bold text-charcoal-900">{t("settings.security.title")}</h3>
@@ -367,7 +367,7 @@ export default function SettingsForm() {
                                     <button
                                         onClick={handleChangePassword}
                                         disabled={isChangingPassword}
-                                        className="flex items-center justify-center gap-2 min-h-[52px] px-6 py-3 bg-navy-700 hover:bg-navy-800 text-white rounded-xl font-bold text-base transition-all shadow-sm disabled:opacity-50 disabled:cursor-not-allowed w-full sm:w-auto"
+                                        className="flex items-center justify-center gap-2 min-h-[52px] px-6 py-3 bg-teal-700 hover:bg-teal-800 text-white rounded-xl font-bold text-base transition-all shadow-sm disabled:opacity-50 disabled:cursor-not-allowed w-full sm:w-auto"
                                     >
                                         {isChangingPassword ? (
                                             <><Loader2 className="w-5 h-5 animate-spin" />{t("settings.security.changing")}</>

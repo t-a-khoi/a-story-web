@@ -46,7 +46,7 @@ export default function StoryDetailPage() {
   if (isLoading) {
     return (
       <MainLayout>
-        <div className="flex flex-col items-center justify-center py-32 gap-4 text-navy-700">
+        <div className="flex flex-col items-center justify-center py-32 gap-4 text-teal-700">
           <Loader2 className="w-12 h-12 animate-spin" />
           <p className="text-xl font-bold">{t("story.loading")}</p>
         </div>
@@ -63,7 +63,7 @@ export default function StoryDetailPage() {
           <p className="text-lg">{t("story.notFoundMessage")}</p>
           <button
             onClick={() => router.push("/home")}
-            className="mt-4 px-6 py-2.5 bg-white hover:bg-navy-50 text-navy-700 border-2 border-navy-500 rounded-xl font-bold transition-colors"
+            className="mt-4 px-6 py-2.5 bg-white hover:bg-teal-50 text-teal-700 border-2 border-teal-500 rounded-xl font-bold transition-colors"
           >
             {t("story.backToHome")}
           </button>
@@ -94,7 +94,7 @@ export default function StoryDetailPage() {
 
         {/* Toast Popup */}
         {toastMsg && (
-          <div className={`fixed top-4 right-4 z-50 px-5 py-3 rounded-xl shadow-lg border-2 font-bold text-base flex items-center gap-3 animate-in fade-in slide-in-from-top-4 ${toastMsg.type === 'success' ? 'bg-navy-50 text-navy-700 border-navy-100' : 'bg-red-50 text-red-800 border-red-200'}`}>
+          <div className={`fixed top-4 right-4 z-50 px-5 py-3 rounded-xl shadow-lg border-2 font-bold text-base flex items-center gap-3 animate-in fade-in slide-in-from-top-4 ${toastMsg.type === 'success' ? 'bg-teal-50 text-teal-700 border-teal-100' : 'bg-red-50 text-red-800 border-red-200'}`}>
             {toastMsg.type === 'success' ? <CheckCircle2 className="w-5 h-5" /> : <AlertTriangle className="w-5 h-5" />}
             {toastMsg.text}
           </div>
@@ -133,7 +133,7 @@ export default function StoryDetailPage() {
 
               <button
                 onClick={() => setIsShareModelOpen(true)}
-                className="flex items-center gap-2 min-h-[44px] px-4 bg-navy-50 text-navy-900 hover:bg-navy-100 rounded-xl text-base font-bold transition-colors border-2 border-navy-100"
+                className="flex items-center gap-2 min-h-[44px] px-4 bg-teal-50 text-teal-900 hover:bg-teal-100 rounded-xl text-base font-bold transition-colors border-2 border-teal-100"
               >
                 <Share2 className="w-5 h-5" />
                 <span className="hidden sm:inline">{t("story.shareButton")}</span>

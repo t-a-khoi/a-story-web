@@ -162,20 +162,20 @@ export default function WriteForm() {
         <div className="max-w-3xl mx-auto space-y-8 pb-20">
 
             {/* HEADER BANNER */}
-            <div className="bg-navy-50 border border-navy-100 rounded-3xl p-6 md:p-8 shadow-sm flex flex-col sm:flex-row sm:items-center justify-between gap-6 relative overflow-hidden">
+            <div className="bg-teal-50 border border-teal-100 rounded-3xl p-6 md:p-8 shadow-sm flex flex-col sm:flex-row sm:items-center justify-between gap-6 relative overflow-hidden">
                 <div className="absolute top-0 right-0 p-4 opacity-10 pointer-events-none">
-                    <PenTool className="w-32 h-32 text-navy-800" aria-hidden="true" />
+                    <PenTool className="w-32 h-32 text-teal-800" aria-hidden="true" />
                 </div>
 
                 <div className="relative z-10 space-y-2">
                     <button
                         onClick={() => router.push("/home")}
-                        className="flex items-center gap-2 text-navy-800 hover:text-navy-900 transition-colors font-bold text-lg w-fit bg-white/60 px-4 py-2 rounded-xl"
+                        className="flex items-center gap-2 text-teal-800 hover:text-teal-900 transition-colors font-bold text-lg w-fit bg-white/60 px-4 py-2 rounded-xl"
                     >
                         <ArrowLeft className="w-6 h-6" />
                         <span>{t("write.backButton")}</span>
                     </button>
-                    <h1 className="text-2xl md:text-3xl font-extrabold text-navy-900 tracking-tight">
+                    <h1 className="text-2xl md:text-3xl font-extrabold text-teal-900 tracking-tight">
                         {t("write.headerTitle")}
                     </h1>
                 </div>
@@ -185,8 +185,8 @@ export default function WriteForm() {
                     onClick={handleSave}
                     disabled={isSaving || showSuccess}
                     className={`relative z-10 flex items-center justify-center gap-2 min-h-[56px] px-8 py-3 rounded-xl text-xl font-bold transition-all shadow-md shrink-0 ${showSuccess
-                        ? "bg-navy-50 text-navy-700 border-2 border-navy-300"
-                        : "bg-white hover:bg-navy-50 text-navy-700 border-2 border-navy-500 disabled:opacity-50 disabled:cursor-not-allowed"
+                        ? "bg-teal-50 text-teal-700 border-2 border-teal-300"
+                        : "bg-white hover:bg-teal-50 text-teal-700 border-2 border-teal-500 disabled:opacity-50 disabled:cursor-not-allowed"
                         }`}
                 >
                     {showSuccess ? (
@@ -279,7 +279,7 @@ export default function WriteForm() {
                     <button
                         onClick={() => fileInputRef.current?.click()}
                         disabled={isUploading}
-                        className={`flex items-center gap-3 min-h-[64px] px-6 py-4 bg-pearl-50 hover:bg-navy-50 text-charcoal-700 hover:text-navy-800 border-2 border-dashed border-pearl-300 hover:border-navy-300 rounded-2xl text-lg font-bold transition-colors w-full sm:w-auto justify-center shadow-sm ${isUploading ? 'opacity-50 cursor-not-allowed' : ''}`}
+                        className={`flex items-center gap-3 min-h-[64px] px-6 py-4 bg-pearl-50 hover:bg-teal-50 text-charcoal-700 hover:text-teal-800 border-2 border-dashed border-pearl-300 hover:border-teal-300 rounded-2xl text-lg font-bold transition-colors w-full sm:w-auto justify-center shadow-sm ${isUploading ? 'opacity-50 cursor-not-allowed' : ''}`}
                     >
                         {isUploading ? <Loader2 className="w-8 h-8 animate-spin" /> : <ImageIcon className="w-8 h-8" />}
                         <span>{isUploading ? t("write.uploadingPhoto") : t("write.attachPhoto")}</span>

@@ -108,8 +108,8 @@ export default function ShareModel({ storyId, storyTitle, isOpen, onClose }: Sha
         {/* Header */}
         <div className="flex items-center justify-between px-6 py-5 border-b border-pearl-200 bg-gradient-to-r from-pearl-50 to-pearl-100">
           <div className="flex items-center gap-3">
-            <div className="p-2.5 bg-navy-100 rounded-2xl">
-              <Send className="w-6 h-6 text-navy-700" aria-hidden="true" />
+            <div className="p-2.5 bg-teal-100 rounded-2xl">
+              <Send className="w-6 h-6 text-teal-700" aria-hidden="true" />
             </div>
             <div>
               <h2 id="share-modal-title" className="text-xl font-extrabold text-charcoal-900">
@@ -135,7 +135,7 @@ export default function ShareModel({ storyId, storyTitle, isOpen, onClose }: Sha
 
           {/* Thông báo thành công */}
           {successMsg && (
-            <div className="flex items-start gap-3 bg-navy-50 text-navy-700 p-4 rounded-2xl border border-navy-100 animate-in fade-in slide-in-from-top-2 duration-300">
+            <div className="flex items-start gap-3 bg-teal-50 text-teal-700 p-4 rounded-2xl border border-teal-100 animate-in fade-in slide-in-from-top-2 duration-300">
               <CheckCircle2 className="w-6 h-6 flex-shrink-0 mt-0.5" />
               <p className="text-base font-semibold leading-relaxed">{successMsg}</p>
             </div>
@@ -150,14 +150,14 @@ export default function ShareModel({ storyId, storyTitle, isOpen, onClose }: Sha
           )}
 
           {isLoading ? (
-            <div className="flex flex-col items-center justify-center py-12 gap-4 text-navy-700">
+            <div className="flex flex-col items-center justify-center py-12 gap-4 text-teal-700">
               <Loader2 className="w-12 h-12 animate-spin" />
               <p className="text-lg font-bold">Loading contacts...</p>
             </div>
           ) : contacts.length === 0 ? (
             <div className="flex flex-col items-center text-center py-10 bg-pearl-100 rounded-2xl border border-dashed border-pearl-200 gap-4 px-6">
-              <div className="w-16 h-16 bg-navy-50 rounded-full flex items-center justify-center">
-                <Users className="w-8 h-8 text-navy-500" />
+              <div className="w-16 h-16 bg-teal-50 rounded-full flex items-center justify-center">
+                <Users className="w-8 h-8 text-teal-500" />
               </div>
               <div>
                 <p className="text-lg font-bold text-charcoal-900 mb-1">No contacts yet</p>
@@ -168,7 +168,7 @@ export default function ShareModel({ storyId, storyTitle, isOpen, onClose }: Sha
               <Link
                 href="/contacts"
                 onClick={onClose}
-                className="inline-flex items-center gap-2 px-5 py-2.5 bg-gold-500 hover:bg-gold-600 text-pearl-50 rounded-xl font-bold text-base transition-colors"
+                className="inline-flex items-center gap-2 px-5 py-2.5 bg-bronze-500 hover:bg-bronze-600 text-pearl-50 rounded-xl font-bold text-base transition-colors"
               >
                 <UserPlus className="w-5 h-5" />
                 Add relatives now
@@ -189,12 +189,12 @@ export default function ShareModel({ storyId, storyTitle, isOpen, onClose }: Sha
                     <label
                       key={contact.id}
                       className={`flex items-center gap-4 p-4 border-2 rounded-2xl cursor-pointer transition-all select-none ${isSelected
-                        ? 'border-navy-500 bg-navy-50 shadow-sm'
-                        : 'border-pearl-200 bg-pearl-50 hover:border-navy-100 hover:bg-navy-50/30'
+                        ? 'border-teal-500 bg-teal-50 shadow-sm'
+                        : 'border-pearl-200 bg-pearl-50 hover:border-teal-100 hover:bg-teal-50/30'
                         }`}
                     >
                       {/* Avatar chữ cái đầu */}
-                      <div className={`w-12 h-12 rounded-full flex items-center justify-center text-xl font-extrabold flex-shrink-0 transition-colors ${isSelected ? 'bg-navy-700 text-pearl-50' : 'bg-pearl-200 text-charcoal-700'
+                      <div className={`w-12 h-12 rounded-full flex items-center justify-center text-xl font-extrabold flex-shrink-0 transition-colors ${isSelected ? 'bg-teal-700 text-pearl-50' : 'bg-pearl-200 text-charcoal-700'
                         }`}>
                         {displayName.charAt(0).toUpperCase()}
                       </div>
@@ -217,7 +217,7 @@ export default function ShareModel({ storyId, storyTitle, isOpen, onClose }: Sha
                       />
                       {/* Custom checkmark */}
                       <div className={`w-7 h-7 rounded-full border-2 flex items-center justify-center flex-shrink-0 transition-all ${isSelected
-                        ? 'bg-navy-700 border-navy-700'
+                        ? 'bg-teal-700 border-teal-700'
                         : 'border-pearl-200 bg-pearl-50'
                         }`}>
                         {isSelected && (
@@ -247,7 +247,7 @@ export default function ShareModel({ storyId, storyTitle, isOpen, onClose }: Sha
             <button
               onClick={handleShare}
               disabled={isLoading || isSending || contacts.length === 0 || selectedContactIds.length === 0}
-              className="flex items-center justify-center gap-2.5 min-h-[48px] px-6 py-2.5 bg-gold-500 hover:bg-gold-600 text-pearl-50 rounded-xl font-bold text-base transition-colors disabled:opacity-50 disabled:cursor-not-allowed shadow-sm border border-gold-600"
+              className="flex items-center justify-center gap-2.5 min-h-[48px] px-6 py-2.5 bg-bronze-500 hover:bg-bronze-600 text-pearl-50 rounded-xl font-bold text-base transition-colors disabled:opacity-50 disabled:cursor-not-allowed shadow-sm border border-bronze-600"
             >
               {isSending ? (
                 <>

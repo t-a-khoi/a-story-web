@@ -214,22 +214,22 @@ export default function ContactAddForm() {
         <div className="max-w-3xl mx-auto space-y-8 pb-20">
 
             {/* HEADER BANNER */}
-            <div className="bg-navy-50 border border-navy-100 rounded-[30px] p-6 md:p-8 shadow-sm flex flex-col sm:flex-row sm:items-center justify-between gap-6 relative overflow-hidden">
+            <div className="bg-teal-50 border border-teal-100 rounded-[30px] p-6 md:p-8 shadow-sm flex flex-col sm:flex-row sm:items-center justify-between gap-6 relative overflow-hidden">
                 <div className="absolute top-0 right-0 p-4 opacity-10 pointer-events-none">
-                    <Users className="w-32 h-32 text-navy-800" aria-hidden="true" />
+                    <Users className="w-32 h-32 text-teal-800" aria-hidden="true" />
                 </div>
                 <div className="relative z-10 space-y-2">
                     <button
                         onClick={() => router.back()}
-                        className="flex items-center gap-2 text-navy-800 hover:text-navy-900 transition-colors font-bold text-lg w-fit bg-white/60 px-4 py-2 rounded-xl"
+                        className="flex items-center gap-2 text-teal-800 hover:text-teal-900 transition-colors font-bold text-lg w-fit bg-white/60 px-4 py-2 rounded-xl"
                     >
                         <ArrowLeft className="w-6 h-6" />
                         <span>{t("contacts.add.backButton")}</span>
                     </button>
-                    <h1 className="text-2xl md:text-3xl font-extrabold text-navy-900 tracking-tight">
+                    <h1 className="text-2xl md:text-3xl font-extrabold text-teal-900 tracking-tight">
                         {t("contacts.add.headerTitle")}
                     </h1>
-                    <p className="text-navy-800 text-lg font-medium">
+                    <p className="text-teal-800 text-lg font-medium">
                         {t("contacts.add.headerSubtitle")}
                     </p>
                 </div>
@@ -237,15 +237,15 @@ export default function ContactAddForm() {
 
             {/* THÔNG BÁO ĐÃ THÊM */}
             {addedIds.size > 0 && (
-                <div className="flex items-center gap-4 bg-navy-50 p-6 rounded-2xl shadow-sm border-2 border-navy-200">
-                    <CheckCircle2 className="w-8 h-8 text-navy-700 flex-shrink-0" />
+                <div className="flex items-center gap-4 bg-teal-50 p-6 rounded-2xl shadow-sm border-2 border-teal-200">
+                    <CheckCircle2 className="w-8 h-8 text-teal-700 flex-shrink-0" />
                     <div>
-                        <p className="text-lg font-bold text-navy-800">
+                        <p className="text-lg font-bold text-teal-800">
                             {t("contacts.add.addedSuccess")} {addedIds.size} {t("contacts.add.addedSuccessSuffix")}
                         </p>
                         <button
                             onClick={() => router.push("/contacts")}
-                            className="text-navy-700 hover:text-navy-900 font-bold underline text-base mt-0.5"
+                            className="text-teal-700 hover:text-teal-900 font-bold underline text-base mt-0.5"
                         >
                             {t("contacts.add.viewContacts")}
                         </button>
@@ -260,7 +260,7 @@ export default function ContactAddForm() {
                     <button
                         onClick={() => switchTab("phone")}
                         className={`flex-1 flex items-center justify-center gap-2 py-3 rounded-xl font-bold text-lg transition-all ${activeTab === "phone"
-                            ? "bg-white text-navy-800 shadow-sm border border-pearl-200"
+                            ? "bg-white text-teal-800 shadow-sm border border-pearl-200"
                             : "text-charcoal-500 hover:text-charcoal-700"
                             }`}
                     >
@@ -270,7 +270,7 @@ export default function ContactAddForm() {
                     <button
                         onClick={() => switchTab("name")}
                         className={`flex-1 flex items-center justify-center gap-2 py-3 rounded-xl font-bold text-lg transition-all ${activeTab === "name"
-                            ? "bg-white text-navy-800 shadow-sm border border-pearl-200"
+                            ? "bg-white text-teal-800 shadow-sm border border-pearl-200"
                             : "text-charcoal-500 hover:text-charcoal-700"
                             }`}
                     >
@@ -293,7 +293,7 @@ export default function ContactAddForm() {
                                         setShowCountryDropdown(v => !v);
                                         setCountrySearch("");
                                     }}
-                                    className="flex items-center gap-2 h-full min-h-[60px] px-4 bg-white border-2 border-pearl-200 hover:border-navy-300 rounded-xl font-bold text-lg transition-colors whitespace-nowrap"
+                                    className="flex items-center gap-2 h-full min-h-[60px] px-4 bg-white border-2 border-pearl-200 hover:border-teal-300 rounded-xl font-bold text-lg transition-colors whitespace-nowrap"
                                 >
                                     <span className="text-2xl">{selectedCountry.flag}</span>
                                     <span className="text-charcoal-800">{selectedCountry.dial}</span>
@@ -310,7 +310,7 @@ export default function ContactAddForm() {
                                                     value={countrySearch}
                                                     onChange={e => setCountrySearch(e.target.value)}
                                                     placeholder={t("contacts.add.searchCountryPlaceholder")}
-                                                    className="w-full pl-9 pr-3 py-2 text-base border border-pearl-200 focus:border-navy-400 rounded-lg outline-none font-medium text-charcoal-900"
+                                                    className="w-full pl-9 pr-3 py-2 text-base border border-pearl-200 focus:border-teal-400 rounded-lg outline-none font-medium text-charcoal-900"
                                                     autoFocus
                                                 />
                                             </div>
@@ -326,7 +326,7 @@ export default function ContactAddForm() {
                                                         setCountrySearch("");
                                                         phoneInputRef.current?.focus();
                                                     }}
-                                                    className={`w-full flex items-center gap-3 px-4 py-3 hover:bg-navy-50 transition-colors text-left ${selectedCountry.code === country.code ? "bg-navy-50 text-navy-800" : "text-charcoal-800"
+                                                    className={`w-full flex items-center gap-3 px-4 py-3 hover:bg-teal-50 transition-colors text-left ${selectedCountry.code === country.code ? "bg-teal-50 text-teal-800" : "text-charcoal-800"
                                                         }`}
                                                 >
                                                     <span className="text-2xl flex-shrink-0">{country.flag}</span>
@@ -349,7 +349,7 @@ export default function ContactAddForm() {
                                     value={phoneNumber}
                                     onChange={e => setPhoneNumber(e.target.value.replace(/[^\d\s\-]/g, ""))}
                                     placeholder={t("contacts.add.phonePlaceholder")}
-                                    className="w-full px-5 py-4 text-xl border-2 border-pearl-200 hover:border-navy-300 focus:border-navy-500 focus:ring-4 focus:ring-navy-100 rounded-xl outline-none transition-colors font-medium text-charcoal-900 placeholder-charcoal-400"
+                                    className="w-full px-5 py-4 text-xl border-2 border-pearl-200 hover:border-teal-300 focus:border-teal-500 focus:ring-4 focus:ring-teal-100 rounded-xl outline-none transition-colors font-medium text-charcoal-900 placeholder-charcoal-400"
                                     inputMode="numeric"
                                 />
                                 {phoneNumber && (
@@ -366,7 +366,7 @@ export default function ContactAddForm() {
                             <button
                                 type="submit"
                                 disabled={!canSearchPhone || isSearching}
-                                className="flex items-center gap-2 min-h-[60px] px-6 bg-white hover:bg-navy-50 disabled:opacity-50 disabled:cursor-not-allowed text-navy-700 font-bold border-2 border-navy-500 rounded-xl transition-colors text-lg shadow-sm shrink-0"
+                                className="flex items-center gap-2 min-h-[60px] px-6 bg-white hover:bg-teal-50 disabled:opacity-50 disabled:cursor-not-allowed text-teal-700 font-bold border-2 border-teal-500 rounded-xl transition-colors text-lg shadow-sm shrink-0"
                             >
                                 {isSearching ? <Loader2 className="w-6 h-6 animate-spin" /> : <Search className="w-6 h-6" />}
                             </button>
@@ -375,7 +375,7 @@ export default function ContactAddForm() {
                         {phoneNumber.trim() && (
                             <p className="text-base font-medium text-charcoal-500 pl-1">
                                 {t("contacts.add.willSearch")}{" "}
-                                <span className="font-extrabold text-navy-800">
+                                <span className="font-extrabold text-teal-800">
                                     {selectedCountry.dial}{phoneNumber.trim().replace(/\D/g, "")}
                                 </span>
                             </p>
@@ -398,7 +398,7 @@ export default function ContactAddForm() {
                                     value={nameKeyword}
                                     onChange={e => setNameKeyword(e.target.value)}
                                     placeholder={t("contacts.add.namePlaceholder")}
-                                    className="w-full pl-12 pr-11 py-4 text-xl border-2 border-pearl-200 hover:border-navy-300 focus:border-navy-500 focus:ring-4 focus:ring-navy-100 rounded-xl outline-none transition-colors font-medium text-charcoal-900 placeholder-charcoal-400"
+                                    className="w-full pl-12 pr-11 py-4 text-xl border-2 border-pearl-200 hover:border-teal-300 focus:border-teal-500 focus:ring-4 focus:ring-teal-100 rounded-xl outline-none transition-colors font-medium text-charcoal-900 placeholder-charcoal-400"
                                     autoComplete="off"
                                 />
                                 {nameKeyword && (
@@ -414,7 +414,7 @@ export default function ContactAddForm() {
                             <button
                                 type="submit"
                                 disabled={!canSearchName || isSearching}
-                                className="flex items-center gap-2 min-h-[60px] px-8 bg-white hover:bg-navy-50 disabled:opacity-50 disabled:cursor-not-allowed text-navy-700 font-bold border-2 border-navy-500 rounded-xl transition-colors text-xl shadow-sm shrink-0"
+                                className="flex items-center gap-2 min-h-[60px] px-8 bg-white hover:bg-teal-50 disabled:opacity-50 disabled:cursor-not-allowed text-teal-700 font-bold border-2 border-teal-500 rounded-xl transition-colors text-xl shadow-sm shrink-0"
                             >
                                 {isSearching
                                     ? <Loader2 className="w-6 h-6 animate-spin" />
@@ -433,7 +433,7 @@ export default function ContactAddForm() {
                 )}
 
                 {isSearching && (
-                    <div className="flex flex-col items-center justify-center py-10 gap-4 text-navy-700">
+                    <div className="flex flex-col items-center justify-center py-10 gap-4 text-teal-700">
                         <Loader2 className="w-10 h-10 animate-spin" />
                         <p className="text-xl font-bold">{t("contacts.add.searching") ?? t("common.searching")}</p>
                     </div>
@@ -467,16 +467,16 @@ export default function ContactAddForm() {
                                             <div
                                                 key={profile.id}
                                                 className={`bg-white rounded-2xl border-2 p-5 transition-all ${isSelected
-                                                    ? "border-navy-400 shadow-md"
+                                                    ? "border-teal-400 shadow-md"
                                                     : isBlocked
                                                         ? "border-pearl-100 bg-pearl-50"
-                                                        : "border-pearl-200 hover:border-navy-200 hover:shadow-sm"
+                                                        : "border-pearl-200 hover:border-teal-200 hover:shadow-sm"
                                                     }`}
                                             >
                                                 <div className="flex items-center gap-4">
                                                     <div className={`w-14 h-14 rounded-2xl flex items-center justify-center text-2xl font-extrabold flex-shrink-0 ${isBlocked ? "bg-pearl-100 text-charcoal-400"
-                                                        : isSelected ? "bg-navy-700 text-white"
-                                                            : "bg-navy-50 text-navy-700"
+                                                        : isSelected ? "bg-teal-700 text-white"
+                                                            : "bg-teal-50 text-teal-700"
                                                         }`}>
                                                         {profile.fullname?.charAt(0).toUpperCase() || "?"}
                                                     </div>
@@ -516,8 +516,8 @@ export default function ContactAddForm() {
                                                         <button
                                                             onClick={() => handleSelectProfile(profile)}
                                                             className={`flex items-center gap-2 min-h-[48px] px-5 rounded-xl font-bold text-base transition-all flex-shrink-0 border-2 ${isSelected
-                                                                ? "bg-navy-50 text-navy-700 border-navy-500"
-                                                                : "bg-white hover:bg-navy-50 text-navy-700 border-navy-200 hover:border-navy-400"
+                                                                ? "bg-teal-50 text-teal-700 border-teal-500"
+                                                                : "bg-white hover:bg-teal-50 text-teal-700 border-teal-200 hover:border-teal-400"
                                                                 }`}
                                                         >
                                                             <UserPlus className="w-5 h-5" />
@@ -538,11 +538,11 @@ export default function ContactAddForm() {
             {selectedProfile && (
                 <div
                     id="add-form"
-                    className="bg-white rounded-[30px] shadow-sm border-2 border-navy-200 p-6 md:p-8 space-y-6"
+                    className="bg-white rounded-[30px] shadow-sm border-2 border-teal-200 p-6 md:p-8 space-y-6"
                 >
                     <div className="flex items-center justify-between">
                         <h2 className="text-xl font-extrabold text-charcoal-900 flex items-center gap-3">
-                            <UserPlus className="w-7 h-7 text-navy-700" />
+                            <UserPlus className="w-7 h-7 text-teal-700" />
                             {t("contacts.add.addFormTitle")}
                         </h2>
                         <button
@@ -554,8 +554,8 @@ export default function ContactAddForm() {
                         </button>
                     </div>
 
-                    <div className="flex items-center gap-4 bg-navy-50 rounded-2xl p-5 border border-navy-100">
-                        <div className="w-14 h-14 bg-navy-50 text-navy-700 border-2 border-navy-200 rounded-2xl flex items-center justify-center text-2xl font-extrabold flex-shrink-0">
+                    <div className="flex items-center gap-4 bg-teal-50 rounded-2xl p-5 border border-teal-100">
+                        <div className="w-14 h-14 bg-teal-50 text-teal-700 border-2 border-teal-200 rounded-2xl flex items-center justify-center text-2xl font-extrabold flex-shrink-0">
                             {selectedProfile.fullname?.charAt(0).toUpperCase()}
                         </div>
                         <div>
@@ -579,7 +579,7 @@ export default function ContactAddForm() {
                             value={preferenceName}
                             onChange={e => setPreferenceName(e.target.value)}
                             placeholder={t("contacts.add.preferenceNamePlaceholder")}
-                            className="w-full px-5 py-4 text-xl border-2 border-pearl-200 hover:border-navy-300 focus:border-navy-500 focus:ring-4 focus:ring-navy-100 rounded-xl outline-none transition-colors font-medium text-charcoal-900"
+                            className="w-full px-5 py-4 text-xl border-2 border-pearl-200 hover:border-teal-300 focus:border-teal-500 focus:ring-4 focus:ring-teal-100 rounded-xl outline-none transition-colors font-medium text-charcoal-900"
                             maxLength={100}
                         />
                         <p className="text-base text-charcoal-400 text-right font-medium">{preferenceName.length}/100</p>
@@ -602,7 +602,7 @@ export default function ContactAddForm() {
                         <button
                             onClick={handleAddContact}
                             disabled={createMutation.isPending}
-                            className="flex-1 flex items-center justify-center gap-3 min-h-[56px] px-8 py-3 bg-white hover:bg-navy-50 text-navy-700 border-2 border-navy-500 rounded-xl font-bold text-xl transition-all shadow-sm disabled:opacity-50 disabled:cursor-not-allowed"
+                            className="flex-1 flex items-center justify-center gap-3 min-h-[56px] px-8 py-3 bg-white hover:bg-teal-50 text-teal-700 border-2 border-teal-500 rounded-xl font-bold text-xl transition-all shadow-sm disabled:opacity-50 disabled:cursor-not-allowed"
                         >
                             {createMutation.isPending ? (
                                 <><Loader2 className="w-6 h-6 animate-spin" /><span>{t("contacts.add.addingButton")}</span></>

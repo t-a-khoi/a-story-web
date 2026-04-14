@@ -79,7 +79,7 @@ export default function ContactEditForm({ contactId }: { contactId: number }) {
 
     if (isLoading) {
         return (
-            <div className="flex flex-col items-center justify-center min-h-[50vh] gap-4 text-navy-700">
+            <div className="flex flex-col items-center justify-center min-h-[50vh] gap-4 text-teal-700">
                 <Loader2 className="w-12 h-12 animate-spin" aria-hidden="true" />
                 <p className="text-xl font-bold">Đang tải thông tin...</p>
             </div>
@@ -95,7 +95,7 @@ export default function ContactEditForm({ contactId }: { contactId: number }) {
                 </div>
                 <button
                     onClick={() => router.back()}
-                    className="flex items-center gap-2 text-navy-800 hover:text-navy-900 transition-colors font-bold text-lg w-fit bg-white px-4 py-2 rounded-xl border border-pearl-200 shadow-sm"
+                    className="flex items-center gap-2 text-teal-800 hover:text-teal-900 transition-colors font-bold text-lg w-fit bg-white px-4 py-2 rounded-xl border border-pearl-200 shadow-sm"
                 >
                     <ArrowLeft className="w-6 h-6" />
                     Quay lại
@@ -110,15 +110,15 @@ export default function ContactEditForm({ contactId }: { contactId: number }) {
         <div className="max-w-3xl mx-auto space-y-8 pb-20">
 
             {/* HEADER BANNER */}
-            <div className="bg-navy-50 border-2 border-navy-100 rounded-[30px] p-6 md:p-8 shadow-sm flex flex-col sm:flex-row sm:items-center justify-between gap-6 relative overflow-hidden">
+            <div className="bg-teal-50 border-2 border-teal-100 rounded-[30px] p-6 md:p-8 shadow-sm flex flex-col sm:flex-row sm:items-center justify-between gap-6 relative overflow-hidden">
                 <div className="absolute top-0 right-0 p-4 opacity-10 pointer-events-none">
-                    <UserCog className="w-32 h-32 text-navy-800" aria-hidden="true" />
+                    <UserCog className="w-32 h-32 text-teal-800" aria-hidden="true" />
                 </div>
 
                 <div className="relative z-10 space-y-3">
                     <button
                         onClick={() => router.back()}
-                        className="flex items-center gap-2 text-navy-800 hover:text-navy-900 transition-colors font-bold text-lg w-fit bg-white/60 px-4 py-2 rounded-xl"
+                        className="flex items-center gap-2 text-teal-800 hover:text-teal-900 transition-colors font-bold text-lg w-fit bg-white/60 px-4 py-2 rounded-xl"
                     >
                         <ArrowLeft className="w-6 h-6" />
                         <span>Quay lại</span>
@@ -128,14 +128,14 @@ export default function ContactEditForm({ contactId }: { contactId: number }) {
                     </h1>
                 </div>
 
-                <div className="relative z-10 w-20 h-20 bg-navy-50 text-navy-700 border-2 border-navy-200 rounded-3xl flex items-center justify-center text-4xl font-extrabold shadow-sm flex-shrink-0">
+                <div className="relative z-10 w-20 h-20 bg-teal-50 text-teal-700 border-2 border-teal-200 rounded-3xl flex items-center justify-center text-4xl font-extrabold shadow-sm flex-shrink-0">
                     {displayName.charAt(0).toUpperCase()}
                 </div>
             </div>
 
             {/* THÔNG BÁO LỖI / THÀNH CÔNG */}
             {saveSuccess && (
-                <div className="flex items-center gap-3 bg-navy-50 text-navy-800 p-6 rounded-2xl shadow-sm border-2 border-navy-200">
+                <div className="flex items-center gap-3 bg-teal-50 text-teal-800 p-6 rounded-2xl shadow-sm border-2 border-teal-200">
                     <CheckCircle2 className="w-8 h-8 flex-shrink-0" aria-hidden="true" />
                     <p className="text-lg font-bold">Đã lưu thành công! Đang chuyển về danh bạ...</p>
                 </div>
@@ -203,7 +203,7 @@ export default function ContactEditForm({ contactId }: { contactId: number }) {
 
                 <div className="space-y-3">
                     <label htmlFor="pref-name" className="text-lg font-bold text-charcoal-700 flex items-center gap-2">
-                        <Tag className="w-5 h-5 text-navy-600" />
+                        <Tag className="w-5 h-5 text-teal-600" />
                         Tên gợi nhớ
                     </label>
                     <input
@@ -212,7 +212,7 @@ export default function ContactEditForm({ contactId }: { contactId: number }) {
                         value={preferenceName}
                         onChange={e => setPreferenceName(e.target.value)}
                         placeholder="VD: Ba, Mẹ, Anh Hùng..."
-                        className="w-full px-5 py-4 text-xl border-2 border-pearl-200 hover:border-navy-300 focus:border-navy-500 focus:ring-4 focus:ring-navy-100 rounded-xl outline-none transition-colors font-medium text-charcoal-900"
+                        className="w-full px-5 py-4 text-xl border-2 border-pearl-200 hover:border-teal-300 focus:border-teal-500 focus:ring-4 focus:ring-teal-100 rounded-xl outline-none transition-colors font-medium text-charcoal-900"
                         maxLength={100}
                     />
                     <p className="text-base text-charcoal-400 text-right font-medium">{preferenceName.length}/100</p>
@@ -222,8 +222,8 @@ export default function ContactEditForm({ contactId }: { contactId: number }) {
                     onClick={handleSave}
                     disabled={updateMutation.isPending || saveSuccess}
                     className={`w-full flex items-center justify-center gap-3 min-h-[60px] px-8 py-3 rounded-xl text-xl font-bold transition-all shadow-md ${saveSuccess
-                        ? "bg-navy-50 text-navy-700 border-2 border-navy-300"
-                        : "bg-white hover:bg-navy-50 text-navy-700 border-2 border-navy-500 disabled:opacity-50 disabled:cursor-not-allowed"
+                        ? "bg-teal-50 text-teal-700 border-2 border-teal-300"
+                        : "bg-white hover:bg-teal-50 text-teal-700 border-2 border-teal-500 disabled:opacity-50 disabled:cursor-not-allowed"
                         }`}
                 >
                     {saveSuccess ? (

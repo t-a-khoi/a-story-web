@@ -65,7 +65,7 @@ export default function StoryCard({ story, onDelete }: StoryCardProps) {
           {/* Cấp độ Badge thể loại dùng tạm catId */}
           {story.catId && (
             <span
-              className="inline-flex items-center justify-center px-4 py-1.5 rounded-xl text-sm font-bold whitespace-nowrap shrink-0 shadow-sm border bg-navy-50 text-navy-700 border-navy-100"
+              className="inline-flex items-center justify-center px-4 py-1.5 rounded-xl text-sm font-bold whitespace-nowrap shrink-0 shadow-sm border bg-teal-50 text-teal-700 border-teal-100"
             >
               Topic #{story.catId}
             </span>
@@ -96,7 +96,7 @@ export default function StoryCard({ story, onDelete }: StoryCardProps) {
         {/* Nút Đọc bài */}
         <Link
           href={`/story/${story.id}`}
-          className="flex flex-1 sm:flex-none items-center justify-center gap-2 px-6 min-h-[48px] bg-white hover:bg-navy-50 text-navy-700 font-bold rounded-xl transition-colors border-2 border-navy-500 shadow-sm"
+          className="flex flex-1 sm:flex-none items-center justify-center gap-2 px-6 min-h-[48px] bg-white hover:bg-teal-50 text-teal-700 font-bold rounded-xl transition-colors border-2 border-teal-500 shadow-sm"
           aria-label={`Đọc bài viết: ${story.title}`}
         >
           <BookOpen className="w-5 h-5" aria-hidden="true" />

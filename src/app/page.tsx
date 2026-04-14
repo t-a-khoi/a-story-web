@@ -91,7 +91,7 @@ export default function LandingPage() {
   };
 
   return (
-    <div className="min-h-screen bg-pearl-50 text-charcoal-900 font-sans selection:bg-navy-100">
+    <div className="min-h-screen bg-pearl-50 text-charcoal-900 font-sans selection:bg-teal-100">
 
       {/* ══════════════════════ NAVIGATION HEADER ══════════════════════ */}
       <header className={`fixed top-0 w-full z-50 transition-all duration-300 ${scrolled ? "bg-pearl-50/95 backdrop-blur-md shadow-sm border-b border-pearl-200 py-3" : "bg-transparent py-5"}`}>
@@ -99,13 +99,13 @@ export default function LandingPage() {
 
           {/* Logo + Nav */}
           <div className="flex items-center gap-10">
-            <div className="text-2xl md:text-3xl font-bold text-navy-800 tracking-tight cursor-pointer">
+            <div className="text-2xl md:text-3xl font-bold text-teal-800 tracking-tight cursor-pointer">
               A Story.
             </div>
             <nav className="hidden lg:flex items-center gap-8 font-medium text-charcoal-600">
-              <a href="#how-it-works" className="hover:text-navy-700 transition-colors">How it works</a>
-              <a href="#testimonials" className="hover:text-navy-700 transition-colors">Stories</a>
-              <a href="#faq" className="hover:text-navy-700 transition-colors">FAQ</a>
+              <a href="#how-it-works" className="hover:text-teal-700 transition-colors">How it works</a>
+              <a href="#testimonials" className="hover:text-teal-700 transition-colors">Stories</a>
+              <a href="#faq" className="hover:text-teal-700 transition-colors">FAQ</a>
             </nav>
           </div>
 
@@ -114,19 +114,19 @@ export default function LandingPage() {
             <button
               onClick={handleStartJourney}
               disabled={isRedirecting}
-              className="hidden md:block font-medium text-charcoal-600 hover:text-navy-700 transition-colors"
+              className="hidden md:block font-medium text-charcoal-600 hover:text-teal-700 transition-colors"
             >
               Log in
             </button>
             <Link
               href="/register"
-              className="min-h-[44px] px-6 bg-navy-700 text-white rounded-full text-sm font-bold hover:bg-navy-800 shadow-sm transition-all hover:shadow-md flex items-center justify-center"
+              className="min-h-[44px] px-6 bg-teal-700 text-white rounded-full text-sm font-bold hover:bg-teal-800 shadow-sm transition-all hover:shadow-md flex items-center justify-center"
             >
               Sign up
             </Link>
             <button
               onClick={() => setMobileMenuOpen(p => !p)}
-              className="lg:hidden p-2 text-charcoal-600 hover:text-navy-700"
+              className="lg:hidden p-2 text-charcoal-600 hover:text-teal-700"
             >
               {mobileMenuOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
             </button>
@@ -147,14 +147,14 @@ export default function LandingPage() {
                   key={i}
                   href={href}
                   onClick={() => setMobileMenuOpen(false)}
-                  className="block py-2 font-medium text-charcoal-700 hover:text-navy-700 transition-colors"
+                  className="block py-2 font-medium text-charcoal-700 hover:text-teal-700 transition-colors"
                 >
                   {["How it works", "Stories", "FAQ"][i]}
                 </a>
               ))}
               <button
                 onClick={handleStartJourney}
-                className="w-full min-h-[48px] bg-navy-700 text-white rounded-xl font-bold text-base hover:bg-navy-800 transition-colors"
+                className="w-full min-h-[48px] bg-teal-700 text-white rounded-xl font-bold text-base hover:bg-teal-800 transition-colors"
               >
                 Log in
               </button>
@@ -190,8 +190,8 @@ export default function LandingPage() {
         {/* ══════════════════════ 1. HERO SECTION ═══════════════════════ */}
         <section className="relative pt-32 pb-20 md:pt-40 md:pb-32 px-6 overflow-hidden">
           {/* Background decorative blobs */}
-          <div className="absolute top-0 left-0 w-[600px] h-[600px] bg-navy-100/40 rounded-full blur-3xl -translate-x-1/2 -translate-y-1/4 pointer-events-none" />
-          <div className="absolute bottom-0 right-0 w-[400px] h-[400px] bg-gold-200/30 rounded-full blur-3xl translate-x-1/4 translate-y-1/4 pointer-events-none" />
+          <div className="absolute top-0 left-0 w-[600px] h-[600px] bg-teal-100/40 rounded-full blur-3xl -translate-x-1/2 -translate-y-1/4 pointer-events-none" />
+          <div className="absolute bottom-0 right-0 w-[400px] h-[400px] bg-bronze-200/30 rounded-full blur-3xl translate-x-1/4 translate-y-1/4 pointer-events-none" />
 
           <div className="max-w-6xl mx-auto grid md:grid-cols-2 gap-12 items-center">
             <motion.div
@@ -202,7 +202,7 @@ export default function LandingPage() {
             >
               {/* Badge */}
               <motion.div variants={fadeInUp}>
-                <span className="inline-flex items-center gap-2 bg-navy-100 text-navy-700 text-sm font-bold px-4 py-2 rounded-full border border-navy-200">
+                <span className="inline-flex items-center gap-2 bg-teal-100 text-teal-700 text-sm font-bold px-4 py-2 rounded-full border border-teal-200">
                   ✦ For seniors & families who cherish memories
                 </span>
               </motion.div>
@@ -210,7 +210,7 @@ export default function LandingPage() {
               <motion.h1 variants={fadeInUp} className="text-4xl md:text-5xl lg:text-6xl font-bold text-charcoal-900 leading-[1.15]">
                 Preserve your legacy{" "}
                 <br />
-                <span className="text-navy-700 italic">in your own words.</span>
+                <span className="text-teal-700 italic">in your own words.</span>
               </motion.h1>
 
               <motion.p variants={fadeInUp} className="text-xl md:text-2xl text-charcoal-600 leading-relaxed max-w-lg">
@@ -221,13 +221,13 @@ export default function LandingPage() {
                 <button
                   onClick={handleStartJourney}
                   disabled={isRedirecting}
-                  className="min-h-[60px] w-full sm:w-auto px-8 py-3 bg-navy-700 text-white rounded-xl text-lg font-bold shadow-lg hover:bg-navy-800 hover:scale-[1.02] hover:shadow-xl transition-all disabled:opacity-75"
+                  className="min-h-[60px] w-full sm:w-auto px-8 py-3 bg-teal-700 text-white rounded-xl text-lg font-bold shadow-lg hover:bg-teal-800 hover:scale-[1.02] hover:shadow-xl transition-all disabled:opacity-75"
                 >
                   {isRedirecting ? "Preparing..." : "Start preserving memories"}
                 </button>
                 <Link
                   href="/register"
-                  className="min-h-[60px] w-full sm:w-auto px-8 py-3 bg-white border-2 border-pearl-300 text-charcoal-700 rounded-xl text-lg font-bold hover:border-navy-400 hover:text-navy-700 transition-all flex items-center justify-center"
+                  className="min-h-[60px] w-full sm:w-auto px-8 py-3 bg-white border-2 border-pearl-300 text-charcoal-700 rounded-xl text-lg font-bold hover:border-teal-400 hover:text-teal-700 transition-all flex items-center justify-center"
                 >
                   Create free account →
                 </Link>
@@ -241,7 +241,7 @@ export default function LandingPage() {
                   { value: "100%", label: "Free & private" },
                 ].map((stat, i) => (
                   <div key={i}>
-                    <div className="text-2xl font-extrabold text-navy-700">{stat.value}</div>
+                    <div className="text-2xl font-extrabold text-teal-700">{stat.value}</div>
                     <div className="text-sm text-charcoal-500 font-medium">{stat.label}</div>
                   </div>
                 ))}
@@ -304,8 +304,8 @@ export default function LandingPage() {
                   variants={fadeInUp}
                   className="relative z-10 flex flex-col items-center text-center space-y-6 group"
                 >
-                  <div className="w-24 h-24 bg-pearl-100 border-4 border-white rounded-full flex items-center justify-center shadow-md group-hover:bg-navy-50 group-hover:scale-110 transition-all duration-300">
-                    <step.icon className="w-10 h-10 text-navy-700" />
+                  <div className="w-24 h-24 bg-pearl-100 border-4 border-white rounded-full flex items-center justify-center shadow-md group-hover:bg-teal-50 group-hover:scale-110 transition-all duration-300">
+                    <step.icon className="w-10 h-10 text-teal-700" />
                   </div>
                   <h3 className="text-2xl font-bold text-charcoal-900">{step.title}</h3>
                   <p className="text-lg text-charcoal-600 leading-relaxed">{step.desc}</p>
@@ -316,7 +316,7 @@ export default function LandingPage() {
         </section>
 
         {/* ══════════════════════ 3. SOCIAL PROOF ═══════════════════════ */}
-        <section id="testimonials" className="py-24 bg-navy-50/50 px-6">
+        <section id="testimonials" className="py-24 bg-teal-50/50 px-6">
           <motion.div
             initial="hidden"
             whileInView="visible"
@@ -347,9 +347,9 @@ export default function LandingPage() {
                 <motion.div
                   key={i}
                   variants={fadeInUp}
-                  className="bg-white p-10 md:p-12 rounded-3xl shadow-sm border border-pearl-200 relative flex flex-col h-full hover:border-navy-200 hover:shadow-md transition-all duration-300"
+                  className="bg-white p-10 md:p-12 rounded-3xl shadow-sm border border-pearl-200 relative flex flex-col h-full hover:border-teal-200 hover:shadow-md transition-all duration-300"
                 >
-                  <span className="absolute top-6 left-6 text-6xl text-navy-200 font-sans leading-none">"</span>
+                  <span className="absolute top-6 left-6 text-6xl text-teal-200 font-sans leading-none">"</span>
                   <p className="text-lg md:text-xl text-charcoal-700 italic leading-relaxed relative z-10 flex-grow">
                     {t.quote}
                   </p>
@@ -384,14 +384,14 @@ export default function LandingPage() {
               {FAQS.map((faq, index) => (
                 <div
                   key={index}
-                  className="border border-pearl-200 rounded-2xl overflow-hidden transition-all duration-300 hover:border-navy-300 hover:shadow-sm"
+                  className="border border-pearl-200 rounded-2xl overflow-hidden transition-all duration-300 hover:border-teal-300 hover:shadow-sm"
                 >
                   <button
                     onClick={() => setOpenFaq(openFaq === index ? null : index)}
                     className="w-full min-h-[72px] px-6 py-4 flex justify-between items-center text-left bg-white focus:outline-none"
                   >
                     <span className="text-xl font-bold text-charcoal-900">{faq.question}</span>
-                    <ChevronDown className={`w-6 h-6 text-charcoal-400 transition-transform duration-300 shrink-0 ${openFaq === index ? "rotate-180 text-navy-700" : ""}`} />
+                    <ChevronDown className={`w-6 h-6 text-charcoal-400 transition-transform duration-300 shrink-0 ${openFaq === index ? "rotate-180 text-teal-700" : ""}`} />
                   </button>
                   <AnimatePresence>
                     {openFaq === index && (
@@ -416,18 +416,18 @@ export default function LandingPage() {
       </main>
 
       {/* ══════════════════════ 5. FOOTER ══════════════════════════════ */}
-      <footer className="bg-navy-900 text-navy-300 py-16 px-6">
+      <footer className="bg-teal-900 text-teal-300 py-16 px-6">
         <div className="max-w-7xl mx-auto grid md:grid-cols-2 gap-12">
 
           {/* Left Column */}
           <div className="space-y-6">
             <div className="text-3xl font-bold text-white">A Story.</div>
-            <p className="text-lg max-w-sm text-navy-400">
+            <p className="text-lg max-w-sm text-teal-400">
               Preserving memories, strengthening family bonds through every written page.
             </p>
             <button
               onClick={handleStartJourney}
-              className="min-h-[56px] px-8 bg-navy-800 text-white rounded-xl text-lg font-medium hover:bg-navy-700 transition-colors border border-navy-700 flex items-center gap-3 w-fit"
+              className="min-h-[56px] px-8 bg-teal-800 text-white rounded-xl text-lg font-medium hover:bg-teal-700 transition-colors border border-teal-700 flex items-center gap-3 w-fit"
             >
               <Mail className="w-5 h-5" /> Get started today
             </button>
@@ -456,7 +456,7 @@ export default function LandingPage() {
         </div>
 
         {/* Bottom Footer */}
-        <div className="max-w-7xl mx-auto mt-16 pt-8 border-t border-navy-800 text-center text-navy-500 flex flex-col md:flex-row justify-between items-center gap-4">
+        <div className="max-w-7xl mx-auto mt-16 pt-8 border-t border-teal-800 text-center text-teal-500 flex flex-col md:flex-row justify-between items-center gap-4">
           <p>© {new Date().getFullYear()} A Story. All rights reserved.</p>
           <div className="flex gap-6 text-sm">
             <a href="#" className="hover:text-white transition-colors block">Privacy Policy</a>

@@ -126,19 +126,19 @@ export default function ProfileForm() {
     const isSaving = createMutation.isPending || updateMutation.isPending;
 
     const bgHeader = formData.isDeceased ? "bg-stone-50 border-stone-200" : "bg-pearl-100 border-pearl-200";
-    const textIcon = formData.isDeceased ? "text-stone-800" : "text-navy-800";
+    const textIcon = formData.isDeceased ? "text-stone-800" : "text-teal-800";
     const inputClass = formData.isDeceased
         ? "border-stone-300 hover:border-stone-400 focus:border-stone-600 focus:ring-stone-100"
-        : "border-pearl-200 hover:border-navy-300 focus:border-navy-500 focus:ring-navy-100";
+        : "border-pearl-200 hover:border-teal-300 focus:border-teal-500 focus:ring-teal-100";
     const btnClass = formData.isDeceased
         ? (isEditing || isSaving ? "bg-white hover:bg-stone-50 text-stone-800 border-stone-400 shadow-sm" : "bg-white text-stone-700 border-stone-200 hover:bg-stone-50")
-        : (isEditing || isSaving ? "bg-white hover:bg-navy-50 text-navy-700 border-navy-500 shadow-sm" : "bg-white text-navy-700 border-pearl-200 hover:bg-navy-50 hover:border-navy-300");
+        : (isEditing || isSaving ? "bg-white hover:bg-teal-50 text-teal-700 border-teal-500 shadow-sm" : "bg-white text-teal-700 border-pearl-200 hover:bg-teal-50 hover:border-teal-300");
 
     return (
         <div className="max-w-3xl mx-auto space-y-8 pb-20 relative">
 
             {toastMsg && (
-                <div className={`fixed top-4 right-4 z-50 px-5 py-3 rounded-xl shadow-lg border-2 font-bold text-base flex items-center gap-3 animate-in fade-in slide-in-from-top-4 ${toastMsg.type === 'success' ? 'bg-navy-50 text-navy-800 border-navy-200' : 'bg-red-50 text-red-800 border-red-200'}`}>
+                <div className={`fixed top-4 right-4 z-50 px-5 py-3 rounded-xl shadow-lg border-2 font-bold text-base flex items-center gap-3 animate-in fade-in slide-in-from-top-4 ${toastMsg.type === 'success' ? 'bg-teal-50 text-teal-800 border-teal-200' : 'bg-red-50 text-red-800 border-red-200'}`}>
                     {toastMsg.type === 'success' ? <CheckCircle2 className="w-5 h-5" /> : <AlertTriangle className="w-5 h-5" />}
                     {toastMsg.text}
                 </div>
@@ -198,7 +198,7 @@ export default function ProfileForm() {
             ) : (
                 <div className="bg-white rounded-[30px] shadow-sm border border-pearl-200 overflow-hidden">
                     <div className={`bg-pearl-50 px-6 py-6 border-b border-pearl-200 flex flex-col md:flex-row items-center md:items-start gap-5`}>
-                        <div className={`w-20 h-20 ${formData.isDeceased ? 'bg-stone-200' : 'bg-navy-50'} border-4 border-white shadow-sm rounded-full flex items-center justify-center shrink-0`}>
+                        <div className={`w-20 h-20 ${formData.isDeceased ? 'bg-stone-200' : 'bg-teal-50'} border-4 border-white shadow-sm rounded-full flex items-center justify-center shrink-0`}>
                             <User className={`w-10 h-10 ${textIcon}`} />
                         </div>
                         <div className="text-center md:text-left w-full space-y-1.5 pt-1">
@@ -223,7 +223,7 @@ export default function ProfileForm() {
                                         <span className="ms-3 text-base font-bold text-charcoal-700">{formData.isDeceased ? t("profile.statusDeceased") : t("profile.statusAlive")}</span>
                                     </label>
                                 ) : (
-                                    <div className={`inline-flex items-center gap-1 px-3 py-1 rounded-lg text-sm font-bold shadow-sm border ${formData.isDeceased ? "bg-stone-100 text-stone-700 border-stone-200" : "bg-navy-50 text-navy-700 border-navy-200"}`}>
+                                    <div className={`inline-flex items-center gap-1 px-3 py-1 rounded-lg text-sm font-bold shadow-sm border ${formData.isDeceased ? "bg-stone-100 text-stone-700 border-stone-200" : "bg-teal-50 text-teal-700 border-teal-200"}`}>
                                         {formData.isDeceased ? <HeartCrack className="w-3.5 h-3.5" /> : <Activity className="w-3.5 h-3.5" />}
                                         {formData.isDeceased ? t("profile.statusDeceased") : t("profile.statusAlive")}
                                     </div>

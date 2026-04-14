@@ -188,7 +188,7 @@ export default function EditStoryPage({ params }: { params: Promise<{ id: string
     return (
       <MainLayout>
         <div className="max-w-3xl mx-auto flex flex-col items-center justify-center min-h-[60vh] space-y-4">
-          <Loader2 className="w-10 h-10 text-navy-700 animate-spin" />
+          <Loader2 className="w-10 h-10 text-teal-700 animate-spin" />
           <p className="text-lg text-charcoal-700 font-medium">Đang tìm lại kỷ niệm cũ...</p>
         </div>
       </MainLayout>
@@ -201,7 +201,7 @@ export default function EditStoryPage({ params }: { params: Promise<{ id: string
         <div className="max-w-3xl mx-auto flex flex-col items-center justify-center min-h-[60vh] space-y-4">
           <AlertCircle className="w-10 h-10 text-red-500" />
           <p className="text-lg text-charcoal-700 font-medium">Không thể tải nội dung câu chuyện.</p>
-          <button onClick={() => router.back()} className="px-6 py-2.5 bg-navy-700 text-white rounded-xl font-bold">
+          <button onClick={() => router.back()} className="px-6 py-2.5 bg-teal-700 text-white rounded-xl font-bold">
             Quay lại
           </button>
         </div>
@@ -216,15 +216,15 @@ export default function EditStoryPage({ params }: { params: Promise<{ id: string
       <div className="max-w-3xl mx-auto space-y-8 pb-20">
 
         {/* ═══ HEADER BANNER ═══════════════════════════════════════════ */}
-        <div className="bg-navy-50 border border-navy-100 rounded-3xl p-6 md:p-8 shadow-sm flex flex-col sm:flex-row sm:items-center justify-between gap-6 relative overflow-hidden">
+        <div className="bg-teal-50 border border-teal-100 rounded-3xl p-6 md:p-8 shadow-sm flex flex-col sm:flex-row sm:items-center justify-between gap-6 relative overflow-hidden">
           <div className="absolute top-0 right-0 p-4 opacity-10 pointer-events-none">
-            <PenTool className="w-32 h-32 text-navy-800" aria-hidden="true" />
+            <PenTool className="w-32 h-32 text-teal-800" aria-hidden="true" />
           </div>
 
           <div className="relative z-10 space-y-3">
             <button
               onClick={() => router.back()}
-              className="flex items-center gap-2 text-navy-800 hover:text-navy-900 transition-colors font-bold text-lg w-fit bg-white/60 px-4 py-2 rounded-xl"
+              className="flex items-center gap-2 text-teal-800 hover:text-teal-900 transition-colors font-bold text-lg w-fit bg-white/60 px-4 py-2 rounded-xl"
               aria-label="Quay lại"
             >
               <ArrowLeft className="w-6 h-6" />
@@ -240,8 +240,8 @@ export default function EditStoryPage({ params }: { params: Promise<{ id: string
             disabled={isSaving || showSuccess}
             className={`relative z-10 flex items-center justify-center gap-2 min-h-[56px] px-8 py-3 rounded-xl text-xl font-bold transition-all shadow-md shrink-0 ${
               showSuccess
-                ? "bg-navy-100 text-navy-800 border-2 border-navy-300"
-                : "bg-navy-700 text-white hover:bg-navy-800 disabled:opacity-50 disabled:cursor-not-allowed"
+                ? "bg-teal-100 text-teal-800 border-2 border-teal-300"
+                : "bg-teal-700 text-white hover:bg-teal-800 disabled:opacity-50 disabled:cursor-not-allowed"
             }`}
             aria-live="polite"
           >
@@ -325,7 +325,7 @@ export default function EditStoryPage({ params }: { params: Promise<{ id: string
             <button
               onClick={() => fileInputRef.current?.click()}
               disabled={isUploading}
-              className={`flex items-center gap-3 min-h-[64px] px-6 py-4 bg-pearl-50 hover:bg-navy-50 text-charcoal-700 hover:text-navy-800 border-2 border-dashed border-pearl-300 hover:border-navy-300 rounded-2xl text-lg font-bold transition-colors w-full sm:w-auto justify-center shadow-sm ${isUploading ? 'opacity-50 cursor-not-allowed' : ''}`}
+              className={`flex items-center gap-3 min-h-[64px] px-6 py-4 bg-pearl-50 hover:bg-teal-50 text-charcoal-700 hover:text-teal-800 border-2 border-dashed border-pearl-300 hover:border-teal-300 rounded-2xl text-lg font-bold transition-colors w-full sm:w-auto justify-center shadow-sm ${isUploading ? 'opacity-50 cursor-not-allowed' : ''}`}
             >
               {isUploading ? <Loader2 className="w-8 h-8 animate-spin" /> : <ImageIcon className="w-8 h-8" />}
               <span>{isUploading ? 'Đang tải ảnh...' : 'Thêm hoặc thay đổi ảnh (Tuỳ chọn)'}</span>
@@ -337,19 +337,19 @@ export default function EditStoryPage({ params }: { params: Promise<{ id: string
         </div>
 
         {/* ═══ GÓC GỢI Ý ════════════════════════════════════════════════ */}
-        <div className="bg-gold-200/30 border-2 border-gold-400/40 rounded-3xl p-6 md:p-8 flex items-start gap-4 md:gap-6 shadow-sm">
-          <div className="bg-gold-200 p-3 rounded-full shrink-0 shadow-sm border border-gold-400/30">
-            <Lightbulb className="w-8 h-8 md:w-10 md:h-10 text-gold-600" />
+        <div className="bg-bronze-200/30 border-2 border-bronze-400/40 rounded-3xl p-6 md:p-8 flex items-start gap-4 md:gap-6 shadow-sm">
+          <div className="bg-bronze-200 p-3 rounded-full shrink-0 shadow-sm border border-bronze-400/30">
+            <Lightbulb className="w-8 h-8 md:w-10 md:h-10 text-bronze-600" />
           </div>
           <div className="flex-1">
-            <h3 className="text-xl md:text-2xl font-bold text-gold-600 mb-3">Góc gợi ý kỷ niệm</h3>
+            <h3 className="text-xl md:text-2xl font-bold text-bronze-600 mb-3">Góc gợi ý kỷ niệm</h3>
             <p className="text-base text-charcoal-700 font-medium mb-4">
               Nếu bạn chưa nhớ ra điều gì để viết, hãy thử nhớ lại:
             </p>
             <ul className="space-y-3">
               {writingPrompts.map((prompt, index) => (
-                <li key={index} className="flex items-start gap-3 bg-white/60 p-3 rounded-xl border border-gold-400/20">
-                  <div className="font-bold text-lg text-gold-500 mt-0.5">•</div>
+                <li key={index} className="flex items-start gap-3 bg-white/60 p-3 rounded-xl border border-bronze-400/20">
+                  <div className="font-bold text-lg text-bronze-500 mt-0.5">•</div>
                   <p className="text-base text-charcoal-800 font-medium leading-relaxed">{prompt}</p>
                 </li>
               ))}

@@ -53,7 +53,7 @@ export default function ContactList() {
             {/* TOAST NOTIFICATION */}
             {toast && (
                 <div className={`fixed top-4 right-4 z-50 px-5 py-3 rounded-xl shadow-lg border-2 font-bold text-base flex items-center gap-3 animate-in fade-in slide-in-from-top-4 duration-300 ${toast.type === 'success'
-                    ? 'bg-navy-50 text-navy-800 border-navy-200'
+                    ? 'bg-teal-50 text-teal-800 border-teal-200'
                     : 'bg-red-50 text-red-800 border-red-200'
                     }`}>
                     {toast.type === 'success'
@@ -64,23 +64,23 @@ export default function ContactList() {
             )}
 
             {/* HEADER BANNER */}
-            <div className="bg-navy-50 border border-navy-100 rounded-[30px] p-6 md:p-8 shadow-sm flex flex-col sm:flex-row sm:items-center justify-between gap-6 relative overflow-hidden">
+            <div className="bg-teal-50 border border-teal-100 rounded-[30px] p-6 md:p-8 shadow-sm flex flex-col sm:flex-row sm:items-center justify-between gap-6 relative overflow-hidden">
                 <div className="absolute top-0 right-0 p-4 opacity-10 pointer-events-none">
-                    <Users className="w-32 h-32 text-navy-800" aria-hidden="true" />
+                    <Users className="w-32 h-32 text-teal-800" aria-hidden="true" />
                 </div>
 
                 <div className="relative z-10 space-y-2">
-                    <h1 className="text-2xl md:text-3xl font-extrabold text-navy-900 tracking-tight">
+                    <h1 className="text-2xl md:text-3xl font-extrabold text-teal-900 tracking-tight">
                         {t("contacts.headerTitle")}
                     </h1>
-                    <p className="text-navy-800 text-lg font-medium">
+                    <p className="text-teal-800 text-lg font-medium">
                         {t("contacts.headerSubtitle")}
                     </p>
                 </div>
 
                 <Link
                     href="/contacts/add"
-                    className="relative z-10 flex items-center justify-center gap-3 min-h-[56px] px-8 py-3 bg-white hover:bg-navy-50 text-navy-700 border-2 border-navy-500 rounded-xl shadow-sm transition-all font-bold text-xl shrink-0"
+                    className="relative z-10 flex items-center justify-center gap-3 min-h-[56px] px-8 py-3 bg-white hover:bg-teal-50 text-teal-700 border-2 border-teal-500 rounded-xl shadow-sm transition-all font-bold text-xl shrink-0"
                 >
                     <UserPlus className="w-6 h-6" aria-hidden="true" />
                     <span>{t("contacts.addButton")}</span>
@@ -97,7 +97,7 @@ export default function ContactList() {
 
             {/* LOADING & DATA GRID */}
             {isLoading ? (
-                <div className="flex flex-col items-center justify-center py-20 gap-4 text-navy-700">
+                <div className="flex flex-col items-center justify-center py-20 gap-4 text-teal-700">
                     <Loader2 className="w-12 h-12 animate-spin" aria-hidden="true" />
                     <p className="text-xl font-bold">{t("contacts.loading")}</p>
                 </div>
@@ -106,13 +106,13 @@ export default function ContactList() {
                     {contacts.length === 0 ? (
                         <div className="text-center p-12 bg-white rounded-[30px] shadow-sm border border-pearl-200">
                             <div className="w-20 h-20 bg-pearl-50 rounded-full flex items-center justify-center mx-auto mb-6">
-                                <Users className="w-10 h-10 text-navy-700" aria-hidden="true" />
+                                <Users className="w-10 h-10 text-teal-700" aria-hidden="true" />
                             </div>
                             <p className="text-xl text-charcoal-900 font-bold mb-3">{t("contacts.emptyTitle")}</p>
                             <p className="text-lg text-charcoal-600 mb-8 font-medium">{t("contacts.emptySubtitle")}</p>
                             <Link
                                 href="/contacts/add"
-                                className="inline-flex items-center gap-2 text-xl font-bold text-navy-800 hover:text-navy-900 underline"
+                                className="inline-flex items-center gap-2 text-xl font-bold text-teal-800 hover:text-teal-900 underline"
                             >
                                 {t("contacts.addFirstLink")}
                             </Link>
@@ -131,7 +131,7 @@ export default function ContactList() {
                                                 {displayName}
                                             </h2>
                                             {contact.name && (
-                                                <span className="inline-flex items-center gap-2 text-lg text-navy-800 font-bold bg-navy-50 border border-navy-100 px-3 py-1 rounded-xl w-fit mt-2 shadow-sm">
+                                                <span className="inline-flex items-center gap-2 text-lg text-teal-800 font-bold bg-teal-50 border border-teal-100 px-3 py-1 rounded-xl w-fit mt-2 shadow-sm">
                                                     {contact.icon ? (
                                                         <span className="text-xl leading-none" aria-hidden="true">{contact.icon}</span>
                                                     ) : (
@@ -160,7 +160,7 @@ export default function ContactList() {
                                         <div className="grid grid-cols-2 gap-4 pt-4 mt-auto border-t border-pearl-100">
                                             <Link
                                                 href={`/contacts/${contact.id}/edit`}
-                                                className="flex items-center justify-center gap-2 min-h-[48px] bg-pearl-50 hover:bg-navy-50 text-charcoal-800 hover:text-navy-800 text-lg font-bold rounded-xl transition-colors border border-pearl-200 hover:border-navy-200 shadow-sm"
+                                                className="flex items-center justify-center gap-2 min-h-[48px] bg-pearl-50 hover:bg-teal-50 text-charcoal-800 hover:text-teal-800 text-lg font-bold rounded-xl transition-colors border border-pearl-200 hover:border-teal-200 shadow-sm"
                                             >
                                                 <Edit className="w-5 h-5" aria-hidden="true" />
                                                 {t("contacts.editButton")}
